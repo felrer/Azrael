@@ -5624,6 +5624,34 @@ async fn reconciliation_reuses_connection_without_relisting_regular_tools() -> a
 }
 
 #[tokio::test]
+async fn excluding_reconnect_servers_preserves_other_connections_and_existing_bindings() {
+    let runtime_context = reusable_server_runtime_context();
+    let config = reusable_server_config("http://127.0.0.1:1");
+    let mut previous = manager_with_reusable_ready_server(
+        &config,
+        &runtime_context,
+        vec![create_test_tool("docs", "search")],
+    )
+    .await;
+    previous
+        .servers
+        .insert("other".to_string(), previous.servers["docs"].clone());
+
+    let filtered = previous.without_servers(&HashSet::from(["docs".to_string()]));
+
+    assert!(!filtered.servers.contains_key("docs"));
+    assert!(previous.shares_test_connection_with(&filtered, "other"));
+    assert!(previous.servers.contains_key("docs"));
+    assert!(
+        !previous.servers["docs"]
+            .connection
+            .client
+            .cancel_token
+            .is_cancelled()
+    );
+}
+
+#[tokio::test]
 async fn reconciliation_reuses_an_unchanged_ready_server() {
     let runtime_context = reusable_server_runtime_context();
     let config = reusable_server_config("http://127.0.0.1:1");

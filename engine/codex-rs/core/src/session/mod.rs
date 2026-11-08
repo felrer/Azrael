@@ -259,6 +259,7 @@ mod input_queue;
 mod mcp;
 mod mcp_prewarm;
 mod mcp_refresh;
+mod mcp_reload;
 mod mcp_runtime;
 pub(crate) mod multi_agents;
 mod plugin_selection;

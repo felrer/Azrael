@@ -111,6 +111,7 @@ enum VerifiedAccessSource {
 
 /// Fetches account-bound verified access for trusted, host-owned MCP metadata.
 /// Callers must authorize the receiving plugin and tool before attaching it.
+#[derive(Clone)]
 pub struct TrustedAccessContext {
     auth: CodexAuth,
     auth_manager: Arc<AuthManager>,

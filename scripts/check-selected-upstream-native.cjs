@@ -2,11 +2,28 @@
 
 const path = require("node:path");
 const fs = require("node:fs");
-const { runCargoTest } = require("./cargo-verification.cjs");
+const { runCargoTest, buildCargoTestCommand, runManagedCargoSync } = require("./cargo-verification.cjs");
 
 // Each filter executes product behavior. Platform-only cases remain explicit;
 // a Windows result does not accept Seatbelt, native macOS aliases or bubblewrap.
 const suites = {
+  "mcp-reload-state": [
+    ["codex-config", "--lib", "reload_local_mcp_servers"],
+    ["codex-features", "--lib", "incremental_tools_are_stable"],
+    ["codex-mcp", "--lib", "cancelled_reconnect_restores_claimed_servers"],
+    ["codex-mcp", "--lib", "excluding_reconnect_servers"],
+    ["codex-core", "--lib", "reload_mcp_servers_handler"],
+    ["codex-core", "--lib", "tools::spec_plan::tests::allowed_tools_filter_sources_before_code_mode_and_discovery"],
+    ["codex-core", "--lib", "tools::spec_plan::tests::api_tool_free_model_closes_catalog_and_native_dispatch_registry"],
+    ["codex-core", "--lib", "tools::spec_plan::tests::mcp_and_tool_search_follow_direct_and_deferred_tool_exposure"],
+    ["codex-core", "--lib", "ignore_user_config_keeps_empty_user_layer"],
+    ["codex-core", "--lib", "context::world_state::top_level_tools"],
+  ],
+  "mcp-reload-integration": [
+    ["codex-core", "--test", "all", "suite::mcp_reload_tool::"],
+    ["codex-core", "--test", "all", "suite::scenarios::incremental_tools::"],
+    ["codex-core", "--test", "all", "suite::scenarios::incremental_tools_resume::"],
+  ],
   "reasoning-effort-default": [["codex-features", "--lib", ""]],
   "auth-decrypted-cache": [
     ["codex-secrets", "--lib", "local::"],
@@ -97,6 +114,19 @@ function main(args = process.argv.slice(2)) {
     throw new Error(`Usage: check-selected-upstream-native.cjs <absolute frozen engine root> <${Object.keys(suites).join("|")}> [absolute engine runtime directory for Code Mode suites]`);
   }
   const env = { ...process.env };
+  if (suite === "mcp-reload-integration") {
+    const fixture = buildCargoTestCommand(sourceRoot,
+      ["test", "-p", "codex-rmcp-client", "--bin", "test_stdio_server", "--locked", "--offline"],
+      { env, isolateHostEnvironment: true });
+    fixture.args[0] = "build";
+    const prepared = runManagedCargoSync(fixture);
+    if (prepared.stdout) process.stdout.write(prepared.stdout);
+    if (prepared.stderr) process.stderr.write(prepared.stderr);
+    if (prepared.error) throw prepared.error;
+    if (prepared.status !== 0 || prepared.signal) {
+      throw Error(`MCP fixture preparation failed (exit ${prepared.status}, signal ${prepared.signal})`);
+    }
+  }
   if (needsHost) {
     const host = fs.realpathSync.native(path.join(runtimeDirectory, process.platform === "win32" ? "azrael-code-mode-host.exe" : "azrael-code-mode-host"));
     if (!fs.statSync(host).isFile()) throw new Error("Code Mode integration requires the selected runtime host");

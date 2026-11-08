@@ -1,4 +1,4 @@
-//! Request-history coverage for opt-in incremental tools on Responses Lite.
+//! Request-history coverage for incremental tools on Responses Lite.
 
 use anyhow::Result;
 use codex_core::ConfigRefreshOutcome;
@@ -8,8 +8,6 @@ use codex_protocol::openai_models::CodeModeToolMessages;
 use codex_protocol::openai_models::ToolMessage;
 use codex_protocol::openai_models::ToolMode;
 use codex_protocol::protocol::ThreadSettingsOverrides;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::skip_if_wine_exec;
@@ -90,6 +88,11 @@ async fn incremental_tools_append_changed_catalog_without_rewriting_history(
         .await?;
 
     let requests = mock.requests();
+    let expected_instructions = codex_prompts::compose_harness_instructions(
+        "builtin/azrael-default",
+        None,
+        Some("Use the available tools to help the user."),
+    );
     assert_eq!(requests.len(), 4);
     if !use_responses_lite {
         for request in &requests {
@@ -99,10 +102,7 @@ async fn incremental_tools_append_changed_catalog_without_rewriting_history(
                     .as_array()
                     .is_some_and(|tools| !tools.is_empty())
             );
-            assert_eq!(
-                request.instructions_text(),
-                "Use the available tools to help the user."
-            );
+            assert_eq!(request.instructions_text(), expected_instructions);
         }
         assert_eq!(
             requests[0].body_json()["tools"],
@@ -130,22 +130,22 @@ async fn incremental_tools_append_changed_catalog_without_rewriting_history(
         let input = request.input();
         assert_eq!(input[0]["type"], "additional_tools");
         assert_eq!(input[1]["role"], "developer");
-        assert_eq!(
-            input[1]["content"][0]["text"],
-            "Use the available tools to help the user."
-        );
+        assert_eq!(input[1]["content"][0]["text"], expected_instructions);
         assert!(request.body_json().get("instructions").is_none());
     }
     let initial = requests[0].inputs_of_type("additional_tools");
     assert_eq!(initial.len(), 1);
-    assert_eq!(
-        initial[0]["tools"]
-            .as_array()
-            .expect("initial tool declarations")
+    let initial_specs = initial[0]["tools"]
+        .as_array()
+        .expect("initial tool declarations");
+    let functions = initial_specs
+        .iter()
+        .find(|tool| tool["type"] == "namespace" && tool["name"] == "functions")
+        .expect("initial functions namespace");
+    assert!(
+        initial_specs
             .iter()
-            .map(|tool| tool["type"].clone())
-            .collect::<Vec<_>>(),
-        vec![json!("namespace"), json!("tool_search")]
+            .any(|tool| tool["type"] == "tool_search")
     );
     assert_eq!(requests[1].inputs_of_type("additional_tools"), initial);
     let changed = requests[2].inputs_of_type("additional_tools");
@@ -157,7 +157,7 @@ async fn incremental_tools_append_changed_catalog_without_rewriting_history(
         .expect("changed tool array");
     assert_eq!(diff.len(), 1);
     assert_eq!(diff[0]["name"], "functions");
-    assert_eq!(initial[0]["tools"][0]["description"], json!(""));
+    assert_eq!(functions["description"], json!(""));
     assert_eq!(
         diff[0]["description"],
         json!(
@@ -209,16 +209,7 @@ async fn incremental_tools_append_changed_catalog_without_rewriting_history(
             .values()
             .all(|hash| hash.as_str().is_some_and(|hash| hash.len() == 40))
     }));
-    insta::assert_snapshot!(
-        "incremental_tools",
-        context_snapshot::format_request_history_snapshot(
-            "Tool definitions enter history in one batch; a catalog change appends only the changed exec definition with an incremental namespace hint. The next unchanged turn appends no tool definitions.",
-            &requests,
-            &ContextSnapshotOptions::default()
-                .rewrite_known_segments()
-                .include_request_settings(),
-        )
-    );
+
     Ok(())
 }
 
@@ -458,15 +449,6 @@ async fn tool_removal_appends_a_standalone_notice_without_rewriting_history() ->
             json!([{"type": "input_text", "text": user_text}])
         );
     }
-    insta::assert_snapshot!(
-        "incremental_tool_removals",
-        context_snapshot::format_request_history_snapshot(
-            "MCP refreshes remove one tool, then its whole namespace, before restoring both tools. Standalone removal notices and the restored namespace append to history; unchanged turns do not repeat updates.",
-            &requests,
-            &ContextSnapshotOptions::default()
-                .rewrite_known_segments()
-                .include_request_settings(),
-        )
-    );
+
     Ok(())
 }

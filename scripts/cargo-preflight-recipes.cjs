@@ -16,7 +16,7 @@ const wrapperHashes = Object.freeze({
   'check-executor-completion': 'fbba5203634989dcdd30802d2f58af11418b8f32d9b8613ef05cbf7f80a28c09',
   'check-deletion-approval-native': '139f05599adda7215de9fd9c67a986803fc08a7b081dc9fc3184441ac8631829',
   'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
-  'check-selected-upstream-native': '4612cd5d7188dc218d54537adafc9e5bcf1753c273e4ed3196960954cf9771a9',
+  'check-selected-upstream-native': '1595fc0409f3ec15be1330f7330cd305ca65db8c625ce15147735199ea7778de',
   'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
   'check-model-harness-profiles': 'c4f2c63c2034e2ee134431573739132a16d550a7a1e097a7bac256b01b3a24fa',
@@ -90,6 +90,23 @@ function reviewedRecipes(wrapper, tail, platform) {
       const needsHost = ['core-integration', 'code-mode-trace'].includes(scope);
       if (extra.length || (needsHost ? !runtime : tail.length !== 1)) break;
       const choices = {
+        'mcp-reload-state': [
+          ['codex-config', '--lib', 'reload_local_mcp_servers'],
+          ['codex-features', '--lib', 'incremental_tools_are_stable'],
+          ['codex-mcp', '--lib', 'cancelled_reconnect_restores_claimed_servers'],
+          ['codex-mcp', '--lib', 'excluding_reconnect_servers'],
+          ['codex-core', '--lib', 'reload_mcp_servers_handler'],
+          ['codex-core', '--lib', 'tools::spec_plan::tests::allowed_tools_filter_sources_before_code_mode_and_discovery'],
+          ['codex-core', '--lib', 'tools::spec_plan::tests::api_tool_free_model_closes_catalog_and_native_dispatch_registry'],
+          ['codex-core', '--lib', 'tools::spec_plan::tests::mcp_and_tool_search_follow_direct_and_deferred_tool_exposure'],
+          ['codex-core', '--lib', 'ignore_user_config_keeps_empty_user_layer'],
+          ['codex-core', '--lib', 'context::world_state::top_level_tools'],
+        ],
+        'mcp-reload-integration': [
+          ['codex-core', '--test', 'all', 'suite::mcp_reload_tool::'],
+          ['codex-core', '--test', 'all', 'suite::scenarios::incremental_tools::'],
+          ['codex-core', '--test', 'all', 'suite::scenarios::incremental_tools_resume::'],
+        ],
         'reasoning-effort-default': [['codex-features', '--lib', '']],
         'auth-decrypted-cache': [['codex-secrets', '--lib', 'local::'], ['codex-secrets', '--lib', 'tests::manager_round_trips_local_backend'], ['codex-login', '--lib', 'auth::storage::tests::policy']],
         'catalog-retention': [['codex-models-manager', '--lib', ''], ['codex-model-provider', '--lib', 'shared_state::tests::'], ['codex-protocol', '--lib', 'error::'], ['codex-prompts', '--lib', 'model_instructions'], ['codex-core', '--lib', 'model_resolution_preserves_startup_overrides_and_instruction_provenance']],

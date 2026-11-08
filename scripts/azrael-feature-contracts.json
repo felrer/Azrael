@@ -12,6 +12,56 @@
   },
   "features": [
     {
+      "id": "tool.mcp-reload",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/config/src/state.rs",
+        "engine/codex-rs/config/src/state_tests.rs",
+        "engine/codex-rs/config/src/loader/mod.rs",
+        "engine/codex-rs/codex-mcp/src/runtime.rs",
+        "engine/codex-rs/codex-mcp/src/connection_manager.rs",
+        "engine/codex-rs/codex-mcp/src/connection_manager_tests.rs",
+        "engine/codex-rs/core/src/session/mcp_reload.rs",
+        "engine/codex-rs/core/src/tools/handlers/reload_mcp_servers.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/session/step_context.rs",
+        "engine/codex-rs/core/src/context/world_state/top_level_tools.rs",
+        "engine/codex-rs/features/src/lib.rs",
+        "engine/codex-rs/features/src/tests.rs",
+        "engine/codex-rs/core/tests/suite/mcp_reload_tool.rs",
+        "engine/codex-rs/core/tests/suite/scenarios_incremental_tools.rs",
+        "engine/codex-rs/core/tests/suite/scenarios_incremental_tools_resume.rs",
+        "scripts/check-selected-upstream-native.cjs",
+        "engine/codex-rs/codex-mcp/src/trusted_access.rs"
+      ],
+      "contract": "docs/architecture/mcp-reload.md",
+      "checks": [
+        {
+          "id": "tool.mcp-reload.state",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "mcp-reload-state"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "tool.mcp-reload.integration",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "mcp-reload-integration"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "agent.image-attachments",
       "area": "engine",
       "owners": [

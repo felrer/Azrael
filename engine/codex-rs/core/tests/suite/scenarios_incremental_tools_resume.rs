@@ -6,13 +6,12 @@ use codex_login::CodexAuth;
 use codex_protocol::openai_models::ToolMode;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::TestCodexBuilder;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
 
@@ -119,20 +118,54 @@ async fn legacy_resume_switches_only_after_window_replacement(token_budget: bool
         .await?;
     changed.submit_turn("Continue with the same tools.").await?;
     let requests = mock.requests();
-    insta::assert_snapshot!(
-        if token_budget {
-            "legacy_resume_window_reset"
-        } else {
-            "legacy_resume_remote_compaction"
-        },
-        context_snapshot::format_request_history_snapshot(
-            "A resumed legacy window retains its generated prefix; the next window records tools and instructions once, then emits only tool changes after resume.",
-            &requests,
-            &ContextSnapshotOptions::default()
-                .rewrite_known_segments()
-                .include_request_settings(),
-        )
+    assert_eq!(requests.len(), if token_budget { 6 } else { 7 });
+    assert!(requests[1].input().starts_with(&requests[0].input()));
+    assert_eq!(
+        requests[1].inputs_of_type("additional_tools"),
+        requests[0].inputs_of_type("additional_tools"),
+        "enabling the feature on resume must preserve the legacy prefix"
     );
+    let next_window = if token_budget { 2 } else { 3 };
+    let fresh = &requests[next_window];
+    let resumed = &requests[next_window + 1];
+    let changed = &requests[next_window + 2];
+    let unchanged = &requests[next_window + 3];
+    let initial_tools = fresh.inputs_of_type("additional_tools");
+    assert_eq!(
+        initial_tools.len(),
+        1,
+        "new windows start with a full catalog"
+    );
+    assert_eq!(
+        initial_tools[0]["tools"],
+        requests[0].inputs_of_type("additional_tools")[0]["tools"],
+        "unchanged tool definitions survive window replacement"
+    );
+    assert!(resumed.input().starts_with(&fresh.input()));
+    assert_eq!(resumed.inputs_of_type("additional_tools"), initial_tools);
+    assert!(changed.input().starts_with(&resumed.input()));
+    let updates = changed.inputs_of_type("additional_tools");
+    assert_eq!(updates.len(), initial_tools.len() + 1);
+    assert!(updates.starts_with(&initial_tools));
+    let namespaces = updates.last().expect("planning update")["tools"]
+        .as_array()
+        .expect("updated namespaces");
+    assert_eq!(namespaces.len(), 1);
+    assert_eq!(namespaces[0]["name"], "functions");
+    let functions = namespaces[0]["tools"]
+        .as_array()
+        .expect("updated functions");
+    assert_eq!(functions.len(), 1);
+    assert_eq!(functions[0]["name"], "update_plan");
+    let changed_input = changed.input();
+    let suffix = &changed_input[resumed.input().len()..];
+    let notices = serde_json::to_string(suffix)?;
+    assert!(notices.contains("The following tools are no longer available"));
+    assert!(notices.contains("functions.exec_command"));
+    assert!(notices.contains("functions.write_stdin"));
+    assert!(unchanged.input().starts_with(&changed_input));
+    assert_eq!(unchanged.inputs_of_type("additional_tools"), updates);
+
     Ok(())
 }
 
@@ -188,15 +221,28 @@ async fn disable_incremental_tools_at_next_window() -> Result<()> {
         .restart_with_auto_env(&server, &disabled)
         .await?;
     resumed.submit_turn("Resume with the same tools.").await?;
-    insta::assert_snapshot!(
-        "disable_incremental_tools",
-        context_snapshot::format_request_history_snapshot(
-            "Disabling incremental tools preserves updates in the existing window; after compaction the generated catalog survives resume.",
-            &mock.requests(),
-            &ContextSnapshotOptions::default()
-                .rewrite_known_segments()
-                .include_request_settings(),
-        )
+    let requests = mock.requests();
+    assert_eq!(requests.len(), 5);
+    assert!(requests[1].input().starts_with(&requests[0].input()));
+    assert_eq!(
+        requests[1].inputs_of_type("additional_tools"),
+        requests[0].inputs_of_type("additional_tools"),
+        "disabling the feature must preserve the existing window's declarations"
     );
+    let old_input = requests[0].input();
+    let updated_input = requests[1].input();
+    let notices = serde_json::to_string(&updated_input[old_input.len()..])?;
+    assert!(notices.contains("The following tools are no longer available"));
+    assert!(notices.contains("functions.exec_command"));
+    assert!(notices.contains("functions.write_stdin"));
+    let fresh_tools = requests[3].inputs_of_type("additional_tools");
+    assert_eq!(fresh_tools.len(), 1);
+    let catalog = serde_json::to_string(&fresh_tools)?;
+    assert!(!catalog.contains("exec_command"));
+    assert!(!catalog.contains("write_stdin"));
+    assert!(catalog.contains("reload_mcp_servers"));
+    assert!(requests[4].input().starts_with(&requests[3].input()));
+    assert_eq!(requests[4].inputs_of_type("additional_tools"), fresh_tools);
+
     Ok(())
 }

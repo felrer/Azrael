@@ -299,6 +299,52 @@ impl PartialEq for ConfigLayerStack {
 }
 
 impl ConfigLayerStack {
+    /// Reload only MCP declarations from already admitted local user/project layers.
+    /// Retain profiles, disabled-layer trust, session overrides and managed policy.
+    pub fn reload_local_mcp_servers(&self) -> std::io::Result<Self> {
+        let mut next = self.clone();
+        for layer in &mut next.layers {
+            if layer.is_disabled() {
+                continue;
+            }
+            let file = match &layer.name {
+                ConfigLayerSource::User { file, .. } => file.clone(),
+                ConfigLayerSource::Project { dot_codex_folder } => {
+                    dot_codex_folder.join(CONFIG_TOML_FILE)
+                }
+                _ => continue,
+            };
+            let raw = match std::fs::read_to_string(&file) {
+                Ok(raw) => raw,
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => String::new(),
+                Err(error) => return Err(error),
+            };
+            let parsed: TomlValue = toml::from_str(&raw)
+                .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+            let base = file.parent().ok_or_else(|| {
+                std::io::Error::other("MCP configuration file has no parent directory")
+            })?;
+            let parsed = crate::loader::resolve_relative_paths_in_config_toml(parsed, &base)?;
+            let table = layer
+                .config
+                .as_table_mut()
+                .ok_or_else(|| std::io::Error::other("MCP configuration layer must be a table"))?;
+            match parsed.get("mcp_servers") {
+                Some(servers) => {
+                    table.insert("mcp_servers".into(), servers.clone());
+                }
+                None => {
+                    table.remove("mcp_servers");
+                }
+            }
+            layer.version = version_for_toml(&layer.config);
+            // The retained raw document no longer describes this materialized snapshot.
+            layer.raw_toml = None;
+        }
+        validate_enabled_config_layers(&next.layers)?;
+        Ok(next)
+    }
+
     /// Adds a validated turn contribution while preserving requirements and source metadata.
     /// The caller owns the allowlist; this never changes the original stack.
     pub fn with_session_overlay(&self, overlay: TomlValue) -> Self {

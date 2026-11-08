@@ -104,6 +104,7 @@ pub struct McpRuntime {
     current: ArcSwap<PublishedMcpRuntime>,
     event_stream_cancellation: Mutex<EventStreamCancellation>,
     reconnect_pending: AtomicBool,
+    reconnect_servers_pending: Mutex<HashSet<String>>,
     resource_cache_generation: AtomicU64,
     elicitation_router: ElicitationRequestRouter,
     resource_origins: Mutex<ResourceOrigins>,
@@ -173,12 +174,20 @@ struct CachedMcpBinding {
 struct McpReconnectGuard<'a> {
     pending: &'a AtomicBool,
     claimed: bool,
+    servers_pending: &'a Mutex<HashSet<String>>,
+    servers_claimed: HashSet<String>,
 }
 
 impl Drop for McpReconnectGuard<'_> {
     fn drop(&mut self) {
         if self.claimed {
             self.pending.store(true, Ordering::Release);
+        }
+        if !self.servers_claimed.is_empty() {
+            self.servers_pending
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .extend(self.servers_claimed.drain());
         }
     }
 }
@@ -243,6 +252,7 @@ impl McpRuntime {
                 retained_subscription_cancellation: None,
             }),
             reconnect_pending: AtomicBool::new(false),
+            reconnect_servers_pending: Mutex::default(),
             resource_cache_generation: AtomicU64::new(0),
             elicitation_router: ElicitationRequestRouter::default(),
             resource_origins: Mutex::default(),
@@ -314,13 +324,32 @@ impl McpRuntime {
         let mut reconnect = McpReconnectGuard {
             pending: &self.reconnect_pending,
             claimed: self.reconnect_pending.swap(false, Ordering::AcqRel),
+            servers_pending: &self.reconnect_servers_pending,
+            servers_claimed: std::mem::take(
+                &mut *self
+                    .reconnect_servers_pending
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner),
+            ),
         };
-        self.publish(
-            input,
-            (!reconnect.claimed).then_some(current.connections.as_ref()),
-        )
-        .await;
+        let filtered_previous =
+            (!reconnect.claimed && !reconnect.servers_claimed.is_empty()).then(|| {
+                current
+                    .connections
+                    .without_servers(&reconnect.servers_claimed)
+            });
+        let previous = if reconnect.claimed {
+            None
+        } else {
+            Some(
+                filtered_previous
+                    .as_ref()
+                    .unwrap_or(current.connections.as_ref()),
+            )
+        };
+        self.publish(input, previous).await;
         reconnect.claimed = false;
+        reconnect.servers_claimed.clear();
     }
 
     /// Starts fresh connections and returns their complete, refreshed Apps catalog.
@@ -393,6 +422,15 @@ impl McpRuntime {
     /// Ensures the next refresh creates fresh connections for every configured server.
     pub fn reconnect_on_next_refresh(&self) {
         self.reconnect_pending.store(true, Ordering::Release);
+    }
+
+    /// Ensures the next refresh replaces only the named servers' connections.
+    /// Existing bindings keep their connections until their in-flight calls finish.
+    pub fn reconnect_servers_on_next_refresh(&self, servers: &[String]) {
+        self.reconnect_servers_pending
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .extend(servers.iter().cloned());
     }
 
     /// Invalidates resource catalogs and contents even when connections can be reused.
@@ -950,6 +988,30 @@ mod tests {
     use serde_json::Value;
 
     use super::*;
+
+    #[test]
+    fn cancelled_reconnect_restores_claimed_servers_and_preserves_new_requests() {
+        let runtime = McpRuntime::empty(true);
+        runtime.reconnect_servers_on_next_refresh(&["first".to_string()]);
+        let reconnect = McpReconnectGuard {
+            pending: &runtime.reconnect_pending,
+            claimed: false,
+            servers_pending: &runtime.reconnect_servers_pending,
+            servers_claimed: std::mem::take(
+                &mut *runtime.reconnect_servers_pending.lock().unwrap(),
+            ),
+        };
+        runtime.reconnect_servers_on_next_refresh(&["second".to_string()]);
+        runtime.reconnect_on_next_refresh();
+
+        drop(reconnect);
+
+        assert_eq!(
+            *runtime.reconnect_servers_pending.lock().unwrap(),
+            HashSet::from(["first".to_string(), "second".to_string()]),
+        );
+        assert!(runtime.reconnect_pending.load(Ordering::Acquire));
+    }
 
     fn stdio_server(environment_id: &str) -> McpServerConfig {
         McpServerConfig {

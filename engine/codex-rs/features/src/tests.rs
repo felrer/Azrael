@@ -15,6 +15,15 @@ use toml::Table;
 use toml::Value as TomlValue;
 
 #[test]
+fn incremental_tools_are_stable_by_default_and_can_be_disabled() {
+    assert!(matches!(Feature::IncrementalTools.stage(), Stage::Stable));
+    let mut features = Features::with_defaults();
+    assert!(features.enabled(Feature::IncrementalTools));
+    features.apply_map(&BTreeMap::from([("incremental_tools".into(), false)]));
+    assert!(!features.enabled(Feature::IncrementalTools));
+}
+
+#[test]
 fn guardian_transcript_mode_rejects_invalid_values() {
     for input in [
         "[guardianv2]\ntranscript_mode = 'xml'",

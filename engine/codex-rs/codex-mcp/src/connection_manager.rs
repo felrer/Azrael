@@ -27,6 +27,7 @@ pub(crate) use tool_catalog::BindingCatalogRevision;
 pub use tool_catalog::tool_is_model_visible;
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::sync::Arc;
 use std::sync::OnceLock;
 use std::sync::atomic::Ordering;
@@ -210,6 +211,7 @@ impl McpServerView {
 }
 
 /// A published view over a set of running MCP server connections.
+#[derive(Clone)]
 pub(crate) struct McpConnectionSet {
     servers: HashMap<String, McpServerView>,
     pub(crate) event_stream_connection: Option<Arc<EventStreamConnectionSettings>>,
@@ -224,6 +226,13 @@ pub(crate) struct McpConnectionSet {
 }
 
 impl McpConnectionSet {
+    /// Excludes connections from reuse without cancelling their existing bindings.
+    pub(crate) fn without_servers(&self, servers: &HashSet<String>) -> Self {
+        let mut previous = self.clone();
+        previous.servers.retain(|name, _| !servers.contains(name));
+        previous
+    }
+
     /// Creates an MCP connection manager. Threadless callers can pass no `tx_event`; startup
     /// notifications are then skipped and interactive elicitations are declined.
     pub async fn new(

@@ -1,4 +1,79 @@
 use super::*;
+
+#[test]
+fn reload_local_mcp_servers_preserves_non_mcp_and_disabled_layers() {
+    let dir = tempfile::tempdir().unwrap();
+    let file = AbsolutePathBuf::from_absolute_path(dir.path().join("config.toml")).unwrap();
+    std::fs::write(
+        &file,
+        "model = 'new-model'\n[mcp_servers.added]\ncommand = 'new-server'\n",
+    )
+    .unwrap();
+    let user = ConfigLayerEntry::new(
+        ConfigLayerSource::User {
+            file: file.clone(),
+            profile: Some("work".into()),
+        },
+        toml::from_str("model = 'retained-model'\n[mcp_servers.old]\ncommand = 'old-server'\n")
+            .unwrap(),
+    );
+    let project = ConfigLayerEntry::new_disabled(
+        ConfigLayerSource::Project {
+            dot_codex_folder: AbsolutePathBuf::from_absolute_path(dir.path().join("untrusted"))
+                .unwrap(),
+        },
+        toml::from_str("[mcp_servers.blocked]\ncommand = 'blocked'\n").unwrap(),
+        "untrusted project",
+    );
+    let stack = ConfigLayerStack::new(
+        vec![user, project],
+        ConfigRequirements::default(),
+        ConfigRequirementsToml::default(),
+    )
+    .unwrap();
+    let reloaded = stack.reload_local_mcp_servers().unwrap();
+    let effective = reloaded.effective_config();
+    assert_eq!(effective["model"].as_str(), Some("retained-model"));
+    assert!(effective["mcp_servers"].get("added").is_some());
+    assert!(effective["mcp_servers"].get("old").is_none());
+    assert!(effective["mcp_servers"].get("blocked").is_none());
+    assert_eq!(reloaded.get_user_config_file(), Some(&file));
+    assert_eq!(
+        reloaded.all_layers_low_to_high().last().unwrap(),
+        stack.all_layers_low_to_high().last().unwrap()
+    );
+}
+
+#[test]
+fn reload_local_mcp_servers_removes_deleted_declarations_and_rejects_invalid_toml() {
+    let dir = tempfile::tempdir().unwrap();
+    let file = AbsolutePathBuf::from_absolute_path(dir.path().join("config.toml")).unwrap();
+    let layer = ConfigLayerEntry::new(
+        ConfigLayerSource::User {
+            file: file.clone(),
+            profile: None,
+        },
+        toml::from_str("[mcp_servers.old]\ncommand = 'old-server'\n").unwrap(),
+    );
+    let stack = ConfigLayerStack::new(
+        vec![layer],
+        ConfigRequirements::default(),
+        ConfigRequirementsToml::default(),
+    )
+    .unwrap();
+    // A missing local file is an empty MCP declaration, as in initial config loading.
+    assert!(
+        stack
+            .reload_local_mcp_servers()
+            .unwrap()
+            .effective_config()
+            .get("mcp_servers")
+            .is_none()
+    );
+    std::fs::write(&file, "[mcp_servers.invalid\n").unwrap();
+    assert!(stack.reload_local_mcp_servers().is_err());
+    assert!(stack.effective_config()["mcp_servers"].get("old").is_some());
+}
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 

@@ -514,12 +514,13 @@ async fn load_user_config_layer(
 ) -> io::Result<ConfigLayerEntry> {
     let profile = profile.map(ToString::to_string);
     if ignore_user_config {
-        return Ok(ConfigLayerEntry::new(
+        return Ok(ConfigLayerEntry::new_disabled(
             ConfigLayerSource::User {
                 file: user_file.clone(),
                 profile,
             },
             TomlValue::Table(toml::map::Map::new()),
+            "User configuration ignored by loader",
         ));
     }
 

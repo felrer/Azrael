@@ -37,6 +37,8 @@ Each document or owning section labels its own state (see [document states](../R
 
 ## Tools, authority and diagnostics
 
+- [Session MCP reload](mcp-reload.md): agent-initiated current-session reload, selective reconnect and incremental tool context across compaction.
+
 - [Project maintenance](project-maintenance.md): project-owned test bundles, separate build execution, artifact/backup inventory and model-directed cleanup.
 
 - [Computer Use backend](computer-use.md): package-owned desktop runtime, selected-window backend, tool ceiling, consent and lifetime.

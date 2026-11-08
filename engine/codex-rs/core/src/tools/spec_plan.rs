@@ -1367,6 +1367,7 @@ mod project_maintenance_registration_tests {
 
 #[instrument(level = "trace", skip_all)]
 fn add_mcp_resource_tools(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistry) {
+    registry.add(crate::tools::handlers::ReloadMcpServersHandler);
     if context.mcp.has_servers()
         || effective_tool_mode(context.turn_context, context.model_info) == ToolMode::CodeModeOnly
     {
