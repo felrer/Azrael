@@ -127,7 +127,7 @@ async function build(options) {
   const logs = path.join(root, "artifacts/logs/multi-platform/build", path.basename(s.output));
   const lifecycleRecord = { id: `version:${path.basename(s.output)}`, kind: "version", owner: "azrael-release",
     membership_complete: false,
-    members: [{ path: s.output, role: "release" }, { path: input, role: "inputs" }, { path: work, role: "work" }, { path: logs, role: "logs" }, { path: stateFile, role: "pipeline-state" }, { path: stateFile + ".update-lock", role: "pipeline-update-lock" }, { path: stateFile + ".tmp", role: "pipeline-state-work" }, { path: s.output + ".pipeline.lock", role: "pipeline-lock" }] };
+    members: [{ path: s.output, role: "release" }, { path: input, role: "inputs" }, { path: work, role: "work" }, { path: logs, role: "logs" }, { path: stateFile, role: "pipeline-state" }, { path: stateFile + ".payloads", role: "pipeline-payloads" }, { path: stateFile + ".update-lock", role: "pipeline-update-lock" }, { path: stateFile + ".tmp", role: "pipeline-state-work" }, { path: s.output + ".pipeline.lock", role: "pipeline-lock" }] };
   lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "pending" });
   try {
   pipeline = require("./pipeline-state.cjs").openPipelineState({ file: stateFile, identity: { settings: settingsIdentity, sourceCommit: pinnedCommit, platform: identity, producerSha256:hash(__filename),stateHelperSha256:hash(path.join(__dirname,"pipeline-state.cjs")) }, resume: !!s.resume, lockHeld: true, reuseDecisionsPath });

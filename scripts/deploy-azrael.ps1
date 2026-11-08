@@ -167,16 +167,22 @@ function Write-DeploymentMetrics {
 Write-DeploymentMetrics
 
 function Get-ProjectSnapshot {
-    param([string]$Phase)
+    param([string]$Phase, [string]$BaselinePath)
     $checkTimer = [Diagnostics.Stopwatch]::StartNew()
     $report = Join-Path $logs "inputs-$Phase.json"
     $stdout = Join-Path $logs "inputs-$Phase.stdout.log"
     $stderr = Join-Path $logs "inputs-$Phase.stderr.log"
-    & (Get-Command node -CommandType Application).Source (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') $project $report 1> $stdout 2> $stderr
+    $snapshotArguments = @($project, $report)
+    if ($BaselinePath) {
+        $snapshotArguments += @('--baseline', $BaselinePath, '--expected-baseline-sha256', $script:inputSnapshot,
+            '--expected-baseline-file-sha256', $script:inputSnapshotReportSha256)
+    }
+    & (Get-Command node -CommandType Application).Source (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') @snapshotArguments 1> $stdout 2> $stderr
     $checkExit = $LASTEXITCODE
     $record = [ordered]@{ phase = $Phase; exitCode = $checkExit; durationMs = $checkTimer.Elapsed.TotalMilliseconds; report = $report }
     $metrics.inputChecks += $record
     if ($checkExit -ne 0) { throw "Project input snapshot failed ($checkExit). See $stderr" }
+    if ($Phase -ceq 'initial') { $script:inputSnapshotReportSha256 = (Get-FileHash -LiteralPath $report -Algorithm SHA256).Hash.ToLowerInvariant() }
     $snapshot = Get-Content -LiteralPath $stdout -Raw | ConvertFrom-Json
     $record.fileCount = $snapshot.fileCount
     $record.bytes = $snapshot.bytes
@@ -185,7 +191,7 @@ function Get-ProjectSnapshot {
 }
 function Assert-ProjectSnapshot {
     param([string]$Phase)
-    $currentSnapshot = Get-ProjectSnapshot $Phase
+    $currentSnapshot = Get-ProjectSnapshot $Phase -BaselinePath (Join-Path $logs 'inputs-initial.json')
     if ($currentSnapshot -cne $script:inputSnapshot) {
         $difference = Join-Path $logs "input-changes-$Phase.json"
         & (Get-Command node -CommandType Application).Source (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') compare (Join-Path $logs 'inputs-initial.json') (Join-Path $logs "inputs-$Phase.json") $difference $script:inputSnapshot $currentSnapshot *> (Join-Path $logs "input-changes-$Phase.log")
@@ -454,6 +460,13 @@ function Wait-BuildEngineReady($Build) {
         $checkpoint=Read-DeploymentCheckpoint $pipelineFile
         if ($checkpoint.stages.PSObject.Properties['build.engine-ready']) {
             $ready=@($checkpoint.stages.'build.engine-ready')[-1]
+            if ($ready.PSObject.Properties['payloadRefs'] -and $ready.payloadRefs.PSObject.Properties['data']) {
+                # Large stage data is SHA-bound storage, not inline JSON. Use
+                # the owner's reader only for that case; ordinary readiness
+                # metadata keeps the existing inexpensive polling path.
+                $checkpoint = Invoke-PipelineState 'snapshot' ''
+                $ready = @($checkpoint.stages.'build.engine-ready')[-1]
+            }
             if ($ready.status -eq 'succeeded' -and $ready.data.processId -eq $Build.Process.Id) { return }
         }
         Assert-DeploymentCapacity

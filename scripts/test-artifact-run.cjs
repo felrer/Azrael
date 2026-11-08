@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const { createHash } = require("node:crypto");
-const { beginArtifactRun, finishArtifactRun, trackArtifactChild } = require("./artifact-run.cjs");
+const { beginArtifactRun, finishArtifactRun, retireArtifactRun, trackArtifactChild } = require("./artifact-run.cjs");
 const { catalog, recordLifecycle, closeLifecycle } = require("./artifact-lifecycle.cjs");
 // Caller owns and registers this fresh test directory before invocation.
 const fixture = process.argv[2];
@@ -38,6 +38,10 @@ assert.equal(unknown.record.membership_complete, false);
 assert.equal(finishArtifactRun(unknown, { exitCode: null, producerStopped: false }).state, "pending");
 assert.equal(unknown.record.membership_complete, false);
 checks.push("known failed producer closes while unknown termination remains incomplete");
+assert.throws(() => retireArtifactRun(unknown, {}), /known stopped/);
+assert.throws(() => retireArtifactRun(run, { reason: "finished", evidence_ref: path.join(run.reports, "producer.json"), evidence_sha256: createHash("sha256").update(fs.readFileSync(path.join(run.reports, "producer.json"))).digest("hex") }), /survive outside/);
+assert.throws(() => retireArtifactRun(failed, { reason: "finished", evidence_ref: path.join(failed.reports, "producer.json"), evidence_sha256: "0".repeat(64) }), /SHA256/);
+checks.push("retirement preserves unknown runs and requires surviving hash-bound evidence before native cleanup");
 for (const [producer, exitCode, runId] of [[run, 0, "normal"], [failed, 7, "failed"], [unknown, null, "unknown"]]) {
   assert.equal(JSON.parse(fs.readFileSync(path.join(producer.reports, "producer.json"))).exitCode, exitCode);
   assert.throws(() => start(runId), /already exists|claimed|revision/);
@@ -179,6 +183,8 @@ const explicit = start("explicit", { paths: { temporary: external } });
 assert.equal(explicit.temporary, external);
 assert(explicit.record.members.some(member => member.path === external));
 assert.throws(() => start("explicit-collision", { paths: { temporary: external } }), /exists|claimed/);
+finishArtifactRun(explicit, { exitCode: 1, producerStopped: true });
+assert.throws(() => retireArtifactRun(explicit, {}), /exclusively generated/);
 checks.push("safe IDs, containment and explicit path ownership");
 const externalInputs = path.join(project, "artifacts/verification/input-handoffs");
 const customInputs = start("custom-inputs", { paths: { inputs: externalInputs } });

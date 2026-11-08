@@ -170,10 +170,71 @@ async function main() {
     return;
   }
   const [root, reportPath, ...extra] = process.argv.slice(2);
-  if (!root || extra.length) throw new Error("Usage: deployment-input-snapshot.cjs <root> [report-path]");
+  const conditional = extra.length === 6 && extra[0] === '--baseline' &&
+    extra[2] === '--expected-baseline-sha256' && /^[a-f0-9]{64}$/.test(extra[3]) &&
+    extra[4] === '--expected-baseline-file-sha256' && /^[a-f0-9]{64}$/.test(extra[5]);
+  if (!root || (extra.length && !conditional)) {
+    throw new Error('Usage: deployment-input-snapshot.cjs <root> [report-path] [--baseline <full-report> --expected-baseline-sha256 <sha256> --expected-baseline-file-sha256 <sha256>]');
+  }
   const result = await snapshotProject(root);
-  if (reportPath) await fs.promises.writeFile(reportPath, JSON.stringify(result, null, 2) + "\n");
   const { inventory, ...summary } = result;
+  let report = result;
+  if (conditional) {
+    const baselinePath = path.resolve(extra[1]);
+    async function physicalBaseline() {
+      for (let current = baselinePath; ; current = path.dirname(current)) {
+        const stat = await fs.promises.lstat(current);
+        if (stat.isSymbolicLink() || (current !== baselinePath && !stat.isDirectory())) {
+          throw new Error('Baseline path cannot contain linked or non-directory ancestors.');
+        }
+        if (path.dirname(current) === current) break;
+      }
+      return fs.promises.lstat(baselinePath);
+    }
+    if (path.resolve(reportPath) === baselinePath) throw new Error('Baseline and phase report must be separate files.');
+    const before = await physicalBaseline();
+    if (!before.isFile() || before.nlink !== 1) throw new Error('Baseline must be a physical unlinked full snapshot file.');
+    const sameFile = stat => stat.isFile() && ['size', 'mtimeMs', 'ctimeMs', 'ino', 'dev', 'nlink']
+      .every(field => stat[field] === before[field]);
+    try {
+      const destination = await fs.promises.stat(reportPath);
+      if (destination.dev === before.dev && destination.ino === before.ino) {
+        throw new Error('Baseline and phase report must be separate files.');
+      }
+    } catch (error) { if (error.code !== 'ENOENT') throw error; }
+    const physicalPath = await fs.promises.realpath(baselinePath);
+    const handle = await fs.promises.open(baselinePath, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0));
+    let content;
+    try {
+      const opened = await handle.stat();
+      if (!sameFile(opened)) throw new Error('Baseline snapshot changed while opening.');
+      content = await handle.readFile();
+      const after = await handle.stat();
+      const current = await physicalBaseline();
+      if (current.isSymbolicLink() ||
+          await fs.promises.realpath(baselinePath) !== physicalPath ||
+          !sameFile(after) || !sameFile(current)) {
+        throw new Error('Baseline snapshot changed while reading.');
+      }
+    } finally { await handle.close(); }
+    const baselineFileSha256 = sha(content);
+    if (baselineFileSha256 !== extra[5]) throw new Error('Baseline file identity changed.');
+    const baseline = JSON.parse(content.toString('utf8').replace(/^\uFEFF/, ''));
+    if (baseline.sha256 !== extra[3]) throw new Error('Baseline input identity changed.');
+    if (!Number.isSafeInteger(baseline.fileCount) || baseline.fileCount < 0 ||
+        !Number.isSafeInteger(baseline.bytes) || baseline.bytes < 0) {
+      throw new Error('Invalid baseline snapshot summary.');
+    }
+    const comparison = compareSnapshots(baseline, result);
+    if (comparison.status === 'unchanged') {
+      if (baseline.fileCount !== result.fileCount || baseline.bytes !== result.bytes) {
+        throw new Error('Baseline snapshot summary mismatch.');
+      }
+      report = { ...summary, schema: 2, status: 'unchanged',
+        baseline: { path: physicalPath, sha256: baselineFileSha256, inputSha256: baseline.sha256 } };
+    }
+  }
+  if (reportPath) await fs.promises.writeFile(reportPath, JSON.stringify(report, null, 2) + "\n");
   process.stdout.write(JSON.stringify(summary) + "\n");
 }
 

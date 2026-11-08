@@ -1,5 +1,13 @@
 # 프로젝트 관리 운영
 
+## 빌드 manifest와 일회성 run의 누적 방지
+
+배포의 최초 `inputs-initial.json`은 전체 입력 목록을 보존한다. 후속 동일 입력 검사는 실제 파일 해시를 다시 계산하되 작은 확인 보고서만 쓰며 최초 입력 digest와 보고서 파일 SHA를 함께 고정한다. 달라진 입력은 전체 목록과 기존 차이 보고서를 남긴다. `pipeline-state.json.payloads` 등 `<state>.payloads`는 큰 단계 데이터의 SHA별 저장소이며 상태 파일과 같은 소유 묶음으로 관리한다. 참조된 payload만 따로 삭제하지 않는다. 기존 frozen 파일은 원시 이관하지 않으며 helper identity가 바뀐 build는 새 입력/출력 identity를 선택한다.
+
+준비 wrapper는 `JSON.stringify(context)`로 전체 inventory를 복제하는 대신 `deployment-manifest.cjs`의 `createDeploymentContextReference(context.reportPath, context.manifestSha256)`를 저장한다. 다시 사용할 때 `readDeploymentContextReference`로 원본 SHA와 summary를 검증해 복원하며, 원본 manifest/detail owner의 소비자 참조를 유지한다.
+
+새 일회성 wrapper는 최소 결과를 별도의 살아남는 소유자에게 먼저 인계한 뒤 `finishArtifactRun(run, { exitCode, producerStopped, retirement: { evidence_ref, evidence_sha256, reason } })`로 종료와 정리를 연결할 수 있다. 이미 종료한 run에는 `retireArtifactRun(run, request)`를 호출한다. 기본 종료는 기존대로 자료를 보존하므로, 실제 downstream 소비자가 있는 입력·버전·복구 run에 retirement를 지정하지 않는다. 자동 수집을 선택한 호출도 native 최신 검토와 명시적 delete 결정·항목별 실제 결과·finalize를 거친다. 차단/부분 삭제/불명확한 종료는 정리 미완료이며 이유나 시간 경과만으로 반복 삭제하지 않는다. 임시 생성물·로그와 빈 소유 기록을 회수하되 원래 실행 성공·실패 결과와 독립 인계 증거는 보존한다.
+
 상태: `partial`. Windows Rust51(debug/release)·native core8/prompt1, 프로젝트 어댑터·지침·Windows 정리 및 모의 배포 검사를 확인했다. 실제 수용 범위와 한계는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)에 기록한다. 실행 중인 설치본의 도구 가용성은 소스 변경과 구분한다.
 
 ## 개인 맞춤 설정 운영

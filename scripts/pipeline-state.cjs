@@ -10,6 +10,129 @@ function canonical(value) {
   return value;
 }
 const key = value => crypto.createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
+const PAYLOAD_BYTES = 64 * 1024;
+const PAYLOAD_FORMAT = 'pipeline-payloads-v1';
+const PAYLOAD_FIELDS = ['data', 'error', 'inputFieldKeys'];
+const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+const sameIdentity = (a, b) => ['dev', 'ino', 'size', 'mtimeNs', 'ctimeNs', 'nlink'].every(field => a[field] === b[field]);
+function physical(file) {
+  if (!path.isAbsolute(file) || file.includes('\0') || file.split(/[\\/]/).includes('..')) throw Error('Absolute pipeline payload path without traversal required.');
+  let current = path.parse(file).root;
+  for (const part of file.slice(current.length).split(path.sep).filter(Boolean)) {
+    if (!fs.lstatSync(current).isDirectory()) throw Error('Pipeline payload ancestor must be a physical directory.');
+    current = path.join(current, part);
+    if (fs.lstatSync(current).isSymbolicLink()) throw Error('Pipeline payload path cannot be linked.');
+  }
+  return file;
+}
+function readPayload(file, reference) {
+  physical(file);
+  const before = fs.lstatSync(file, {bigint: true});
+  if (!before.isFile() || before.nlink !== 1n || before.size !== BigInt(reference.bytes)) throw Error('Pipeline payload requires an unlinked regular file with matching bytes.');
+  const descriptor = fs.openSync(file, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0));
+  try {
+    if (!sameIdentity(before, fs.fstatSync(descriptor, {bigint: true}))) throw Error('Pipeline payload identity changed while opening.');
+    const bytes = fs.readFileSync(descriptor);
+    if (!sameIdentity(before, fs.fstatSync(descriptor, {bigint: true})) || !sameIdentity(before, fs.lstatSync(physical(file), {bigint: true})) || bytes.length !== reference.bytes || digest(bytes) !== reference.sha256) throw Error('Pipeline payload identity or SHA-256 changed.');
+    return bytes;
+  } finally { fs.closeSync(descriptor); }
+}
+function payloadStore(file) {
+  const directory = `${file}.payloads`;
+  function resolve(reference) {
+    if (!reference || Object.keys(reference).sort().join(',') !== 'bytes,sha256' || !/^[a-f0-9]{64}$/.test(reference.sha256) || !Number.isSafeInteger(reference.bytes) || reference.bytes < PAYLOAD_BYTES) throw Error('Invalid pipeline payload reference.');
+    return path.join(directory, `${reference.sha256}.json`);
+  }
+  function publish(value) {
+    const bytes = Buffer.from(JSON.stringify(canonical(value)));
+    if (bytes.length < PAYLOAD_BYTES) return null;
+    const reference = {sha256: digest(bytes), bytes: bytes.length};
+    physical(path.dirname(directory));
+    try { fs.mkdirSync(directory); } catch (error) { if (error.code !== 'EEXIST') throw error; }
+    if (!fs.lstatSync(physical(directory)).isDirectory()) throw Error('Pipeline payload root must be a physical directory.');
+    const target = resolve(reference);
+    try { fs.lstatSync(target); readPayload(target, reference); return reference; }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+    const temporary = `${target}.tmp`;
+    const descriptor = fs.openSync(temporary, 'wx');
+    let owned;
+    try {
+      try { fs.writeFileSync(descriptor, bytes); fs.fsyncSync(descriptor); owned = fs.fstatSync(descriptor, {bigint: true}); }
+      finally { fs.closeSync(descriptor); }
+      // link is the platform's atomic create-if-absent publication. Remove the
+      // private name before accepting the final unlinked physical file. A crash
+      // leaving two names is rejected on resume, never silently repaired.
+      physical(directory);
+      if (!sameIdentity(owned, fs.lstatSync(physical(temporary), {bigint: true}))) throw Error('Pipeline payload temporary identity changed.');
+      fs.linkSync(temporary, target);
+    } finally {
+      if (owned) {
+        const current = fs.lstatSync(physical(temporary), {bigint: true});
+        // Publication changes ctime and nlink, but not the private inode/data.
+        if (['dev', 'ino', 'size', 'mtimeNs'].some(field => owned[field] !== current[field])) throw Error('Pipeline payload temporary identity changed; preserve unresolved ownership.');
+        fs.unlinkSync(temporary);
+      }
+    }
+    readPayload(target, reference);
+    return reference;
+  }
+  return {
+    directory,
+    encode(state) {
+      const stored = {...state, schema: 2, storageFormat: PAYLOAD_FORMAT, stages: {}};
+      for (const [name, attempts] of Object.entries(state.stages)) stored.stages[name] = attempts.map(record => {
+        const result = {...record}, payloadRefs = {};
+        // Keep varying timing/process metadata inline while sharing large
+        // stdout, stderr or receipt values across otherwise different results.
+        // These descriptors name literal data properties, never file paths.
+        if (record.data && typeof record.data === 'object' && !Array.isArray(record.data)) {
+          const inline = [], references = [];
+          for (const [field, value] of Object.entries(record.data)) {
+            const reference = value === undefined ? null : publish(value);
+            if (reference) references.push([field, reference]);
+            else inline.push([field, value]);
+          }
+          if (references.length) {
+            result.data = Object.fromEntries(inline);
+            result.dataFieldRefs = Object.fromEntries(references);
+          }
+        }
+        for (const field of PAYLOAD_FIELDS) if (Object.hasOwn(result, field) && result[field] !== undefined) {
+          const reference = publish(result[field]);
+          if (reference) { payloadRefs[field] = reference; delete result[field]; }
+        }
+        if (Object.keys(payloadRefs).length) result.payloadRefs = payloadRefs;
+        return result;
+      });
+      return stored;
+    },
+    decode(stored) {
+      if (stored.schema === 1) return stored;
+      if (stored.schema !== 2 || stored.storageFormat !== PAYLOAD_FORMAT) throw Error('Unsupported pipeline storage format.');
+      const {storageFormat, ...state} = stored;
+      state.schema = 1;
+      state.stages = Object.fromEntries(Object.entries(stored.stages).map(([name, attempts]) => [name, attempts.map(record => {
+        const {payloadRefs, dataFieldRefs, ...result} = record;
+        if (payloadRefs !== undefined) {
+          if (!payloadRefs || typeof payloadRefs !== 'object' || Array.isArray(payloadRefs)) throw Error('Invalid pipeline payload references.');
+          for (const [field, reference] of Object.entries(payloadRefs)) {
+            if (!PAYLOAD_FIELDS.includes(field) || Object.hasOwn(result, field)) throw Error('Invalid pipeline payload field.');
+            result[field] = JSON.parse(readPayload(resolve(reference), reference).toString('utf8'));
+          }
+        }
+        if (dataFieldRefs !== undefined) {
+          if (!dataFieldRefs || typeof dataFieldRefs !== 'object' || Array.isArray(dataFieldRefs) || !result.data || typeof result.data !== 'object' || Array.isArray(result.data)) throw Error('Invalid pipeline data field references.');
+          for (const [field, reference] of Object.entries(dataFieldRefs)) {
+            if (Object.hasOwn(result.data, field)) throw Error('Duplicate pipeline data field.');
+            Object.defineProperty(result.data, field, {value: JSON.parse(readPayload(resolve(reference), reference).toString('utf8')), enumerable: true, writable: true, configurable: true});
+          }
+        }
+        return result;
+      })]));
+      return state;
+    },
+  };
+}
 function measure(file) {
   const absolute = path.resolve(typeof file === 'string' ? file : file.path);
   const stat = fs.lstatSync(absolute, {bigint: true});
@@ -20,7 +143,9 @@ function measure(file) {
 // The caller holds its existing long-lived exclusive owner lease. The short
 // metadata update lock below serializes authorized parent/child reads and writes;
 // neither lock permits stale-owner recovery here. The state file, its sibling
-// update-lock and atomic temporary files belong to the caller's output owner.
+// update-lock, payload sibling root and atomic temporary files belong to the
+// caller's output owner. Payload files remain referenced by retained attempts;
+// this writer never prunes execution history or collects payloads independently.
 function withPipelineStateLock(file, operation) {
   const lock = `${file}.update-lock`;
   let descriptor;
@@ -38,6 +163,7 @@ function withPipelineStateLock(file, operation) {
 function openPipelineState({file, identity, resume = false, lockHeld = false, reuseDecisionsPath}) {
   if (!lockHeld) throw Error('Pipeline state requires the caller\'s exclusive owner lease.');
   file = path.resolve(file);
+  const payloads = payloadStore(file);
   const decisions = loadDecisions(reuseDecisionsPath);
   if (resume && !fs.existsSync(file)) throw Error('Resume requires an existing pipeline state.');
   if (!resume) fs.mkdirSync(path.dirname(file), {recursive: true});
@@ -49,7 +175,7 @@ function openPipelineState({file, identity, resume = false, lockHeld = false, re
     try {
       const descriptor = fs.openSync(temporary, 'wx');
       created = true;
-      try { fs.writeFileSync(descriptor, JSON.stringify(state, null, 2) + '\n'); }
+      try { fs.writeFileSync(descriptor, JSON.stringify(payloads.encode(state), null, 2) + '\n'); }
       finally { fs.closeSync(descriptor); }
       fs.renameSync(temporary, file);
     } finally { if (created && fs.existsSync(temporary)) fs.unlinkSync(temporary); }
@@ -58,12 +184,12 @@ function openPipelineState({file, identity, resume = false, lockHeld = false, re
     const exists = fs.existsSync(file);
     if (exists && !resume) throw Error('Pipeline state already exists; explicit resume is required.');
     if (!exists && resume) throw Error('Resume requires an existing pipeline state.');
-    state = exists ? JSON.parse(fs.readFileSync(file, 'utf8')) : {schema: 1, identity: canonical(identity), stages: {}};
+    state = exists ? payloads.decode(JSON.parse(fs.readFileSync(file, 'utf8'))) : {schema: 1, identity: canonical(identity), stages: {}};
     if (state.schema !== 1 || key(state.identity) !== key(identity)) throw Error('Pipeline identity changed; select a new frozen work identity.');
     if (!exists) save();
   });
   const refresh = () => {
-    state = JSON.parse(fs.readFileSync(file, 'utf8'));
+    state = payloads.decode(JSON.parse(fs.readFileSync(file, 'utf8')));
     if (state.schema !== 1 || key(state.identity) !== key(identity)) throw Error('Pipeline identity changed during observation.');
   };
   function update(operation) {
@@ -81,7 +207,7 @@ function openPipelineState({file, identity, resume = false, lockHeld = false, re
     const evidence = request.evidence_ref;
     if (typeof evidence !== 'string' || !path.isAbsolute(evidence) || evidence.split(/[\\/]/).includes('..') || !/^[a-f0-9]{64}$/.test(request.evidence_sha256 || '')) throw Error('Pipeline recovery requires absolute evidence without traversal and its SHA-256.');
     const inside = (parent, child) => { const relative = path.relative(parent, child); return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative)); };
-    const protectedPaths = [file, `${file}.update-lock`, `${file}.tmp`, ...Object.values(state.stages).flatMap(attempts => attempts.flatMap(record => record.outputs.map(output => output.path)))];
+    const protectedPaths = [file, `${file}.update-lock`, `${file}.tmp`, payloads.directory, ...Object.values(state.stages).flatMap(attempts => attempts.flatMap(record => record.outputs.map(output => output.path)))];
     if (protectedPaths.some(protectedPath => inside(protectedPath, evidence))) throw Error('Pipeline recovery evidence overlaps pipeline state or outputs.');
     function inspect() {
       let ancestor = path.resolve(evidence);

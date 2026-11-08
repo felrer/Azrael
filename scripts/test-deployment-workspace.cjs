@@ -14,7 +14,7 @@ freezeTools.inventoryTree = (root, ...args) => {
   return inventoryTree(root, ...args);
 };
 const { serializeDeploymentManifest, prepareDeploymentWorkspace, verifyDeploymentWorkspace, reuseDeploymentInputs, verifyReusedDeploymentInputs, resolveDeploymentModuleCacheOwner } = require("./deployment-workspace.cjs");
-const { writeDeploymentManifest, readDeploymentManifest } = require("./deployment-manifest.cjs");
+const { writeDeploymentManifest, readDeploymentManifest, createDeploymentContextReference, readDeploymentContextReference } = require("./deployment-manifest.cjs");
 freezeTools.inventoryTree = inventoryTree;
 function checkManifestSerialization() {
   const manifest = { schema: 1, path: "C:\\입력\\source", inventory: [{ path: "file", size: 7, deleted: false }], optional: null };
@@ -74,6 +74,15 @@ function checkManifestDetails(reportPath, original) {
   const logical = { ...original, evidence: { unicode: "입".repeat(6 * 1024 * 1024), optional: null, selected: [false, 0, ""] } };
   writeDeploymentManifest(reportPath, logical);
   const indexBytes = fs.readFileSync(reportPath);
+  const manifestHash = createHash("sha256").update(indexBytes).digest("hex");
+  const contextReference = createDeploymentContextReference(reportPath, manifestHash);
+  assert(Buffer.byteLength(JSON.stringify(contextReference)) < 4096, "prepared context handoff references inventories without duplicating them");
+  const restored = readDeploymentContextReference(JSON.parse(JSON.stringify(contextReference)));
+  assert.deepEqual(restored.evidence, logical.evidence);
+  assert.equal(restored.reportPath, reportPath);
+  assert.equal(restored.manifestSha256, manifestHash);
+  assert.throws(() => createDeploymentContextReference(reportPath, "0".repeat(64)), /changed/);
+  assert.throws(() => readDeploymentContextReference({ ...contextReference, summary: { ...contextReference.summary, projectBytes: -1 } }), /binding changed/);
   const index = JSON.parse(indexBytes);
   assert.equal(index.schema, 3);
   assert.equal(index.storageFormat, "deployment-details-v1");

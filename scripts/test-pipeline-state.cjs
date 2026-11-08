@@ -1,6 +1,8 @@
 'use strict';
 // Retained because later pipeline wiring can accidentally key successful work
 // to unrelated attempts or turn unknown execution into reusable success.
+// Storage checks prevent later serialization changes from duplicating large
+// inventories or hashing payload descriptors instead of logical recovery data.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -146,6 +148,92 @@ function check(root) {
   buildChild.finish('build-child', {exitCode: 0});
   assert.equal(pipeline.snapshot.stages['parent-observation'][0].exitCode, 0);
   assert.equal(pipeline.snapshot.stages['build-child'][0].exitCode, 0);
+  const payloadFile = path.join(root, 'payload-state.json');
+  const payloadRoot = `${payloadFile}.payloads`;
+  const openPayload = resume => openPipelineState({file: payloadFile, identity, resume, lockHeld: true});
+  let largePipeline = openPayload(false);
+  const largeInputs = Object.fromEntries(Array.from({length: 1000}, (_, index) => [`input-${index}`, index]));
+  const largeData = {stdout: '한'.repeat(40000)};
+  const largeError = 'e'.repeat(64 * 1024 - 2); // Exact serialized UTF-8 threshold.
+  const largeRecords = [];
+  for (let attempt = 0; attempt < 4; attempt++) {
+    largePipeline.start('large', {inputs: largeInputs});
+    largeRecords.push(largePipeline.finish('large', {exitCode: 7, data: {...largeData, duration: attempt}, error: largeError}));
+  }
+  const storedPayloads = JSON.parse(fs.readFileSync(payloadFile, 'utf8'));
+  assert.equal(storedPayloads.schema, 2);
+  assert.equal(fs.statSync(payloadFile).size < 16000, true);
+  assert.equal(fs.readdirSync(payloadRoot).length, 3);
+  assert.deepEqual(storedPayloads.stages.large.map(record => record.data), [0, 1, 2, 3].map(duration => ({duration})));
+  assert.deepEqual(Object.keys(storedPayloads.stages.large[0].payloadRefs).sort(), ['error', 'inputFieldKeys']);
+  assert.deepEqual(Object.keys(storedPayloads.stages.large[0].dataFieldRefs), ['stdout']);
+  assert.equal(new Set(storedPayloads.stages.large.map(record => record.dataFieldRefs.stdout.sha256)).size, 1);
+  largePipeline = openPayload(true);
+  assert.deepEqual(largePipeline.snapshot.stages.large, largeRecords);
+  assert.equal(largePipeline.snapshot.schema, 1);
+  assert.equal(largePipeline.lookup('large', {inputs: largeInputs}), null);
+  const freshReadRequest = path.join(root, 'payload-read-request.json');
+  fs.writeFileSync(freshReadRequest, JSON.stringify({file: payloadFile, identity, resume: true, lockHeld: true, action: 'snapshot'}));
+  // CLI escapes Unicode to ASCII. Bound the capture by the exact expected
+  // logical response encoding rather than spawnSync's default 1 MiB buffer.
+  const expectedRead = JSON.stringify(largePipeline.snapshot).replace(/[\u007f-\uffff]/g, character => '\\u' + character.charCodeAt(0).toString(16).padStart(4, '0')) + '\n';
+  const freshRead = require('node:child_process').spawnSync(process.execPath, [path.join(__dirname, 'pipeline-state.cjs'), freshReadRequest], {encoding: 'utf8', maxBuffer: Buffer.byteLength(expectedRead) + 1024});
+  assert.equal(freshRead.error, undefined, freshRead.error?.message);
+  assert.equal(freshRead.status, 0, freshRead.stderr);
+  assert.deepEqual(JSON.parse(freshRead.stdout).stages.large, largeRecords);
+  largePipeline.start('large-success', {inputs: largeInputs});
+  largePipeline.finish('large-success', {exitCode: 0, data: largeData});
+  assert.deepEqual(openPayload(true).lookup('large-success', {inputs: largeInputs}).data, largeData);
+  const changedLargeInputs = {...largeInputs, added: true};
+  const largeReview = needsReview(() => openPayload(true).lookup('large-success', {inputs: changedLargeInputs}));
+  const dataReference = storedPayloads.stages.large[0].dataFieldRefs.stdout;
+  const dataPath = path.join(payloadRoot, `${dataReference.sha256}.json`);
+  const originalBytes = fs.readFileSync(dataPath);
+  const tampered = Buffer.from(originalBytes); tampered[10] ^= 1;
+  fs.writeFileSync(dataPath, tampered);
+  assert.throws(() => openPayload(true), /SHA-256/);
+  fs.writeFileSync(dataPath, Buffer.concat([originalBytes, Buffer.from(' ')]));
+  assert.throws(() => openPayload(true), /matching bytes/);
+  fs.writeFileSync(dataPath, originalBytes);
+  const heldPayload = path.join(root, 'held-payload.json');
+  fs.renameSync(dataPath, heldPayload);
+  assert.throws(() => largePipeline.snapshot, /ENOENT/);
+  fs.renameSync(heldPayload, dataPath);
+  fs.linkSync(dataPath, heldPayload);
+  assert.throws(() => openPayload(true), /unlinked regular/);
+  fs.unlinkSync(heldPayload);
+  const heldRoot = path.join(root, 'held-payload-root');
+  fs.renameSync(payloadRoot, heldRoot);
+  fs.symlinkSync(heldRoot, payloadRoot, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.throws(() => openPayload(true), /linked/);
+  if (process.platform === 'win32') fs.rmdirSync(payloadRoot); else fs.unlinkSync(payloadRoot);
+  fs.renameSync(heldRoot, payloadRoot);
+  const intactPayloadState = fs.readFileSync(payloadFile, 'utf8');
+  storedPayloads.stages.large[0].dataFieldRefs.stdout.sha256 = '../outside';
+  fs.writeFileSync(payloadFile, JSON.stringify(storedPayloads));
+  assert.throws(() => openPayload(true), /Invalid pipeline payload reference/);
+  fs.writeFileSync(payloadFile, intactPayloadState);
+  largePipeline.start('unknown-large', {inputs: largeInputs});
+  const unknown = largePipeline.finish('unknown-large', {exitCode: null, data: largeData, error: largeError});
+  assert.throws(() => openPayload(true).lookup('unknown-large'), /unresolved execution/);
+  const largeRequest = {...liveRequest, expectedStageId: unknown.id};
+  assert.throws(() => largePipeline.recover('unknown-large', {...largeRequest, evidence_ref: dataPath}), /overlaps/);
+  const recoveredLarge = largePipeline.recover('unknown-large', largeRequest);
+  assert.deepEqual(openPayload(true).recover('unknown-large', largeRequest), recoveredLarge);
+  assert.equal(openPayload(true).lookup('unknown-large'), null);
+  // A legacy embedded state with an existing logical recovery receipt remains
+  // readable and preserves that receipt when its next write externalizes data.
+  const legacy = largePipeline.snapshot;
+  fs.writeFileSync(payloadFile, JSON.stringify(legacy));
+  largePipeline = openPayload(true);
+  assert.deepEqual(largePipeline.snapshot, legacy);
+  assert.equal(largePipeline.lookup('unknown-large'), null);
+  assert.equal(needsReview(() => largePipeline.lookup('large-success', {inputs: changedLargeInputs})).reviewId, largeReview.reviewId);
+  largePipeline.start('unknown-large', {inputs: largeInputs});
+  assert.equal(JSON.parse(fs.readFileSync(payloadFile, 'utf8')).schema, 2);
+  assert.deepEqual(openPayload(true).snapshot.stages['unknown-large'][0], recoveredLarge);
+  assert.equal(openPayload(true).snapshot.stages['unknown-large'][1].status, 'running');
+  assert.equal(fs.readdirSync(payloadRoot).length, 3);
   // Later reader entry points must not bypass the atomic publisher's lock.
   const observationLock = `${file}.update-lock`;
   fs.writeFileSync(observationLock, 'occupied owner', {flag: 'wx'});

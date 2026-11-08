@@ -136,4 +136,18 @@ function readDeploymentManifest(reportPath, expectedSha256) {
   return manifest;
 }
 
-module.exports = { serializeDeploymentManifest, preflightDeploymentManifest, writeDeploymentManifest, readDeploymentManifest };
+// Wrapper handoffs reference the already owned inventory rather than copying
+// the prepared context (and its project/engine inventories) into another file.
+function createDeploymentContextReference(reportPath, expectedSha256) {
+  if (!/^[a-f0-9]{64}$/.test(expectedSha256 || "")) throw Error("Exact deployment manifest SHA-256 required");
+  const manifest = readDeploymentManifest(reportPath, expectedSha256);
+  return { schema: 1, storageFormat: "deployment-context-reference-v1", manifestPath: path.resolve(reportPath), manifestSha256: expectedSha256, summary: summary(manifest) };
+}
+function readDeploymentContextReference(reference) {
+  if (reference?.schema !== 1 || reference.storageFormat !== "deployment-context-reference-v1" || !/^[a-f0-9]{64}$/.test(reference.manifestSha256 || "")) throw Error("Invalid deployment context reference");
+  const manifest = readDeploymentManifest(reference.manifestPath, reference.manifestSha256);
+  if (!same(summary(manifest), reference.summary)) throw Error("Deployment context summary binding changed");
+  return { ...manifest, reportPath: path.resolve(reference.manifestPath), manifestSha256: reference.manifestSha256 };
+}
+
+module.exports = { serializeDeploymentManifest, preflightDeploymentManifest, writeDeploymentManifest, readDeploymentManifest, createDeploymentContextReference, readDeploymentContextReference };

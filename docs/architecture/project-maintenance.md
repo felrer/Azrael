@@ -419,6 +419,8 @@ register/apply 시작과 중단된 상태 트랜잭션의 재획득은 기존 OS
 
 ## 보호의 종료와 참조 해제
 
+일회성 `artifact-run`의 사용 종료는 producer 종료와 별도인 명시적 `retireArtifactRun` 전이로 연결한다. `finishArtifactRun`에 retirement를 지정하면 종료 lease를 반환한 뒤 같은 전이를 수행한다. 독립 소유자에 먼저 저장한 SHA 고정 acceptance/diagnostic 근거와 현재 run revision을 요구한다. 알려진 stopped·구성 완결·자체 root 안의 generated/protection_known 구성원만 지원하며, 외부 custom 경로와 unknown은 보존한다. 지원 owner의 현재 register/review/apply를 실행하고 각 실제 삭제 결과를 확인한 뒤 finalize하므로 삭제된 빈 ledger도 남기지 않는다. 참조·예약·권한·링크·동시 변경 보호는 native owner가 재검사한다. 보호나 부분 실패는 원래 producer 결과를 유지한 채 정리 미완료로 보고하며 자동 재시도하지 않는다. 기존 보존 run의 기본 종료 동작과 evidence/dependency/installation/recovery 참조는 바꾸지 않는다. 이 전이는 명시적으로 일회성으로 선택한 호출에만 적용하며 모든 기존 producer에 상주 수집기를 추가하는 기능이 아니다. 기능 연결은 기존 `tool.project-maintenance.writers`가 소유한다.
+
 실행 결과와 생산자 종료, 구성 완결은 독립 사실이다. producer record의 `producer`는 종료 상태·성공/실패/미확인 결과·실제 exit code와 종료 근거 identity를 보존한다. 소유자가 정확한 revision과 읽을 수 있는 근거를 제출한 `closeLifecycle`은 확인된 종료와 구성 완결을 기록하고 명시한 `execution` 참조만 해제한다. 종료된 실패도 `failed`를 유지한 채 정리 검토가 가능하다. 미확인 종료와 남은 자식 작업은 보호하며 완료로 바꾸지 않는다. 새 run writer는 자신이 배타적으로 생성한 경로에만 generated/protection_known을 명시한다. 기존 미확정 자료를 종료했다는 이유로 소유 확인된 자료로 승격하지 않는다.
 
 `recoverCleanup`은 종료를 독립적으로 검증했지만 원래 결과를 알 수 없는 producer의 정리 자격을 별도로 기록한다. 원래 pending 상태·producer·nullable exit·generation과 모든 참조를 유지하며, 구성 완결만 별도 근거로 확인한다. 정확한 owner/revision·원래 상태·구성원에 결합된 `cleanup_recovery`와 SHA 고정 JSON 및 별도의 살아남는 producer 증거가 필요하다. 명시적으로 generated/protection_known인 기존 구성원만 허용하며 새 소유권을 추정하지 않는다. 현재 소비자나 정리 예약이 있으면 복구와 재시도를 거부한다. Node와 native 관측은 증거 파일의 경계·identity·hash와 구성 결합을 다시 확인한다. 이후 새 소비자는 기존 native 참조 보호로 차단한다. 복구 기록은 실행 성공이나 캐시 재사용 자격을 만들지 않으며, 새 generation 시작을 허용하지 않는다. 실제 삭제에는 별도의 fresh native review와 명시적 결정이 계속 필요하다. 경과 시간과 PID 부재는 종료 근거를 대체하지 않는다.

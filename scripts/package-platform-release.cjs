@@ -102,7 +102,7 @@ function packageRelease(options) {
   const owners=records.filter(record=>record.kind==="version" && record.members.some(member=>member.path===release && member.role==="release"));
   if(owners.length>1) throw new Error("Conflicting packaging release ownership.");
   const related=parent || owners[0] || importedInputOwner(lifecycleRoot,release,names,records);
-  const packageMembers=[{path:output,role:"package"},{path:archive,role:"archive"},{path:archivePartial,role:"archive-work"},{path:stateFile,role:"pipeline-state"},{path:stateFile+".update-lock",role:"pipeline-update-lock"},{path:stateFile+".tmp",role:"pipeline-state-work"},{path:output+".pipeline.lock",role:"pipeline-lock"}];
+  const packageMembers=[{path:output,role:"package"},{path:archive,role:"archive"},{path:archivePartial,role:"archive-work"},{path:stateFile,role:"pipeline-state"},{path:stateFile+".payloads",role:"pipeline-payloads"},{path:stateFile+".update-lock",role:"pipeline-update-lock"},{path:stateFile+".tmp",role:"pipeline-state-work"},{path:output+".pipeline.lock",role:"pipeline-lock"}];
   const lifecycleRecord=parent ? {...parent,members:packageMembers} :
     {id:`platform-package:${output}`,kind:"run",owner:"package-platform-release",version,members:packageMembers,references:[{id:related.id,reason:"packaging-input"}]};
   let pipeline;

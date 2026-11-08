@@ -863,6 +863,7 @@ test("build producer records all planned members before first output creation fa
     { path: output + ".work", role: "work" },
     { path: at("logs/multi-platform/build/failed-start"), role: "logs" },
     { path: output + ".pipeline.json", role: "pipeline-state" },
+    { path: output + ".pipeline.json.payloads", role: "pipeline-payloads" },
     { path: output + ".pipeline.json.update-lock", role: "pipeline-update-lock" },
     { path: output + ".pipeline.json.tmp", role: "pipeline-state-work" },
     { path: output + ".pipeline.lock", role: "pipeline-lock" },

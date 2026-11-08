@@ -266,6 +266,93 @@ async function main() {
     const forged = spawnSync(process.execPath, [helper, 'compare', report, report, comparison, '0'.repeat(64), full.sha256], { encoding: 'utf8' });
     assert.notEqual(forged.status, 0);
   });
+  await test('conditional CLI compacts unchanged reports and retains full changed diagnostics with a validated baseline', async () => {
+    const root = await repository('cli-conditional');
+    const reports = path.join(root, 'reports');
+    await fs.mkdir(reports);
+    const baselinePath = path.join(reports, 'initial.json');
+    const reportPath = path.join(reports, 'pre-install.json');
+    const helper = path.join(__dirname, 'deployment-input-snapshot.cjs');
+    const initial = spawnSync(process.execPath, [helper, root, baselinePath], { encoding: 'utf8' });
+    assert.equal(initial.status, 0, initial.stderr);
+    const baselineBytes = await fs.readFile(baselinePath);
+    const baseline = JSON.parse(baselineBytes);
+    const baselineFileSha256 = createHash('sha256').update(baselineBytes).digest('hex');
+    const run = (expectedFileSha256 = baselineFileSha256, selectedBaseline = baselinePath) => spawnSync(process.execPath, [helper, root, reportPath,
+      '--baseline', selectedBaseline, '--expected-baseline-sha256', baseline.sha256,
+      '--expected-baseline-file-sha256', expectedFileSha256], { encoding: 'utf8' });
+    const unchanged = run();
+    assert.equal(unchanged.status, 0, unchanged.stderr);
+    const compact = JSON.parse(await fs.readFile(reportPath, 'utf8'));
+    const stdout = JSON.parse(unchanged.stdout);
+    assert.equal(compact.schema, 2);
+    assert.equal(compact.status, 'unchanged');
+    assert.equal(Object.hasOwn(compact, 'inventory'), false);
+    assert.equal(stdout.schema, 1);
+    assert.equal(stdout.sha256, baseline.sha256);
+    assert.equal(stdout.fileCount, baseline.fileCount);
+    assert.equal(stdout.bytes, baseline.bytes);
+    assert.deepEqual(compact.baseline, { path: await fs.realpath(baselinePath),
+      sha256: baselineFileSha256, inputSha256: baseline.sha256 });
+    assert.deepEqual(await fs.readFile(baselinePath), baselineBytes, 'baseline remains intact');
+
+    for (const kind of ['hardlink', 'ancestor-link']) {
+      const linked = path.join(reports, kind);
+      try {
+        if (kind === 'hardlink') await fs.link(baselinePath, linked);
+        else await fs.symlink(reports, linked, process.platform === 'win32' ? 'junction' : 'dir');
+      } catch (error) {
+        if (!['EPERM', 'EACCES', 'ENOTSUP', 'ENOSYS', 'EOPNOTSUPP', 'EXDEV'].includes(error.code)) throw error;
+        console.log(`SKIP baseline ${kind}: ${error.code}`);
+        continue;
+      }
+      try {
+        const selected = kind === 'hardlink' ? baselinePath : path.join(linked, 'initial.json');
+        const rejected = run(baselineFileSha256, selected);
+        assert.notEqual(rejected.status, 0, `baseline ${kind} must fail closed`);
+        assert.equal(rejected.stdout, '');
+      } finally {
+        if (kind === 'ancestor-link' && process.platform === 'win32') await fs.rmdir(linked);
+        else await fs.unlink(linked);
+      }
+    }
+
+    await fs.writeFile(path.join(root, 'input.txt'), 'changed consumed bytes');
+    const changed = run();
+    assert.equal(changed.status, 0, changed.stderr);
+    const full = JSON.parse(await fs.readFile(reportPath, 'utf8'));
+    assert.deepEqual(summary(full), summary(await snapshotProject(root)));
+    assert.equal(JSON.parse(changed.stdout).sha256, full.sha256);
+    const comparisonPath = path.join(reports, 'changes.json');
+    const compared = spawnSync(process.execPath, [helper, 'compare', baselinePath, reportPath,
+      comparisonPath, baseline.sha256, full.sha256], { encoding: 'utf8' });
+    assert.equal(compared.status, 0, compared.stderr);
+    const comparison = JSON.parse(await fs.readFile(comparisonPath, 'utf8'));
+    assert.equal(comparison.status, 'consumed-inputs-changed');
+    assert.deepEqual(comparison.changes.map(change => [change.path, change.kind]), [['input.txt', 'modified']]);
+    await fs.writeFile(baselinePath, JSON.stringify({ ...baseline, bytes: baseline.bytes + 1 }));
+    const tamperedWhileChanged = run();
+    assert.notEqual(tamperedWhileChanged.status, 0, 'baseline metadata tamper must fail even with changed inputs');
+    assert.equal(tamperedWhileChanged.stdout, '');
+
+    await fs.writeFile(path.join(root, 'input.txt'), 'alpha');
+    for (const tampered of [
+      { ...baseline, sha256: '0'.repeat(64) },
+      { ...baseline, inventory: [{ ...baseline.inventory[0], entries: [] }] },
+      { ...baseline, bytes: baseline.bytes + 1 },
+      compact,
+    ]) {
+      const content = JSON.stringify(tampered);
+      await fs.writeFile(baselinePath, content);
+      const rejected = run(createHash('sha256').update(content).digest('hex'));
+      assert.notEqual(rejected.status, 0, 'tampered or compact baseline must fail closed');
+      assert.equal(rejected.stdout, '');
+    }
+    await fs.unlink(baselinePath);
+    assert.notEqual(run().status, 0, 'missing baseline must fail closed');
+    await fs.mkdir(baselinePath);
+    assert.notEqual(run().status, 0, 'non-file baseline must fail closed');
+  });
   await test('API and CLI abort for invalid repository and unreadable tracked input', async () => {
     const invalid = path.join(fixtures, 'not-a-repository');
     await fs.mkdir(invalid);

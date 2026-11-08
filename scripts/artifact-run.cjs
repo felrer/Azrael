@@ -99,8 +99,14 @@ function trackArtifactChild(run, child) {
   child.once("close", () => { child.artifactClosed = true; });
   return child;
 }
-function finishArtifactRun(run, { exitCode, signal = null, producerStopped, reason = "Owned producer and tracked children stopped", cancellation, stopEvidence }) {
-  if (run.record.producer) return run.record;
+function finishArtifactRun(run, { exitCode, signal = null, producerStopped, reason = "Owned producer and tracked children stopped", cancellation, stopEvidence, retirement }) {
+  const retire = record => {
+    if (retirement === undefined) return record;
+    const result = retireArtifactRun(run, retirement);
+    if (result.status !== "deleted") throw Object.assign(Error("Run cleanup remains unresolved"), { retirement: result });
+    return { ...record, retirement: result };
+  };
+  if (run.record.producer) return retire(run.record);
   if (signal !== null && (typeof signal !== "string" || !/^SIG[A-Z0-9]+$/.test(signal) || signal.trim() !== signal)) throw Error("Actual producer signal must be null or a SIG name");
   if (signal !== null && Number.isInteger(exitCode)) throw Error("Producer exit code and signal cannot both be present");
   if (typeof reason !== "string" || !reason.trim()) throw Error("Nonblank producer reason required");
@@ -115,7 +121,7 @@ function finishArtifactRun(run, { exitCode, signal = null, producerStopped, reas
   const success = exitCode === 0 && stopped;
   const knownOutcome = Number.isInteger(exitCode) || signal !== null;
   const state = success ? "complete" : stopped && knownOutcome ? "failed" : "pending";
-  return lifecycle.withCatalogLock(run.projectRoot, () => {
+  const record = lifecycle.withCatalogLock(run.projectRoot, () => {
     currentRun(run); // Reject stale or replaced ownership before touching any report.
     const view = fs.existsSync(run.reports) ? path.join(run.reports, "producer.json") : path.join(run.projectRoot, "artifacts/maintenance/lifecycle-evidence", createHash("sha256").update(run.lifecycleId).digest("hex") + ".json");
     const bytes = Buffer.from(JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode: Number.isInteger(exitCode) ? exitCode : null, signal, producerStopped: stopped, reason, ...(cancellation === undefined ? {} : { cancellation }), ...(verifiedStop ? { stopEvidence: verifiedStop } : {}), children: [...run.children].map(child => ({ pid: child.pid ?? null, closed: child.artifactClosed })), state, membership_complete: stopped && knownOutcome }, null, 2) + "\n");
@@ -152,6 +158,37 @@ function finishArtifactRun(run, { exitCode, signal = null, producerStopped, reas
     if (run.record.producer) activeRuns.delete(runKey(run.projectRoot, run.lifecycleId));
     return run.record;
   }, { operation: "lifecycle.reconcile" });
+  // Native cleanup reacquires current guards after the producer close lease.
+  return retire(record);
+}
+// Explicit end-of-use transition for disposable invocation roots. The caller
+// first publishes acceptance/diagnostic evidence under a surviving owner.
+// Neither a passing exit nor this helper overrides a native protection check.
+function retireArtifactRun(run, request) {
+  const record = currentRun(run);
+  if (record.producer?.status !== "stopped" || !record.membership_complete || !["complete", "failed"].includes(record.state)) throw Error("Retirement requires a known stopped, complete run");
+  if (record.members.some(member => member.generated !== true || member.protection_known !== true || !inside(run.runRoot, member.path))) throw Error("Retirement requires exclusively generated members inside the run root");
+  const evidence = lifecycle.checkedEvidence(run.projectRoot, request);
+  if (record.members.some(member => inside(member.path, evidence.evidence_ref)) || inside(path.dirname(lifecycle.registryPath(run.projectRoot, record.id)), evidence.evidence_ref)) throw Error("Retirement evidence must survive outside the run and registry");
+  const { spawnSync } = require("node:child_process");
+  const command = require("./maintenance-owner-config.cjs").resolveMaintenanceCommand(run.projectRoot);
+  const invoke = input => {
+    // Each phase observes current native state. Unknown/failed dispatch is never
+    // retried or interpreted as successful deletion.
+    const child = spawnSync(command.executable, [...command.args, "--project-root", run.projectRoot, "--request", "-"], {
+      input: JSON.stringify({ ...input, lock_wait_ms: command.maxLockWaitMs ?? 5000 }), encoding: "utf8", windowsHide: true, maxBuffer: 16 * 1024 * 1024,
+    });
+    if (child.error || child.status !== 0 || child.signal) throw Error(`Run retirement ${input.operation} failed: ${child.error?.message || child.stderr || child.stdout || child.signal}`, { cause: child.error });
+    return JSON.parse(child.stdout);
+  };
+  invoke(lifecycle.registerRequest(run.projectRoot, record.id));
+  const review = invoke({ operation: "review", group_ids: [record.id], verification: "registered" });
+  if (!review.items?.length || review.items.some(item => item.lifecycle_group_id !== record.id || item.blockers?.length)) return { status: "blocked", id: record.id, review };
+  lifecycle.checkedEvidence(run.projectRoot, request);
+  const applied = invoke({ operation: "apply", verification: "registered", decisions: review.items.map(item => ({ id: item.id, token: item.token, decision: "delete", reason: request.reason })) });
+  if (applied.aborted || applied.cancelled || applied.results?.length !== review.items.length || applied.results.some(item => item.status !== "deleted" || item.remaining !== false)) return { status: "partial", id: record.id, applied };
+  const finalization = lifecycle.finalize(run.projectRoot, record.id);
+  return { status: finalization.status === "finalized" ? "deleted" : "partial", id: record.id, applied, finalization };
 }
 async function confirmOwnedBrowserExit(child,profilePath,spawn){
  if(!child)return {confirmed:true,exitCode:null,signalCode:null,processIds:[]};
@@ -188,4 +225,4 @@ async function confirmOwnedBrowserExit(child,profilePath,spawn){
  return result;
 }
 
-module.exports = { beginArtifactRun, addArtifactRunReferences, finishArtifactRun, trackArtifactChild, confirmOwnedBrowserExit };
+module.exports = { beginArtifactRun, addArtifactRunReferences, finishArtifactRun, retireArtifactRun, trackArtifactChild, confirmOwnedBrowserExit };
