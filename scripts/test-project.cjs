@@ -24,6 +24,24 @@ const FEATURE_FIXTURES = ["capture-project-inputs", "student-avatar-assets", "wi
 const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/asset-transform-cache.cjs", "scripts/test-project.cjs"]);
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
 
+// Aggregate as witnesses arrive: never materialize the path/test cross product.
+function createReasonSummary() {
+  const groups = new Map();
+  return {
+    push({ reason, test, area, evidence = [] }) {
+      if (!groups.has(reason)) groups.set(reason, { tests: new Set(), areas: new Set(), evidence: new Set() });
+      const group = groups.get(reason);
+      if (test) group.tests.add(test);
+      if (area) group.areas.add(area);
+      for (const value of evidence) group.evidence.add(value);
+    },
+    values() {
+      return [...groups].map(([reason, group]) => ({ reason, ...Object.fromEntries(
+        Object.entries(group).filter(([, values]) => values.size).map(([key, values]) => [key, [...values].sort()])) }));
+    },
+  };
+}
+
 function parseArgs(args) {
   let argumentIdentity;
   if (args.includes("--args-file")) {
@@ -107,7 +125,7 @@ function select(options, root = ROOT) {
   const discovered = discover(root);
   const files = new Set();
   const areas = new Set();
-  const reasons = [];
+  const reasons = createReasonSummary();
   const separateChecks = new Set();
   const extensionFiles = new Set();
   let extension;
@@ -140,43 +158,43 @@ function select(options, root = ROOT) {
       owners.get(module).add(file);
     }
   }
-  for (const area of options.areas) add(area, "explicit --area");
+  for (const area of options.areas) add(area, "Explicit area");
   for (const file of changed) {
-    if (!isProductInput(file) || /\.(md|markdown)$/i.test(file)) { reasons.push({ path: file, reason: "Work evidence or documentation only; no source tests selected" }); continue; }
-    if (/(?:engine|provider|codex-rs|artifacts\/worktrees|^scripts\/(?:install-|prepare-|deploy-|deployment-input-snapshot|test-deployment-input-snapshot|test-deploy-))/i.test(file)) separateChecks.add("Packaged, native, install/preparation and live acceptance belongs to the separate operational checks; source tests do not establish it.");
+    if (!isProductInput(file) || /\.(md|markdown)$/i.test(file)) { reasons.push({ path: file, reason: "Docs/work evidence" }); continue; }
+    if (/(?:engine|provider|codex-rs|artifacts\/worktrees|^scripts\/(?:install-|prepare-|deploy-|deployment-input-snapshot|test-deployment-input-snapshot|test-deploy-))/i.test(file)) separateChecks.add("Package/native gates");
     const buildChange = /(?:^scripts\/(?:build-|install-|prepare-|deploy-|package-|test-(?:incremental-extension-build|ordered-asset-reader|deployment-input-snapshot|build-metrics|deploy-azrael|preparation-routing))|^scripts\/(?:ordered-asset-reader|preparation-state|deployment-input-snapshot)\.|^extensions\/azrael-ex\/scripts\/build-)/.test(file);
-    if (buildChange) add("build", `build tooling changed: ${file}`);
-    if (SHARED.has(file)) { add("current", `shared source changed: ${file}`); continue; }
+    if (buildChange) add("build", "Build owner");
+    if (SHARED.has(file)) { add("current", "Shared owner"); continue; }
     if (file.startsWith("extensions/azrael-ex/")) {
-      add("extension", `extension changed: ${file}`);
-      if (/\/(?:chatSession|appServerTransport|hostRuntime)\.[^/]+$|\/standalone[^/]*\.test\.ts$/.test(file)) add("standalone", `standalone owner changed: ${file}`);
+      add("extension", "Extension owner");
+      if (/\/(?:chatSession|appServerTransport|hostRuntime)\.[^/]+$|\/standalone[^/]*\.test\.ts$/.test(file)) add("standalone", "Standalone owner");
       if (/^extensions\/azrael-ex\/(?:scripts\/|package(?:-lock)?\.json$|tsconfig[^/]*\.json$)/.test(file)) {
-        add("current", `extension runner/config/dependency changed: ${file}`);
-        add("standalone", `extension runner/config/dependency changed: ${file}`);
+        add("current", "Extension config");
+        add("standalone", "Extension config");
       } else if (/^extensions\/azrael-ex\/src\/(?:.*(?:runtime|transport|types|config|dependency).*|extension\.ts)$/i.test(file)) {
-        add("current", `shared extension runtime input changed: ${file}`);
-        add("standalone", `shared extension runtime input changed: ${file}`);
+        add("current", "Shared runtime");
+        add("standalone", "Shared runtime");
       }
       continue;
     }
-    if (NAMESPACE.includes(file)) { add("namespace", `namespace test changed: ${file}`); continue; }
+    if (NAMESPACE.includes(file)) { add("namespace", "Changed test"); continue; }
     const matching = owners.get(file) || (discovered.includes(file) ? new Set([file]) : null);
     if (matching) {
       for (const test of matching) {
-        if (QUEUE.includes(test)) add("queue", `owner test ${test} for ${file}`);
-        if (RECOVERY.includes(test)) add("recovery", `owner test ${test} for ${file}`);
-        if (!QUEUE.includes(test) && !RECOVERY.includes(test)) { files.add(test); reasons.push({ path: file, test, reason: "direct source owner" }); }
+        if (QUEUE.includes(test)) add("queue", "Source owner");
+        if (RECOVERY.includes(test)) add("recovery", "Source owner");
+        if (!QUEUE.includes(test) && !RECOVERY.includes(test)) { files.add(test); reasons.push({ path: file, test, reason: "Source owner" }); }
       }
-    } else add("current", `unmapped change conservatively selects current: ${file}`);
+    } else add("current", "Unmapped input");
   }
-  if (!changed.length && !options.areas.length) reasons.push({ reason: "No changed paths; no tests selected" });
+  if (!changed.length && !options.areas.length) reasons.push({ reason: "No changes" });
   const policyChanged = options.changed.length ? options.changed : options.policyChangedPaths ?? changed;
   const testPolicy = { ...planSourceTests({ files: [...files].sort(), changedPaths: policyChanged, exhaustive: options.exhaustive }), exhaustive: !!options.exhaustive, changedPaths: policyChanged };
   const deferredChecks = [];
   if (options.deferPreservationCacheOwner && testPolicy.files.includes("scripts/test-namespace-cache-owner.cjs")) {
     const file = "scripts/test-namespace-cache-owner.cjs";
     testPolicy.files = testPolicy.files.filter(selected => selected !== file);
-    deferredChecks.push({ file, owner: "UI preservation gate", reason: "Caller requires the complete UI preservation gate before acceptance" });
+    deferredChecks.push({ file, owner: "UI preservation gate", reason: "UI gate owns check" });
   }
   files.clear();
   for (const file of testPolicy.files) files.add(file);
@@ -196,7 +214,7 @@ function select(options, root = ROOT) {
     commands.push(...selectedExtensionCommands([...extensionFiles].sort(), extension.extension, root));
   }
   for (const file of [...scripts].sort()) commands.push({ name: path.basename(file, path.extname(file)), executable: file.endsWith(".ps1") ? "pwsh" : process.execPath, args: file.endsWith(".ps1") ? ["-NoProfile", "-File", file] : [file], cwd: root, files: [file] });
-  return { testPolicy, deferredChecks, changed, areas: [...areas], files: [...files].sort(), extensionFiles: [...extensionFiles].sort(), reasons, separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
+  return { testPolicy, deferredChecks, changed, areas: [...areas], files: [...files].sort(), extensionFiles: [...extensionFiles].sort(), reasons: reasons.values(), separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
 }
 
 function selectedExtensionCommands(files, extension, root) {
@@ -451,11 +469,11 @@ function selectChanged(options, root) {
   const discovered = discover(root);
   // Script-style build tests are intentionally outside node:test discovery.
   const operationalTestPhases = {
-    "scripts/test-accepted-input-engine.mjs": "Post-build engine acceptance requires fresh engine and output arguments",
-    "scripts/test-parked-root-steering.mjs": "Post-build parked-root acceptance requires fresh engine and output arguments",
-    "scripts/test-independent-namespace.cjs": "Six-stage host verification requires a prepared extension",
-    "scripts/test-namespace-performance.cjs": "Optional benchmark is disabled for changed-only source verification",
-    "scripts/tests/check-release-source-root.ps1": "Release provenance verification requires explicit source and release context",
+    "scripts/test-accepted-input-engine.mjs": "Engine acceptance",
+    "scripts/test-parked-root-steering.mjs": "Parked-root acceptance",
+    "scripts/test-independent-namespace.cjs": "Prepared host",
+    "scripts/test-namespace-performance.cjs": "Benchmark excluded",
+    "scripts/tests/check-release-source-root.ps1": "Release provenance",
   };
   const candidates = [...new Set([...discovered, ...NAMESPACE, ...BUILD, ...FEATURE_FIXTURES])]
     .filter(file => !operationalTestPhases[file] && fs.existsSync(path.join(root, file)));
@@ -482,9 +500,9 @@ function selectChanged(options, root) {
       owners.get(source).add(test);
     }
   }
-  const files = new Set(), extensionFiles = new Set(), reasons = [], separateChecks = new Set();
+  const files = new Set(), extensionFiles = new Set(), reasons = createReasonSummary(), separateChecks = new Set();
   try { declaredFeatureOwners(owners, candidates, root, evidence); }
-  catch (error) { separateChecks.add(`Declared feature owner discovery requires a separate check: ${error.message}`); }
+  catch (error) { separateChecks.add(`Owner discovery: ${error.message}`); }
   const dynamicOwners = scriptOwners(candidates, root, owners, evidence);
   const newInputs = new Set();
   for (const args of [["ls-files", "--others", "--exclude-standard", "-z"], ["diff", "HEAD", "--diff-filter=A", "--name-only", "-z"]]) {
@@ -495,17 +513,17 @@ function selectChanged(options, root) {
   const add = (file, test, reason, evidence) => { files.add(test); reasons.push({ path: file, test, reason, ...(evidence ? { evidence } : {}) }); };
   for (const file of changed) {
     if (!isProductInput(file) || /\.(md|markdown)$/i.test(file)) {
-      reasons.push({ path: file, reason: "Documentation only; no code tests selected" });
+      reasons.push({ path: file, reason: "Docs/work evidence" });
       continue;
     }
     if (!fs.existsSync(path.join(root, file)) || newInputs.has(file))
-      separateChecks.add(`${file}: New or deleted input requires a separate review of owner coverage`);
+      separateChecks.add(`${file}: New/deleted input`);
     if (/(?:engine|provider|codex-rs|artifacts\/worktrees|^scripts\/(?:install-|prepare-|deploy-|deployment-input-snapshot|test-deployment-input-snapshot|test-deploy-))/i.test(file))
-      separateChecks.add("Packaged, native, install/preparation and live acceptance belongs to the separate operational checks; source tests do not establish it.");
+      separateChecks.add("Package/native gates");
     let matched = false;
-    if (candidates.includes(file)) { add(file, file, "changed test selects itself"); matched = true; }
+    if (candidates.includes(file)) { add(file, file, "Changed test"); matched = true; }
     else if (file !== "scripts/test-project.cjs" && /^scripts\/(?:test-[^/]+\.(?:cjs|mjs|ps1)|tests\/[^/]+\.(?:test\.(?:cjs|mjs)|ps1))$/.test(file)) {
-      const reason = operationalTestPhases[file] || "Script-style test has no approved argument-free source runner; its owning operational phase must supply context";
+      const reason = operationalTestPhases[file] || "Operational context";
       reasons.push({ path: file, reason });
       separateChecks.add(`${file}: ${reason}`);
       continue;
@@ -516,15 +534,15 @@ function selectChanged(options, root) {
     }
     else {
       for (const test of owners.get(file) || []) {
-        add(file, test, "source dependency owner", [...(evidence.get(`${file}\0${test}`) || ["explicit-owner"])]);
+        add(file, test, "Source owner", [...(evidence.get(`${file}\0${test}`) || ["explicit-owner"])]);
         matched = true;
       }
       if (/^extensions\/azrael-ex\/media\/student-avatars\//.test(file) && candidates.includes("scripts/test-student-avatar-assets.cjs")) {
-        add(file, "scripts/test-student-avatar-assets.cjs", "student avatar asset contract owner");
+        add(file, "scripts/test-student-avatar-assets.cjs", "Avatar assets");
         matched = true;
       }
       if (SHARED.has(file) && file !== "scripts/test-project.cjs") {
-        for (const test of NAMESPACE.filter(test => candidates.includes(test))) add(file, test, "shared namespace identity/registry integration check");
+        for (const test of NAMESPACE.filter(test => candidates.includes(test))) add(file, test, "Namespace owner");
         matched = true;
       }
     }
@@ -534,38 +552,38 @@ function selectChanged(options, root) {
         const tests = extension.tests.includes(file) ? [file] : [...(extension.owners.get(file) || [])];
         for (const test of tests) {
           extensionFiles.add(test);
-          reasons.push({ path: file, test, reason: test === file ? "changed extension test selects itself" : "TypeScript dependency owner", ...(test === file ? {} : { evidence: ["static-import"] }) });
+          reasons.push({ path: file, test, reason: test === file ? "Changed test" : "TypeScript owner", ...(test === file ? {} : { evidence: ["static-import"] }) });
           matched = true;
         }
       } catch (error) {
-        separateChecks.add(`Extension owner discovery requires a separate check for ${file}: ${error.message}`);
+        separateChecks.add(`Extension discovery: ${file}: ${error.message}`);
       }
     }
     if (file === "extensions/azrael-ex/tsconfig.json") {
-      separateChecks.add(`${file}: Extension compiler configuration requires a separate extension build and test check`);
+      separateChecks.add(`${file}: Extension build`);
     }
     const uncertain = dynamicOwners.filter(owner => file.startsWith(owner.prefix));
     for (const owner of uncertain) {
       // Unbounded calls cannot justify expanding every mapped source to the
       // whole current suite. Preserve uncertainty for the separate scope review.
       if (owner.bounded || !matched || files.has(owner.test))
-        add(file, owner.test, `Unresolved computed dependency in ${owner.source}; conservative family selection requires separate review`, ["conservative-fallback"]);
+        add(file, owner.test, "Unresolved dependency", ["conservative-fallback"]);
     }
     if (uncertain.length)
-      separateChecks.add(`${file}: Unresolved computed require/import dependencies may consume this input; conservative selection does not establish complete dependency coverage`);
+      separateChecks.add(`${file}: Unresolved dependency`);
     if (!matched) {
-      const reason = "No direct test owner mapped; separate check required (no whole-suite fallback)";
+      const reason = "No test owner";
       reasons.push({ path: file, reason, evidence: ["conservative-fallback"] });
       separateChecks.add(`${file}: ${reason}`);
     }
   }
-  if (!changed.length) reasons.push({ reason: "No changed paths; no tests selected" });
+  if (!changed.length) reasons.push({ reason: "No changes" });
   const testPolicy = { ...planSourceTests({ files: [...files].sort(), changedPaths: changed, exhaustive: options.exhaustive }), exhaustive: !!options.exhaustive, changedPaths: changed };
   if (options.productBuild) {
     const moduleFiles = maintenanceRegressionFiles(JSON.parse(fs.readFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), 'utf8')));
     testPolicy.files = testPolicy.files.filter(file => {
       if (!moduleFiles.has(file)) return true;
-      testPolicy.omitted.push({ file, reason: 'Maintenance-module regression belongs to module development, outside product acceptance' });
+      testPolicy.omitted.push({ file, reason: 'Module-only regression' });
       return false;
     });
   }
@@ -582,7 +600,7 @@ function selectChanged(options, root) {
     // Incremental build decides whether compilation is stale; never clean dist or run a partition wholesale.
     commands.push(...selectedExtensionCommands(selectedExtension, extension.extension, root));
   }
-  return { testPolicy, deferredChecks: [], changed, areas: [], files: [...files].sort(), extensionFiles: selectedExtension, reasons, separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
+  return { testPolicy, deferredChecks: [], changed, areas: [], files: [...files].sort(), extensionFiles: selectedExtension, reasons: reasons.values(), separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
 }
 
 async function runCommand(command, directory, index, environment) {
@@ -776,7 +794,10 @@ async function main(args = process.argv.slice(2)) {
   const { resultPath } = report;
   console.log(`${selection.files.length} source files selected; results: ${resultPath}`);
   console.log(`Coverage status: ${selection.coverageStatus}`);
-  for (const reason of selection.reasons) console.log(`${reason.path ? `${reason.path}: ` : ""}${reason.reason}${reason.test ? ` (${reason.test})` : ""}`);
+  for (const reason of selection.reasons) console.log(`${reason.reason}${reason.tests ? `: ${reason.tests.length} checks` : ''}${reason.areas ? `: ${reason.areas.join(', ')}` : ''}`);
+  const excluded = [...(selection.testPolicy?.omitted || []), ...(selection.deferredChecks || [])];
+  if (excluded.length) console.log(`Excluded: ${[...new Set(excluded.map(item => item.reason))].join('; ')}`);
+  if (report.sourcePreflight?.files.length) console.log(`Reused: verified preflight (${report.sourcePreflight.files.length} files)`);
   for (const check of selection.separateChecks) console.log(check);
   return report.exitCode;
 }

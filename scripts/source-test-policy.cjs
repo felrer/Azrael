@@ -18,9 +18,9 @@ const sharedInputs = /^(?:scripts\/(?:.*cache[^/]*\.cjs|directory-state\.cjs|cap
 const preservationInputs = /^scripts\/(?:feature-preservation|verification-result-cache|native-verification-cache|directory-state|capture-project-inputs)\.cjs$/;
 const runnerInputs = /^(?:scripts\/(?:test-project(?:-selection|-fail-fast|-maintenance)?\.cjs|azrael-feature-contracts\.json)|(?:extensions\/azrael-ex\/)?(?:package(?:-lock)?\.json|tsconfig[^/]*\.json)|extensions\/azrael-ex\/scripts\/run-tests\.cjs)$/;
 const candidates = [
-  { file: "scripts/test-feature-preservation-cache.cjs", test: "schema2 exact success reuses proof while project, source UI and unknown aggregate inputs miss", related: file => sharedInputs.test(file) || preservationInputs.test(file), reason: "Aggregate preservation cache matrix runs for owner changes or --exhaustive" },
-  { file: "scripts/test-session-links.cjs", test: "guarded pinned 26.928.31416 outgoing links, parsing, allowlists and preservation", related: file => sharedInputs.test(file) || /^scripts\/(?:session-links\.cjs|open-azrael-session-link\.ps1|integrated-azrael-entry\.cjs)$/.test(file), reason: "Legacy pinned link compatibility runs for migration/transform/pin changes or --exhaustive" },
-  { file: "scripts/test-project-selection.cjs", related: runnerInputs, reason: "Runner selection regression runs for runner/config/manifest changes or --exhaustive" },
+  { file: "scripts/test-feature-preservation-cache.cjs", test: "schema2 exact success reuses proof while project, source UI and unknown aggregate inputs miss", related: file => sharedInputs.test(file) || preservationInputs.test(file), reason: "Unrelated cache matrix" },
+  { file: "scripts/test-session-links.cjs", test: "guarded pinned 26.928.31416 outgoing links, parsing, allowlists and preservation", related: file => sharedInputs.test(file) || /^scripts\/(?:session-links\.cjs|open-azrael-session-link\.ps1|integrated-azrael-entry\.cjs)$/.test(file), reason: "Unrelated link matrix" },
+  { file: "scripts/test-project-selection.cjs", related: runnerInputs, reason: "Unrelated runner checks" },
 ];
 const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -65,8 +65,8 @@ function omittedMatrixCases(changed) {
   }
   return assets.filter(asset => !affected.has(asset)).map(asset => ({ file: MATRIX_FILE,
     test: matrixTestName(asset), reason: affected.size
-      ? "Pinned fixture is outside the changed injectors' closed targets and known pinned asset paths"
-      : "Pinned transform/cache matrix is unrelated to documentation-only changes" }));
+      ? "Other UI assets"
+      : "Docs/work only" }));
 }
 
 function planSourceTests({ files, changedPaths = [], exhaustive = false }) {

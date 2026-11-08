@@ -32,7 +32,7 @@ function select(features, config) {
   if (config.productBuild === true) features = features.map(feature => ({ ...feature,
     checks: feature.checks.filter(check => {
       if (!maintenanceRegressionChecks.has(check.id)) return true;
-      deferred.push({ checkId: check.id, reason: 'Maintenance-module regression belongs to module development, outside product acceptance' });
+      deferred.push({ checkId: check.id, reason: 'Module-only regression' });
       return false;
     }) }));
   if (config.sourceCheckPaths === undefined || config.fullRegression === true) return { features };

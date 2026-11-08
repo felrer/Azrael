@@ -86,7 +86,7 @@ async function bindSourcePreflight(selection, config, root, verify = gate.verify
   return { validate, environment: gate.checkEnvironment(config), selection: { ...selection, commands,
     sourcePreflight: { receiptPath: receipt.receiptPath, receiptSha256: receiptHash,
       files: [...covered].sort(), checks: records, ...(receipt.reuseReview ? { reuseReview: receipt.reuseReview } : {}),
-      reason: 'Passing engine gate owns complete unfiltered node:test bundles; identity and logs revalidated before and after source execution' } } };
+      reason: 'Verified source preflight' } } };
 }
 
 module.exports = { bindSourcePreflight, completeTestArgs };

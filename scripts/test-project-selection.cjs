@@ -8,6 +8,20 @@ const { spawnSync } = require("node:child_process");
 const { parseArgs, select, fixtureFiles, runCommand } = require("./test-project.cjs");
 const selection = args => select(parseArgs(args));
 
+test('selection reasons stay short and grouped across repeated witnesses', () => {
+  const records = Array.from({ length: 10000 }, (_, i) => `work/session/evidence-${i}.json`);
+  const report = selection(['--changed-only', ...records.flatMap(file => ['--changed', file])]);
+  assert.deepEqual(report.reasons, [{ reason: 'Docs/work evidence' }]);
+  assert.deepEqual(report.files, []);
+  assert.deepEqual(report.separateChecks, []);
+  const input = ['--changed-only', '--changed', 'scripts/test-session-links.cjs'];
+  const once = selection(input);
+  const repeated = selection([...input, '--changed', 'scripts/test-session-links.cjs']);
+  assert.deepEqual(repeated.reasons, once.reasons);
+  assert.deepEqual(repeated.commands, once.commands);
+  assert.ok(once.reasons.every(item => item.reason.length <= 24 && !('path' in item) && !('test' in item)));
+});
+
 test('work and verification metadata never select product tests; module diagnostics remain explicit', () => {
   const metadata = ['work/session/verification.json', 'work/session/retry.ps1', 'artifacts/tasks/build/runs/1/reports/result.json', 'artifacts/logs/deploy-one/input.json', 'artifacts/verification/receipt.json'];
   const onlyRecords = selection(['--changed-only', ...metadata.flatMap(file => ['--changed', file])]);
@@ -152,7 +166,7 @@ test("registered fixture owners enter changed-only selection without live native
     assert.ok(!result.files.includes("scripts/test-window-use-native.cjs"));
     assert.ok(!result.files.includes("scripts/test-deploy-azrael.ps1"));
     assert.ok(!result.commands.some(command => command.executable === "npm"));
-    assert.ok(!result.separateChecks.some(check => check.startsWith(source + ":") && !/Unresolved computed/.test(check)));
+    assert.ok(!result.separateChecks.some(check => check.startsWith(source + ":") && !/Unresolved dependency/.test(check)));
     assert.equal(result.coverageStatus, result.separateChecks.length ? "requires-separate-checks" : "selected-source-scope");
   }
 });
@@ -196,7 +210,7 @@ test("standalone owners select extension and standalone; configs select the full
 test("docs select none; direct module owners select bounded areas; build changes select build", () => {
   const docs = selection(["--changed", "docs/README.md"]);
   assert.equal(docs.commands.length, 0);
-  assert.match(docs.reasons[0].reason, /documentation/i);
+  assert.match(docs.reasons[0].reason, /Docs/i);
   const queue = selection(["--changed", "scripts/inject-queue-consumption.cjs"]);
   assert.ok(queue.areas.includes("queue"));
   assert.ok(queue.areas.includes("recovery"));
@@ -286,7 +300,7 @@ test("changed-only shared inputs retain namespace checks without selecting curre
 test("changed-only unknowns and unowned assets are visible, Markdown selects none, changed tests select only themselves", () => {
   const unknown = selection(["--changed-only", "--changed", "some-new-source.js"]);
   assert.equal(unknown.commands.length, 0);
-  assert.match(unknown.reasons[0].reason, /No direct test owner/);
+  assert.match(unknown.reasons[0].reason, /No test owner/);
   assert.ok(unknown.separateChecks.some(reason => reason.includes("some-new-source.js")));
   assert.equal(unknown.coverageStatus, "requires-separate-checks");
   assert.equal(selection(["--changed-only", "--changed", "docs/README.md"]).coverageStatus, "selected-source-scope");
@@ -369,8 +383,8 @@ test("changed-only walks cyclic CommonJS dependencies, resolves directories and 
     const result = select(parseArgs(["--changed-only", "--changed", "scripts/lib/index.js", "--changed", "scripts/deleted.cjs", "--changed", "scripts/new.cjs"]), directory);
     assert.deepEqual(result.files, ["scripts/test-owner.cjs"]);
     assert.equal(result.commands.length, 1);
-    assert.ok(result.separateChecks.some(reason => reason.includes("scripts/deleted.cjs") && /New or deleted/.test(reason)));
-    assert.ok(result.separateChecks.some(reason => reason.includes("scripts/new.cjs") && /No direct test owner/.test(reason)));
+    assert.ok(result.separateChecks.some(reason => reason.includes("scripts/deleted.cjs") && /New\/deleted/.test(reason)));
+    assert.ok(result.separateChecks.some(reason => reason.includes("scripts/new.cjs") && /No test owner/.test(reason)));
     assert.deepEqual(select(parseArgs(["--changed-only", "--changed", "scripts/test-owner.cjs"]), directory).files, ["scripts/test-owner.cjs"]);
   } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
@@ -461,7 +475,7 @@ test("declared cache data keeps direct owners without executing its imports, inc
     ] }));
     const direct = select(parseArgs(["--changed-only", "--changed", "scripts/payload.js"]), directory);
     assert.deepEqual(direct.files, ["scripts/test-data.cjs", "scripts/test-mixed.cjs", "scripts/test-static.cjs"]);
-    assert.ok(direct.reasons.some(reason => reason.test === "scripts/test-data.cjs" && reason.evidence?.includes("manifest-data")));
+    assert.ok(direct.reasons.some(reason => reason.tests?.includes("scripts/test-data.cjs") && reason.evidence?.includes("manifest-data")));
     const transitive = select(parseArgs(["--changed-only", "--changed", "scripts/leaf.js"]), directory);
     assert.deepEqual(transitive.files, ["scripts/test-mixed.cjs", "scripts/test-static.cjs"]);
     assert.equal(transitive.coverageStatus, "selected-source-scope");
@@ -483,12 +497,12 @@ test("computed relative module and data inputs retain family checks and explicit
       const result = select(parseArgs(["--changed-only", "--changed", `scripts/family/${input}`]), directory);
       assert.deepEqual(result.files, ["scripts/test-owner.cjs"]);
       assert.equal(result.coverageStatus, "requires-separate-checks");
-      assert.ok(result.reasons.some(reason => reason.test === "scripts/test-owner.cjs" && reason.evidence?.includes("conservative-fallback") && /Unresolved/.test(reason.reason)));
-      assert.ok(result.separateChecks.some(reason => /complete dependency coverage/.test(reason)));
+      assert.ok(result.reasons.some(reason => reason.tests?.includes("scripts/test-owner.cjs") && reason.evidence?.includes("conservative-fallback") && /Unresolved/.test(reason.reason)));
+      assert.ok(result.separateChecks.some(reason => /Unresolved dependency/.test(reason)));
     }
     const engine = select(parseArgs(["--changed-only", "--changed", "engine/unrelated.rs"]), directory);
     assert.deepEqual(engine.files, []);
-    assert.ok(engine.separateChecks.some(reason => /No direct test owner/.test(reason)));
+    assert.ok(engine.separateChecks.some(reason => /No test owner/.test(reason)));
     assert.ok(!engine.separateChecks.some(reason => /computed/.test(reason)));
     const own = select(parseArgs(["--changed-only", "--changed", "scripts/family/loader.cjs"]), directory);
     assert.ok(own.reasons.some(reason => reason.evidence?.includes("static-import")));
@@ -510,7 +524,7 @@ test("bounded computed prefixes preserve mapped owners and variable-only fallbac
     assert.equal(bounded.coverageStatus, "requires-separate-checks");
     const unknown = select(parseArgs(["--changed-only", "--changed", "scripts/unmapped.json"]), directory);
     assert.deepEqual(unknown.files, ["scripts/test-variable.cjs"]);
-    assert.ok(unknown.separateChecks.some(reason => /No direct test owner/.test(reason)));
+    assert.ok(unknown.separateChecks.some(reason => /No test owner/.test(reason)));
     assert.equal(unknown.coverageStatus, "requires-separate-checks");
   } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
@@ -531,7 +545,7 @@ test("changed-only TypeScript discovery follows transitive NodeNext imports and 
     const result = select(parseArgs(["--changed-only", "--changed", "extensions/azrael-ex/src/leaf.ts", "--changed", "extensions/azrael-ex/src/deleted.ts"]), directory);
     assert.deepEqual(result.extensionFiles, ["extensions/azrael-ex/test/owner.test.ts"]);
     assert.equal(result.commands.filter(command => command.name === "extension-changed").length, 1);
-    assert.ok(result.separateChecks.some(reason => reason.includes("src/deleted.ts") && /New or deleted/.test(reason)));
+    assert.ok(result.separateChecks.some(reason => reason.includes("src/deleted.ts") && /New\/deleted/.test(reason)));
   } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
@@ -556,18 +570,18 @@ test("changed-only build owners do not select deployment mocks by association", 
 
 test("changed-only operational engine, host, provenance and benchmark scripts require their owning phases", () => {
   const operational = [
-    ["scripts/test-accepted-input-engine.mjs", /Post-build engine acceptance.*arguments/],
-    ["scripts/test-parked-root-steering.mjs", /Post-build parked-root acceptance.*arguments/],
-    ["scripts/test-independent-namespace.cjs", /Six-stage host verification.*prepared extension/],
-    ["scripts/test-namespace-performance.cjs", /benchmark is disabled/],
-    ["scripts/tests/check-release-source-root.ps1", /Release provenance verification.*context/],
-    ["scripts/test-future-operational.mjs", /no approved argument-free source runner/],
+    ["scripts/test-accepted-input-engine.mjs", /Engine acceptance/],
+    ["scripts/test-parked-root-steering.mjs", /Parked-root acceptance/],
+    ["scripts/test-independent-namespace.cjs", /Prepared host/],
+    ["scripts/test-namespace-performance.cjs", /Benchmark excluded/],
+    ["scripts/tests/check-release-source-root.ps1", /Release provenance/],
+    ["scripts/test-future-operational.mjs", /Operational context/],
   ];
   for (const [file, reason] of operational) {
     const result = selection(["--changed-only", "--changed", file]);
     assert.deepEqual(result.files, []);
     assert.deepEqual(result.commands, []);
-    assert.match(result.reasons.find(item => item.path === file).reason, reason);
+    assert.ok(result.reasons.some(item => reason.test(item.reason)));
     assert.ok(result.separateChecks.some(check => check.includes(file) && reason.test(check)));
   }
 });
@@ -607,12 +621,12 @@ test("changed-only without explicit paths discovers current Git changes and list
     const result = select(parseArgs(["--changed-only"]), directory);
     assert.deepEqual(result.changed, ["scripts/test-new.cjs"]);
     assert.deepEqual(result.files, ["scripts/test-new.cjs"]);
-    assert.ok(result.separateChecks.some(reason => reason.includes("test-new.cjs") && /New or deleted/.test(reason)));
+    assert.ok(result.separateChecks.some(reason => reason.includes("test-new.cjs") && /New\/deleted/.test(reason)));
     const staged = spawnSync("git", ["add", "scripts/test-new.cjs"], { cwd: directory, encoding: "utf8" });
     assert.equal(staged.status, 0, staged.stderr);
     const added = select(parseArgs(["--changed-only"]), directory);
     assert.deepEqual(added.files, ["scripts/test-new.cjs"]);
-    assert.ok(added.separateChecks.some(reason => reason.includes("test-new.cjs") && /New or deleted/.test(reason)));
+    assert.ok(added.separateChecks.some(reason => reason.includes("test-new.cjs") && /New\/deleted/.test(reason)));
     const logs = path.join(directory, "unused-logs");
     const listed = spawnSync(process.execPath, [path.join(__dirname, "test-project.cjs"), "--changed-only", "--changed", "docs/README.md", "--list", "--log-directory", logs], { encoding: "utf8" });
     assert.equal(listed.status, 0, listed.stderr);
