@@ -708,7 +708,13 @@ pub(crate) fn checked_metadata(
     auth: Auth<'_>,
 ) -> Result<Option<fs::Metadata>, String> {
     let _detail = crate::timing::detail("metadata.total");
-    if !within(path, root) {
+    if !within(path, root)
+        && !auth
+            .directory_roots
+            .borrow()
+            .iter()
+            .any(|scope| within(path, scope))
+    {
         return Err("path escapes root".into());
     }
     // Inspect every ancestor, including ancestors outside the selected root.

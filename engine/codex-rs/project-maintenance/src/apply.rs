@@ -43,6 +43,11 @@ pub(crate) fn apply<'a>(
             .items
             .get(id)
             .ok_or_else(|| format!("unknown item: {id}"))?;
+        if let Some(mode) = verification {
+            if crate::directory_delete::selected(item) != (mode == Verification::Directory) {
+                return Err("entire_directory items require directory verification; exact items require registered or full verification".into());
+            }
+        }
         for field in ["id", "path", "kind", "owner"] {
             string(item, field)?;
         }
@@ -72,7 +77,7 @@ pub(crate) fn apply<'a>(
         if verification == Some(Verification::Registered) && groups::id(item).is_none() {
             return Err("registered verification requires lifecycle grouped items".into());
         }
-        paths::resolve(root, Path::new(string(item, "path")?))?;
+        crate::directory_delete::resolve_item(root, item)?;
         if !item["source_path"].is_null() {
             paths::resolve(root, Path::new(string(item, "source_path")?))?;
         }
@@ -171,10 +176,14 @@ pub(crate) fn apply<'a>(
                         let path = Path::new(string(item, "path")?);
                         let entries = if paths::checked_metadata(root, path, auth)?.is_none() {
                             Vec::new()
+                        } else if crate::directory_delete::selected(item) {
+                            vec![path.to_path_buf()]
                         } else {
                             paths::entries(root, path, auth)?
                         };
-                        paths::normalization_preflight(&entries)?;
+                        if !crate::directory_delete::selected(item) {
+                            paths::normalization_preflight(&entries)?;
+                        }
                         Ok(entries)
                     },
                 );
@@ -338,7 +347,11 @@ pub(crate) fn apply<'a>(
                         let fallback_home = root.join("artifacts/maintenance/runtime");
                         let home = auth.coordination_home.as_deref().unwrap_or(&fallback_home);
                         let budget = crate::disk_budget::acquire(home, path, &|| auth.cancelled())?;
-                        let result = paths::delete_verified(root, path, approved, auth);
+                        let result = if crate::directory_delete::selected(&item) {
+                            crate::directory_delete::delete(root, config, path, &item, auth)
+                        } else {
+                            paths::delete_verified(root, path, approved, auth)
+                        };
                         budget.release();
                         result
                     }) {
@@ -602,7 +615,14 @@ fn safe_entries(
         }
     };
     let path = Path::new(string(item, "path")?);
-    let entries = if let Some(approved) = approved {
+    let entries = if crate::directory_delete::selected(item) {
+        let observation = crate::directory_delete::observe(root, path, auth)?;
+        if observation["presence"] == "absent" {
+            Vec::new()
+        } else {
+            vec![path.to_path_buf()]
+        }
+    } else if let Some(approved) = approved {
         approved.to_vec()
     } else if batch.is_some() && paths::checked_metadata(root, path, auth)?.is_none() {
         Vec::new()

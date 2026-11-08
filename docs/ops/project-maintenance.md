@@ -14,6 +14,26 @@
 
 ## 이 체크아웃의 정리 실행기
 
+### 승인된 일반 폴더 전체 삭제
+
+상태: `partial` — Windows x64 NTFS·Linux x64 ext4의 소스 네이티브 검증을 확인했으며 Mac은 미검증이다. 소스의 `deletion_scopes` capability에 `entire_directory`가 있는 실행기를 대상으로 한다. 위 기능의 소스 구현과 이 체크아웃에 설치된 실행기의 수용 상태는 구분한다. 기존 생성물 정리는 검증된 설치 owner를 계속 사용한다.
+
+사용자가 폴더 전체 폐기를 승인했을 때만 `project_inventory`의 `register`에 다음 item을 전달한다. `path`는 프로젝트 내부의 상대 경로나 프로젝트 밖의 절대 경로이며, 삭제 대상 밖의 선택한 프로젝트가 설정·감사·예약 상태를 보존한다. 일반 사용자 폴더의 `generated:false`를 유지한다. 활성 사용·기존 관리 소유자와 참조를 확인한 뒤 `protection_known:true`를 선언하며 자동 사용 탐지가 있다고 가정하지 않는다.
+
+```json
+{"item":{"id":"approved-folder","path":"C:/data/approved-folder","kind":"directory","owner":"explicit-user-approval","generated":false,"protection_known":true,"references":[],"deletion_scope":"entire_directory"}}
+```
+
+`project_cleanup_review`의 `review`에는 `{"ids":["approved-folder"],"verification":"directory"}`를 전달한다. 표시된 `blockers`를 확인하고, `project_cleanup_apply`의 `apply`에는 같은 모드와 현재 토큰을 사용한다.
+
+```json
+{"verification":"directory","decisions":[{"id":"approved-folder","token":"현재 검토 토큰","decision":"delete","reason":"사용자가 이 폴더 전체 폐기를 승인함"}]}
+```
+
+이 승인은 실행 시 폴더 내부의 새 파일·변경된 내용까지 포함한다. 루트 폴더 교체는 재등록·재검토가 필요하다. `payload_bytes_measured:false`와 `logical_bytes:0`은 payload 미측정이며 빈 폴더나 회수 바이트가 아니다. 기존 정확한 목록 승인을 이 모드로 자동 전환하지 않는다. 내부 링크는 이름만 삭제하고 대상은 따라가지 않으며 마운트·보호 경로·System 속성·런타임 권한·취소를 유지한다. 일반 폴더에는 속성·ACL·소유권 변경이나 강제 삭제를 적용하지 않는다. 쓰기가 계속되거나 OS가 거절하면 부분 삭제와 실제 잔여·오류를 확인하고 재실행을 별도 판단한다. Windows 경로는 로컬 드라이브에 한정하며 네트워크 공유는 수용 범위가 아니다.
+
+### 기존 생성물 정리 실행기
+
 기본 선택은 `scripts/maintenance-owner-config.cjs`의 `resolveMaintenanceCommand()`가 소유한다. Windows `2026.0.14` 이후 릴리스는 실제 설치·관리 CLI 수용 후 `<AZRAEL_STATE_ROOT 또는 ~/.azrael-ex>/maintenance-installation.json`에 앱 실행파일 identity를 게시한다. 이 영수증이 있으면 Node/PowerShell은 앱 실행파일과 `maintenance` 접두 인자를 함께 사용한다. 영수증이 없는 기존 설치에서만 아래 standalone pin을 사용하며 손상된 앱 영수증에서 자동 fallback하지 않는다. `-PrepareOnly`는 선택을 바꾸지 않는다. 명령·다른 OS 수용 경계는 [관리 명령 계약](../architecture/project-maintenance.md#maintenance-platform-modules), 설치 절차는 [앱 릴리스](app-release.md#package-and-installation-contract)를 따른다.
 
 상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-json-history-win-x64-20261107-r2/payload/maintenance_owner.exe`를 사용한다(SHA-256 `1dbefa648765820107b3a92ade2cc77ae3788c9c092b11b1f5f4a82a46ac6c01`). 설치·이력 정리 결과는 [현재 작업 기록](../../work/FT-01-periodic-system-freeze/02-plan.md), 고정 입력·최초 전체292개 및 최종 영향49개 검사·동일 실행파일 수용은 같은 version의 `verification/`에서 확인한다. Node producer catalog·run claim·시작/종료 기록·cleanup client는 검증된 capability에 따라 최대600000ms를 기다리며 구형 실행기는5000ms를 유지한다. 직접 CLI는 미지정 기본0을 유지하므로 장기 대기가 필요한 호출은 `lock_wait_ms:600000`을 명시한다. 명시적0과 기존5000ms 요청을 자동으로 늘리지 않는다. 저장·삭제·권한·CAS·unknown 오류는 재실행하지 않는다. 기존 stdin·OS33·소유권·참조·revision·복구 보호, Catalog 관측·그룹 순수 계산·예약 중복 순회 최적화를 유지한다. 이번 버전은 성공한 속성 변경 상세를 요약해 이력 재누적을 줄이며, 실패·미완료 근거와 삭제 전 최신 보호 검사·항목별 durable 저장은 보존한다. 전체 삭제 처리량 개선율이나 앱 내장 도구 교체를 의미하지 않는다. 실행파일과 최소 검증 근거는 사용하는 설치물로 관리한다.

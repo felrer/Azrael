@@ -118,7 +118,8 @@ fn item_scopes(
     scopes: &mut Vec<coordination::Scope>,
     auth: Auth<'_>,
 ) -> Result<(), String> {
-    let path = paths::resolve(root, Path::new(string(item, "path")?))?;
+    crate::directory_delete::configure(root, item, auth)?;
+    let path = crate::directory_delete::resolve_item(root, item)?;
     paths::check(root, &path, auth)?;
     // Missing payload needs metadata reconciliation, not deletion permission.
     let present = paths::checked_metadata(root, &path, auth)?.is_some();

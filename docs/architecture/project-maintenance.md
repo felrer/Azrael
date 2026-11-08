@@ -16,7 +16,7 @@
 
 등록의 대량 파일 측정은 유지관리·catalog 전역 잠금을 반환한 뒤 Windows 스레드 백그라운드 모드로 실행한다. 이 모드는 CPU뿐 아니라 I/O·메모리 자원 우선순위를 조절하며 고정 대기나 처리량 상한을 추가하지 않는다. 새 진입 실패는 측정을 시작하지 않는 오류이고, 종료 후 원래 모드를 복원한 다음 전역 상태를 재취득한다. 이미 background인 호출자의 모드는 반환하지 않는다. 다른 OS는 기존 스케줄링을 유지한다. 실제 오류 취소·예약 및 CAS·의도/결과의 동기 저장은 유지한다.
 
-Windows 삭제 전용 프로세스도 Job Object containment gate 이후 백그라운드 모드를 적용한다. 호스트 전체의 우선순위는 바꾸지 않는다. 검토된 경로만 자식부터 ordinary Win32 삭제하고 비어 있지 않은 디렉터리는 실패시킨다. 마지막 검사 뒤 추가된 이름을 재귀 탐색하여 삭제하지 않는다. 기존 junction·hardlink·System 속성·ReadOnly/Hidden 정규화·부분 실패·unknown 보호는 유지한다. 경로 기반 삭제가 같은 이름의 동시 객체 교체까지 원자적으로 방지한다고 주장하지 않는다.
+Windows의 기본 exact-tree 삭제 전용 프로세스는 Job Object containment gate 이후 백그라운드 모드를 적용한다. 호스트 전체의 우선순위는 바꾸지 않는다. 검토된 경로만 자식부터 ordinary Win32 삭제하고 비어 있지 않은 디렉터리는 실패시킨다. 마지막 검사 뒤 추가된 이름을 재귀 탐색하여 삭제하지 않는다. 기존 junction·hardlink·System 속성·ReadOnly/Hidden 정규화·부분 실패·unknown 보호는 유지한다. 명시적 폴더 전체 승인은 아래 별도 경로를 사용한다. 경로 기반 삭제가 같은 이름의 동시 객체 교체까지 원자적으로 방지한다고 주장하지 않는다.
 
 공통 측정 identity는 기존 JSON 배열의 바이트를 고정 크기 버퍼로 SHA-256에 스트리밍한다. 전체 트리의 JSON records와 최종 직렬화 버퍼를 동시에 보유하지 않으며 기존 경로 목록·파일 전후 안정성 검사와 저장된 digest 의미는 유지한다. 이는 OS 크래시 무발생 보장이나 디스크별 전역 처리량 제한이 아니다. 분할 저장은 아래의 명시적 이관 조건을 유지하며 자동으로 실사용 저장소를 전환하지 않는다.
 
@@ -151,6 +151,19 @@ Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs
 - 취소는 항목 사이와 파괴적 작업 직전 확인한다. 실제 완료·미시도·미확인 상태와 durable intent를 유지하고 Windows worker를 요청 수명에 연결한다.
 
 삭제 검증은 최초 승인과 실제 삭제 사이의 경계를 명시한다. 사용이 끝난 자료는 기존 소유자 삭제 절차를 따르며 archive fallback이나 archive API를 추가하지 않는다.
+
+#### 명시적으로 승인한 폴더 전체 삭제
+
+상태: `partial` — Windows x64 로컬 NTFS와 Linux x64 로컬 ext4에서 소스의 네이티브 삭제 경로를 검증했다. macOS ARM64 구현의 네이티브 검증과 설치 실행기 반영은 별도다. 기능 보존 ID `tool.project-maintenance`의 등록·검토·apply 경로가 명시적 `deletion_scope:"entire_directory"`를 처리한다. 일반 폴더는 `generated:false`를 그대로 유지하며 생성물 여부나 `managed_roots` 포함 여부를 삭제 승인 근거로 사용하지 않는다. 프로젝트 밖의 정규화된 절대 경로도 이 명시적 item에 한해 허용한다. 선택한 프로젝트는 설정·감사·예약 상태의 소유자로 남으며 기존 exact-tree 항목·증거·설정의 프로젝트 경계는 유지한다. `protection_known:true`, 알려진 참조·run·예약·보존 사유, 설정된 보호 경로와 런타임 파일 권한은 계속 적용한다. 현재 프로젝트와 관리 상태 자체, 보호된 사용자 상태를 이 모드로 폐기하지 않는다. 다른 앱·프로젝트의 모든 사용 상태를 자동으로 발견한다는 보장은 제공하지 않는다.
+
+`verification:"directory"`는 파일 목록·내용의 동결이 아닌 물리적 폴더 객체와 실행 시 내부 항목 전체에 대한 승인이다. 등록·검토는 루트 객체의 볼륨/파일 ID 또는 device/inode를 관측하며 payload를 읽거나 해시하지 않는다. `measurement:"directory_identity_only"`, `payload_bytes_measured:false`로 미측정을 나타내며 `logical_bytes:0`을 빈 폴더나 회수량으로 해석하지 않는다. 토큰은 이 모드와 전체 item·현재 루트 객체·구성·보호/참조 근거에 결부된다. 폴더 객체가 교체되면 재등록·재검토가 필요하다. 검토 후 내부 파일의 추가·내용 변경은 승인을 무효화하지 않는다. 기존 exact-tree 항목과 검토 토큰을 교차 사용하지 않는다.
+
+물리 삭제는 현재 내부 항목을 no-follow 방식으로 한 번 탐색하고 항목별 읽기/쓰기 권한·취소를 확인한다. Windows는 열린 부모에 상대적인 NT open·디렉터리 열거와 같은 객체의 일반 disposition을 사용하며 System 속성을 보호한다. Unix는 열린 부모 fd에 상대적인 openat/unlinkat와 객체·마운트 확인을 사용한다. 내부 링크는 링크 이름만 삭제하며 대상을 열거하지 않는다. 다른 마운트·볼륨과 특수 항목은 거절한다. 일반 폴더에는 ReadOnly/Hidden 정규화, ACL·소유권 변경, 강제 삭제를 적용하지 않는다. 공유 hardlink의 속성을 수정하지 않는다.
+
+폴더별 열거를 반복하지 않으므로 실행 중 새 항목이 추가되면 DirectoryNotEmpty 등의 일반 실패와 부분 삭제 결과를 반환할 수 있다. 항목별 실제 제거 수와 최종 부재, OS 오류·취소를 intent/result 기록에 남긴다. 미확인 종료·실패를 성공으로 바꾸거나 자동 재실행하지 않는다. 기존 exact-tree 삭제와 폴더 전체 승인은 같은 참조·예약·공유 I/O 예산·durable 기록 경계를 사용한다. Windows의 새 인프로세스 삭제도 기존 thread-affine background I/O 우선순위를 적용한다. 구현은 `directory_delete/`, `lib.rs`·`groups.rs`·`apply.rs`가 소유하며 수용 근거는 [삭제 최적화 작업](../../work/GI-01-deletion-catalog-vhdx/01-plan.md)에 기록한다.
+
+#### 기본 삭제 검증과 catalog 관측
+
 상태: `current` (삭제 직전 중복 확인 제거, Windows x64 소스·standalone 후보 검증; 기본 설치는 별도). 최초 review/token 심사와 예약 획득, 항목별 intent 전 대상·권한·보호·참조 확인으로 삭제 목록을 승인한다. durable intent 저장 뒤에는 같은 목록에 대한 safe_entries와 예약·source 검증을 반복하지 않고, 취소 확인 후 승인된 목록으로 실제 삭제한다. intent 저장 중 발생하는 권한 callback·참조·경로 변경을 추가 심사하는 계약은 제공하지 않는다. 관리된 writer의 예약 준수는 유지하며 일반 외부 프로그램의 변경을 별도 승인 취소로 취급하지 않는다. 실제 삭제의 OS 오류·승인 트리·link 처리, 부재·결과 저장과 예약 해제는 유지한다. Windows의 짧은 일반 로컬 경로에서 최초 leaf 외 상위 경로는 필요한 reparse 속성을 새로 조회하고, leaf는 전체 metadata로 검증한다. 긴 경로·UNC·verbatim/device·정규화에 민감한 이름과 빠른 조회 실패는 기존 metadata 경로를 유지한다. 중복 확인 제거는 공통 코어 동작이며 다른 OS의 경로 구현은 유지한다. 검증·설치 수용 상태는 별도다.
 
 상태: `current` (연속 catalog 잠금 구간 snapshot 재사용, Windows x64 소스·standalone 후보 검증; 설치는 별도). 같은 source의 OS catalog 잠금을 연속 보유하는 동안 성공한 catalog 파일 목록·검증된 기록 snapshot을 요청 내에서 재사용한다. 잠금 없는 관측은 기존처럼 새로 읽으며, 잠금 해제·재획득과 자체 catalog 쓰기·삭제 시 snapshot을 폐기한다. 선택 owner가 달라지면 해당 owner의 payload·recovery proof 검증은 별도로 수행한다. 오류는 snapshot으로 저장하지 않고 외부 review와 apply 사이에도 공유하지 않는다. 관리 writer가 잠금을 지킨다는 전제이며, 잠금을 우회한 외부 기록 변경을 같은 구간 중간에 감지하는 보장은 제공하지 않는다. revision/변경분 인덱스나 저장 형식은 추가하지 않는다.

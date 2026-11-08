@@ -899,7 +899,11 @@ fn check_claim(
                 return Err("new inbound reference targets a reserved lifecycle group".into());
             }
             for member in record["members"].as_array().into_iter().flatten() {
-                let member_path = paths::resolve(root, Path::new(string(member, "path")?))?;
+                let member_path = crate::directory_delete::resolve_scoped(
+                    root,
+                    Path::new(string(member, "path")?),
+                    auth,
+                )?;
                 for reserved in reservation["members"]
                     .as_array()
                     .ok_or("invalid reserved members")?
@@ -1510,7 +1514,7 @@ impl<'a> ReservationSet<'a> {
                     return Err("registration member belongs to another cohort".into());
                 }
             }
-            item["path"] = json!(paths::resolve(root, Path::new(string(&item, "path")?))?);
+            item["path"] = json!(crate::directory_delete::resolve_item(root, &item)?);
             members.push(item);
         }
         // Include historical members even when a new registration moves an
@@ -1518,7 +1522,7 @@ impl<'a> ReservationSet<'a> {
         for old in state.items.values() {
             if cohort(old)? == id {
                 let mut old = old.clone();
-                old["path"] = json!(paths::resolve(root, Path::new(string(&old, "path")?))?);
+                old["path"] = json!(crate::directory_delete::resolve_item(root, &old)?);
                 if !members
                     .iter()
                     .any(|item| item["id"] == old["id"] && item["path"] == old["path"])

@@ -72,7 +72,7 @@ pub(crate) fn register<'a>(
         .flatten()
         .chain(request.get("item").into_iter())
     {
-        let path = paths::resolve(root, Path::new(string(item, "path")?))?;
+        let path = crate::directory_delete::resolve_item(root, item)?;
         auth.junctions
             .borrow_mut()
             .retain(|entry, _| !paths::within(entry, &path));

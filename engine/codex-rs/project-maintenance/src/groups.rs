@@ -611,7 +611,7 @@ pub(crate) fn refresh(
         if self::id(item) != Some(group_id) {
             return Err("inconsistent group member".into());
         }
-        let path = paths::resolve(root, Path::new(string(item, "path")?))?;
+        let path = crate::directory_delete::resolve_item(root, item)?;
         paths::check(root, &path, auth)?;
         paths::registered_observation(root, &path, auth)?;
         if paths::within(&path, &source) || paths::within(&source, &path) {
@@ -875,6 +875,10 @@ impl Batch {
                 Verification::Full => {
                     paths::measure(root, path, auth)?["identity"] == self.reviews[id]["identity"]
                 }
+                Verification::Directory => {
+                    crate::directory_delete::observe(root, path, auth)?
+                        == self.reviews[id]["root_observation"]
+                }
             };
             if !unchanged {
                 return Err("enclosing lifecycle root changed".into());
@@ -1022,7 +1026,11 @@ pub(crate) fn review_selection(
                 state,
                 &state.items[&id],
                 auth,
-                Verification::Full,
+                verification.unwrap_or(if crate::directory_delete::selected(&state.items[&id]) {
+                    Verification::Directory
+                } else {
+                    Verification::Full
+                }),
             )?,
         );
     }

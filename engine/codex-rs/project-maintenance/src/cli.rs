@@ -252,6 +252,8 @@ pub fn capabilities() -> Value {
         "protocol": "maintenance-owner-lease-v1",
         "request_transports": ["file", "stdin"],
         "request_file_policy": "outside-maintenance-state",
+        "deletion_scopes": ["exact_tree", "entire_directory"],
+        "verification_modes": ["registered", "full", "directory"],
         "max_lock_wait_ms": 600000,
         "request_queue_v1": true,
         "max_queued_requests": 256,

@@ -5,6 +5,7 @@ mod apply;
 pub mod cli;
 mod coordination;
 mod decision_history;
+mod directory_delete;
 mod disk_budget;
 mod duplicate_claims;
 mod groups;
@@ -67,6 +68,7 @@ pub(crate) struct Context<'a> {
     retirement: std::cell::RefCell<Option<retirement::Retirement>>,
     nested_retirement: std::cell::RefCell<Option<nested_retirement::Retirement>>,
     junctions: std::cell::RefCell<BTreeMap<PathBuf, Value>>,
+    directory_roots: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
 }
 
 impl<'a> Context<'a> {
@@ -95,6 +97,7 @@ impl<'a> Context<'a> {
             retirement: Default::default(),
             nested_retirement: Default::default(),
             junctions: Default::default(),
+            directory_roots: Default::default(),
         }
     }
 
@@ -244,6 +247,15 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
         .lock_wait
         .set(lock_recovery::requested_wait(&request)?);
     let operation = string(&request, "operation")?;
+    if operation == "register" {
+        for item in request
+            .get("item")
+            .into_iter()
+            .chain(request["group"]["members"].as_array().into_iter().flatten())
+        {
+            directory_delete::configure(&root, item, authorize)?;
+        }
+    }
     if matches!(
         operation,
         "request_status"
@@ -333,6 +345,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
         || {
             authorize.junctions.borrow_mut().clear();
             let store = storage::Store::open(&root, authorize, mutate)?;
+            for item in store.state.items.values() {
+                directory_delete::configure(&root, item, authorize)?;
+            }
             for item in store.state.items.values() {
                 paths::configure_links(&root, item, false, authorize)?;
             }
@@ -782,7 +797,12 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     if !refresh_unchanged
         && matches!(
             operation,
-            "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
+            "register"
+                | "begin_run"
+                | "finish_step"
+                | "validate_step"
+                | "recover_run"
+                | "apply"
                 | "compact_decision_history"
         )
     {
@@ -795,6 +815,7 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
 pub(crate) enum Verification {
     Registered,
     Full,
+    Directory,
 }
 impl Verification {
     pub(crate) fn requested(request: &Value) -> Result<Option<Self>, String> {
@@ -802,14 +823,15 @@ impl Verification {
             None => Ok(None),
             Some(Value::String(mode)) if mode == "registered" => Ok(Some(Self::Registered)),
             Some(Value::String(mode)) if mode == "full" => Ok(Some(Self::Full)),
-            _ => Err("verification must be registered or full".into()),
+            Some(Value::String(mode)) if mode == "directory" => Ok(Some(Self::Directory)),
+            _ => Err("verification must be registered, full or directory".into()),
         }
     }
     fn name(self) -> &'static str {
-        if self == Self::Registered {
-            "registered"
-        } else {
-            "full"
+        match self {
+            Self::Registered => "registered",
+            Self::Full => "full",
+            Self::Directory => "directory",
         }
     }
 }
@@ -1003,9 +1025,17 @@ fn review_single(
     reuse: Option<&ReviewReuse<'_>>,
 ) -> Result<Value, String> {
     let _single_detail = timing::detail("single.total");
+    if measure && directory_delete::selected(item) != (verification == Verification::Directory) {
+        return Err("entire_directory items require directory verification; exact items require registered or full verification".into());
+    }
     let path = Path::new(string(item, "path")?);
     let observation_detail = timing::detail("single.observation");
-    let observation = if measure && verification == Verification::Registered {
+    let observation = if measure && verification == Verification::Directory {
+        match directory_delete::observe(root, path, auth) {
+            Ok(value) => value,
+            Err(error) => json!({"presence":"unknown","error":error}),
+        }
+    } else if measure && verification == Verification::Registered {
         match paths::registered_observation(root, path, auth) {
             Ok(value) => value,
             Err(error) => json!({"presence":"unknown","error":error}),
@@ -1015,7 +1045,9 @@ fn review_single(
     };
     drop(observation_detail);
     let measurement_detail = timing::detail("single.measurement");
-    let measured = if measure && verification == Verification::Registered {
+    let measured = if measure && verification == Verification::Directory {
+        directory_delete::measure(&observation)?
+    } else if measure && verification == Verification::Registered {
         json!({"identity":item["identity"],"logical_bytes":item["logical_bytes"],"presence":observation["presence"],"remaining":match observation["presence"].as_str() { Some("present")=>Some(true),Some("absent")=>Some(false),_=>None },"error":observation["error"]})
     } else if measure && groups::id(item).is_some() {
         match paths::checked_metadata(root, path, auth) {
@@ -1041,6 +1073,13 @@ fn review_single(
     if measured["presence"] == "unknown" {
         blockers.push("target observation unavailable");
     }
+    if measure
+        && verification == Verification::Directory
+        && observation["presence"] == "present"
+        && observation != item["directory_observation"]
+    {
+        blockers.push("approved directory object changed; registration required");
+    }
     if item["presence"] == "absent" && measured["presence"] == "present" {
         blockers.push("previously absent target reappeared; registration required");
     }
@@ -1050,7 +1089,9 @@ fn review_single(
     if item["nested_retirement_requires_registration"] == true {
         blockers.push("nested retirement changed enclosing content; full registration required");
     }
-    if item["generated"] != true || item["protection_known"] != true {
+    if (!directory_delete::selected(item) && item["generated"] != true)
+        || item["protection_known"] != true
+    {
         blockers.push("generation or usage protection unconfirmed");
     }
     if item
@@ -1063,10 +1104,12 @@ fn review_single(
     if !item["references"].as_array().is_some_and(Vec::is_empty) {
         blockers.push("references active or unknown");
     }
-    if !config.managed_roots.iter().any(|p| {
-        let base = root.join(p);
-        paths::within(path, &base) && !paths::within(&base, path)
-    }) {
+    if !directory_delete::selected(item)
+        && !config.managed_roots.iter().any(|p| {
+            let base = root.join(p);
+            paths::within(path, &base) && !paths::within(&base, path)
+        })
+    {
         if config.managed_roots.iter().any(|p| {
             let base = root.join(p);
             paths::within(path, &base) && paths::within(&base, path)
@@ -1078,7 +1121,11 @@ fn review_single(
             blockers.push("outside configured managed roots");
         }
     }
-    if paths::reserved(root, path) {
+    if if directory_delete::selected(item) {
+        directory_delete::reserved(root, path)
+    } else {
+        paths::reserved(root, path)
+    } {
         blockers.push("source, user state or maintenance state protected");
     }
     for protected in &config.protected_paths {
@@ -1119,7 +1166,7 @@ fn review_single(
             .and_then(|p| p["superseded_by"].as_str())
             .filter(|id| Some(*id) != item["id"].as_str())
             .and_then(|id| state.items.get(id));
-        if verification == Verification::Registered {
+        if verification != Verification::Full {
             blockers.push("backup replacement requires explicit full verification or verified recovery_completed receipt");
         } else if let Some(replacement) = replacement {
             let replacement_path = Path::new(string(replacement, "path")?);
@@ -1210,9 +1257,13 @@ fn review_single(
     };
     drop(token_detail);
     let _response_detail = timing::detail("single.response");
-    Ok(
-        json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"verification":verification.name(),"root_observation":observation,"observed_at_ms":now_ms()?,"measured_at_ms":if verification == Verification::Registered {item["measured_at_ms"].clone()} else {json!(now_ms()?)},"token":token,"blockers":blockers}),
-    )
+    let mut response = json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"verification":verification.name(),"root_observation":observation,"observed_at_ms":now_ms()?,"measured_at_ms":if verification == Verification::Registered {item["measured_at_ms"].clone()} else {json!(now_ms()?)},"token":token,"blockers":blockers});
+    if directory_delete::selected(item) {
+        response["deletion_scope"] = item["deletion_scope"].clone();
+        response["measurement"] = json!("directory_identity_only");
+        response["payload_bytes_measured"] = json!(false);
+    }
+    Ok(response)
 }
 
 fn prepare_item(root: &Path, item: Value, authorize: Auth<'_>) -> Result<Value, String> {
@@ -1229,6 +1280,7 @@ fn prepare_registered_item(
     string(&item, "id")?;
     string(&item, "owner")?;
     string(&item, "kind")?;
+    directory_delete::validate_scope(&item)?;
     if !item.get("generated").is_some_and(Value::is_boolean)
         || !item.get("protection_known").is_some_and(Value::is_boolean)
     {
@@ -1237,7 +1289,7 @@ fn prepare_registered_item(
     if !item.get("references").is_some_and(valid_references) {
         return Err("references must be an explicit array of nonempty reference strings".into());
     }
-    let path = paths::resolve(root, Path::new(string(&item, "path")?))?;
+    let path = directory_delete::resolve_item(root, &item)?;
     for field in ["verified_junctions", "verified_file_symlinks"] {
         if item.get(field).is_some() {
             item[field] = paths::configure_declared_links(root, &item, field, true, authorize)?;
@@ -1251,7 +1303,17 @@ fn prepare_registered_item(
     } else {
         allow_new_absence && paths::checked_metadata(root, &path, authorize)?.is_none()
     };
-    let measured = if absent {
+    let measured = if directory_delete::selected(&item) && !absent {
+        let observation = directory_delete::observe(root, &path, authorize)?;
+        if observation["presence"] != "present" {
+            return Err("whole-directory registration requires an existing directory".into());
+        }
+        let measured = directory_delete::measure(&observation)?;
+        item["directory_observation"] = observation;
+        item["measurement"] = json!("directory_identity_only");
+        item["payload_bytes_measured"] = json!(false);
+        measured
+    } else if absent {
         previous
             .cloned()
             .unwrap_or_else(|| json!({"identity":null,"logical_bytes":0,"measured_at_ms":null}))
@@ -1318,7 +1380,11 @@ fn review(
             state,
             group,
             auth,
-            Verification::Registered,
+            if directory_delete::selected(item) {
+                Verification::Directory
+            } else {
+                Verification::Registered
+            },
         )?
         .initial()?;
         members
@@ -1333,7 +1399,11 @@ fn review(
             state,
             item,
             auth,
-            Verification::Full,
+            if directory_delete::selected(item) {
+                Verification::Directory
+            } else {
+                Verification::Full
+            },
         )
     }
 }
