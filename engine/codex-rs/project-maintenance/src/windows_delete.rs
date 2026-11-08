@@ -346,6 +346,21 @@ public static class MaintenanceJunctionNative {
         if(tail.TrimEnd('\\').Length==0) result+=@"\";
         return result;
     }
+    public static void FillApproved(string target, IEnumerable entries, IDictionary approved) {
+        if(entries==null) return;
+        string prefix=null;
+        foreach(string original in entries) {
+            string literal=ExtendedLiteral(original);
+            if(!String.Equals(literal,target,StringComparison.InvariantCultureIgnoreCase)) {
+                if(prefix==null) prefix=target.TrimEnd('\\')+@"\";
+                if(!literal.StartsWith(prefix,StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("Approved path escapes target");
+            }
+            if(approved.Contains(literal)) throw new InvalidOperationException("Duplicate approved path");
+            // Keep the caller's Hashtable, original value and insertion order.
+            approved[literal]=original;
+        }
+    }
     public static string LiteralRoot(string literal) {
         if(Regex.IsMatch(literal,@"^\\\\\?\\[A-Za-z]:\\",RegexOptions.IgnoreCase)) return literal.Substring(0,7);
         Match match=Regex.Match(literal,@"^\\\\\?\\UNC\\[^\\]+\\[^\\]+(?:\\|$)",RegexOptions.IgnoreCase);
@@ -620,12 +635,7 @@ $junctions=@{}; $approved=@{}
 
 try {
     $target=Extended-Literal $request.path
-    foreach($original in $request.entries) {
-        $literal=Extended-Literal $original
-        if($literal -ne $target -and !$literal.StartsWith($target.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'Approved path escapes target'}
-        if($approved.ContainsKey($literal)){throw 'Duplicate approved path'}
-        $approved[$literal]=$original
-    }
+    [MaintenanceJunctionNative]::FillApproved($target,$request.entries,$approved)
     foreach($spec in $request.junctions) {
         $literal=Extended-Literal $spec.path
         if($literal -eq $target -or !$approved.ContainsKey($literal) -or $junctions.ContainsKey($literal)){throw 'Invalid junction deletion approval'}
@@ -1163,6 +1173,28 @@ exit 17
         permissions.set_readonly(true);
         fs::set_permissions(&file, permissions).unwrap();
         let mut worker = Worker::new().unwrap();
+        let outside = root.path().join("outside");
+        fs::write(&outside, "outside payload").unwrap();
+        // Moving approval filling across the language boundary must retain
+        // containment and the original Hashtable's case-insensitive duplicates.
+        for (last, error) in [
+            (outside.clone(), "Approved path escapes target"),
+            (file.with_file_name("UNREVIEWED"), "Duplicate approved path"),
+        ] {
+            let failed = worker
+                .delete(&target, &[target.clone(), file.clone(), last], &[])
+                .unwrap();
+            assert_eq!(failed["status"], "failed");
+            assert_eq!(failed["remaining"], true);
+            assert!(
+                failed["error"].as_str().unwrap().contains(error),
+                "{failed}"
+            );
+            assert_eq!(failed["attributes"], json!([]));
+            assert!(fs::metadata(&file).unwrap().permissions().readonly());
+            assert_eq!(fs::read_to_string(&file).unwrap(), "unreviewed payload");
+            assert_eq!(fs::read_to_string(&outside).unwrap(), "outside payload");
+        }
         let failed = worker
             .delete(&target, std::slice::from_ref(&target), &[])
             .unwrap();
