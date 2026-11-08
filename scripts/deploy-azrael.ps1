@@ -37,9 +37,7 @@ param(
     [string]$ReuseDecisionsPath,
     [switch]$VerifyInstructions,
     [switch]$SkipCodexEnvironmentSnapshot,
-    [switch]$FullRegression,
     [ValidateSet('cache-lifetime')][string]$EngineVerificationProfile,
-    [switch]$ExhaustiveRegression,
     [ValidateRange(1,16)][int]$SourceTestConcurrency = 4,
     [ValidateRange(1,4)][int]$SourceCheckConcurrency = 4,
     [string]$SourcePreflightReceipt,
@@ -55,7 +53,6 @@ if ($ReuseDecisionsPath) {
     & node -e 'require(process.argv[1]).loadDecisions(process.argv[2])' (Join-Path $PSScriptRoot 'verification-reuse-policy.cjs') $ReuseDecisionsPath
     if ($LASTEXITCODE -ne 0) { throw 'Invalid ReuseDecisionsPath; supply an absolute regular schema-1 decision file.' }
 }
-if ($ExhaustiveRegression) { $FullRegression = $true }
 $UiSourcePath = [IO.Path]::GetFullPath($UiSourcePath)
 $project = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent))
 $committedContextJson = & node (Join-Path $PSScriptRoot 'committed-build-context.cjs') $project
@@ -115,9 +112,7 @@ if ($MultiPointerRuntimeDirectory -and -not [IO.Path]::IsPathFullyQualified($Mul
 if ($CargoVerificationCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CargoVerificationCacheProjectRoot)) { throw 'CargoVerificationCacheProjectRoot must be an absolute cache owner path.' }
 if ($NamespaceCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($NamespaceCacheProjectRoot)) { throw 'NamespaceCacheProjectRoot must be an absolute cache owner path.' }
 if ($SourcePreflightReceipt -and -not [IO.Path]::IsPathFullyQualified($SourcePreflightReceipt)) { throw 'SourcePreflightReceipt must be an absolute receipt path.' }
-if ($FullRegression -and $ChangedPath) { throw 'ChangedPath cannot be combined with FullRegression.' }
-if ($FullRegression -and $PSBoundParameters.ContainsKey('EngineFeatureId')) { throw 'EngineFeatureId cannot be combined with FullRegression.' }
-if ($EngineVerificationProfile -and ($FullRegression -or $PSBoundParameters.ContainsKey('EngineFeatureId'))) { throw 'EngineVerificationProfile cannot be combined with FullRegression or EngineFeatureId.' }
+if ($EngineVerificationProfile -and $PSBoundParameters.ContainsKey('EngineFeatureId')) { throw 'EngineVerificationProfile cannot be combined with EngineFeatureId.' }
 New-Item -ItemType Directory -Path $pipelineRoot -Force | Out-Null
 try { $pipelineLease = [IO.File]::Open((Join-Path $pipelineRoot 'pipeline.lock'), [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) } catch { throw 'Another deployment owns this ReleaseName; wait for its terminal outcome before resuming.' }
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
@@ -142,7 +137,7 @@ $script:sourceFixtureRoot = ''
 . (Join-Path $PSScriptRoot 'build-metrics.ps1')
 $script:toolIdentities = @{}
 $metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0
-    verificationPolicy = [ordered]@{ scope = $(if ($FullRegression) { 'full' } else { 'changed' }); engineVerificationProfile = $EngineVerificationProfile; sourceReuse = $true; nativeReuse = -not [bool]$ForceNativeVerification; forceNativeVerification = [bool]$ForceNativeVerification; cargoVerificationCacheProjectRoot = $(if ($CargoVerificationCacheProjectRoot) { $CargoVerificationCacheProjectRoot } else { $project }) }
+    verificationPolicy = [ordered]@{ scope = 'changed'; engineVerificationProfile = $EngineVerificationProfile; sourceReuse = $true; nativeReuse = -not [bool]$ForceNativeVerification; forceNativeVerification = [bool]$ForceNativeVerification; cargoVerificationCacheProjectRoot = $(if ($CargoVerificationCacheProjectRoot) { $CargoVerificationCacheProjectRoot } else { $project }) }
     verificationResults = [ordered]@{}
 }
 $pwsh = (Get-Process -Id $PID).Path
@@ -517,7 +512,7 @@ function Get-FocusedEngineFeatureIds {
     }
     if ($unmappedNative.Count) {
         if ($ProfileSelection) { $script:profileUnmappedNativePaths = @($unmappedNative) }
-        else { throw "Unmapped engine verification scope: $($unmappedNative -join ', '). Select EngineFeatureId explicitly (an empty array is allowed), or use FullRegression." }
+        else { throw "Unmapped engine verification scope: $($unmappedNative -join ', '). Select EngineFeatureId explicitly (an empty array is allowed)." }
     }
     return @($selected | Select-Object -Unique)
 }
@@ -557,9 +552,9 @@ try {
         $relative
     } | Sort-Object -Unique)
     $sourceTestPolicyPath = Join-Path $logs 'source-test-policy-inputs.json'
-    @{changedPaths = @($policyPaths); exhaustive = [bool]$ExhaustiveRegression} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceTestPolicyPath -Encoding utf8NoBOM
+    @{changedPaths = @($policyPaths); exhaustive = $false} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceTestPolicyPath -Encoding utf8NoBOM
     $script:profileUnmappedNativePaths = @()
-    $focusedEngineFeatureIds = @(if (-not $FullRegression) { Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) -ProfileSelection:([bool]$EngineVerificationProfile) })
+    $focusedEngineFeatureIds = @(Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) -ProfileSelection:([bool]$EngineVerificationProfile))
     . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
     $preflightModuleCache = Open-BuildModuleCache $project $ModuleCacheProjectRoot
     try {
@@ -591,7 +586,7 @@ try {
     if ($EngineTargetDirectory -and -not $SkipEngineBuild) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($CargoCacheProjectRoot -and -not $SkipEngineBuild) { $buildArgs += @('-CargoCacheProjectRoot', $CargoCacheProjectRoot) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
-    if ($FullRegression -or $ForceNativeVerification) { $buildArgs += '-ForceEngineCompatibility' }
+    if ($ForceNativeVerification) { $buildArgs += '-ForceEngineCompatibility' }
     if ($WindowControlTargetDirectory) { $buildArgs += @('-WindowControlTargetDirectory', $WindowControlTargetDirectory) }
     if ($VirtualInputRuntimeDirectory) { $buildArgs += @('-VirtualInputRuntimeDirectory', $VirtualInputRuntimeDirectory) }
     if ($MultiPointerRuntimeDirectory) { $buildArgs += @('-MultiPointerRuntimeDirectory', $MultiPointerRuntimeDirectory) }
@@ -601,12 +596,8 @@ try {
     if ($CompanionVsixPath) { $buildArgs += @('-CompanionVsixPath', $CompanionVsixPath) }
     $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))
     $sourceTestArgs += @('--test-concurrency', [string]$SourceTestConcurrency)
-    if ($FullRegression) { $sourceTestArgs += @('--area', 'current', '--area', 'standalone', '--defer-preservation-cache-owner') }
-    else {
-        $sourceTestArgs += '--changed-only'
-    }
+    $sourceTestArgs += '--changed-only'
     foreach ($path in $policyPaths) { $sourceTestArgs += @('--changed', $path) }
-    if ($ExhaustiveRegression) { $sourceTestArgs += '--exhaustive' }
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
     # The version's owned log root contains fresh per-attempt test fixtures.
     # Never reuse a caller's persistent fixture parent across deployment attempts.
@@ -634,7 +625,7 @@ try {
     $fixtureArgsHash = (Get-FileHash -LiteralPath $fixtureArgsPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $fixtureReadiness = Start-OwnedCommand 'source-fixtures' (Get-Command node -CommandType Application).Source @($sourceTestArgs[0], '--args-file', $fixtureArgsPath, '--args-sha256', $fixtureArgsHash)
     Wait-OwnedCommands @($fixtureReadiness)
-    $metrics.testScope = $(if ($FullRegression) { 'full' } else { 'changed' })
+    $metrics.testScope = 'changed'
     $metrics.forceNativeVerification = [bool]$ForceNativeVerification
     $metrics.changedPaths = @($ChangedPath)
     $sourceConfig = [ordered]@{
@@ -661,9 +652,9 @@ try {
         $sourceConfig.engineVerificationProfile = $EngineVerificationProfile
         $sourceConfig.sourceFeatureIds = $focusedEngineFeatureIds
         $sourceConfig.unmappedNativePaths = @($script:profileUnmappedNativePaths)
-    } elseif (-not $FullRegression) { $sourceConfig.featureIds = $focusedEngineFeatureIds }
+    } else { $sourceConfig.featureIds = $focusedEngineFeatureIds }
     $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
-    if (-not $FullRegression -and -not $PSBoundParameters.ContainsKey('EngineFeatureId')) {
+    if (-not $PSBoundParameters.ContainsKey('EngineFeatureId')) {
         $sourceConfig.sourceCheckPaths = @($policyPaths)
     }
     $temporaryIdentity = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($sourceConfig.temporaryDirectory))).ToLowerInvariant()
@@ -748,11 +739,11 @@ try {
         $enginePreservationConfig.engineVerificationProfile = $EngineVerificationProfile
         $enginePreservationConfig.sourceFeatureIds = $focusedEngineFeatureIds
         $enginePreservationConfig.unmappedNativePaths = @($script:profileUnmappedNativePaths)
-    } elseif (-not $FullRegression) {
+    } else {
         $enginePreservationConfig.featureIds = $focusedEngineFeatureIds
     }
     $enginePreservationConfigPath = Join-Path $logs 'engine-preservation-inputs.json'
-    if (-not $FullRegression -and -not $PSBoundParameters.ContainsKey('EngineFeatureId')) {
+    if (-not $PSBoundParameters.ContainsKey('EngineFeatureId')) {
         $enginePreservationConfig.sourceCheckPaths = @($policyPaths)
     }
     $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
@@ -774,7 +765,6 @@ try {
     if ($Resume -and (Test-Path -LiteralPath (Join-Path $package 'preparation-state.json'))) { $prepareArgs += '-Resume' }
     if ($NamespaceCacheProjectRoot) { $prepareArgs += @('-NamespaceCacheProjectRoot', $NamespaceCacheProjectRoot) }
     if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }
-    if (-not $FullRegression) { $prepareArgs += '-ChangedOnlyTests' }
     $prepare = Start-OwnedCommand 'prepare' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1')) + $prepareArgs)
     # Source tests, engine checks and private package preparation must all pass before external probes.
     Wait-OwnedCommands @($sourceTests, $enginePreservation, $prepare)
@@ -813,7 +803,7 @@ try {
     Assert-Package
     # Instructions mounting is feature-specific; host activation always runs once.
     $instructionOwners = @((Get-Content -LiteralPath (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object id -eq 'ui.instruction-settings' | ForEach-Object owners)
-    $instructionsRequired = $VerifyInstructions -or $FullRegression -or @($policyPaths | Where-Object { $p = $_ -replace '\\','/'; $p -in $instructionOwners -or $p.StartsWith('instructions/', [StringComparison]::Ordinal) }).Count -gt 0
+    $instructionsRequired = $VerifyInstructions -or @($policyPaths | Where-Object { $p = $_ -replace '\\','/'; $p -in $instructionOwners -or $p.StartsWith('instructions/', [StringComparison]::Ordinal) }).Count -gt 0
     $acceptanceArgs = @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', $fixtureStateRoot, '-UseFreshState', '-ParentLifecycleId', $fixtureLifecycleId, '-CodePath', $CodePath)
     if ($instructionsRequired) { $acceptanceArgs += '-VerifyInstructions' }
     Invoke-Stage 'acceptance' 'check-independent-vscode.ps1' $acceptanceArgs

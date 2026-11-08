@@ -12,12 +12,10 @@ param(
     [string]$SourceCodexHome = (Join-Path $env:USERPROFILE '.codex'),
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$Resume,
-    [switch]$ChangedOnlyTests,
     [string]$SourceTestPolicyPath,
     [string]$ReuseDecisionsPath,
     [string]$SourceStatePath,
     [string]$SourceGeneration,
-    [switch]$ExhaustiveTests,
     [string]$CacheDirectory,
     [string]$NamespaceCacheProjectRoot
 )
@@ -35,13 +33,9 @@ if ($SourceTestPolicyPath) {
     if ($null -eq $sourceTestPolicy -or $null -eq $sourceTestPolicy.PSObject.Properties['changedPaths'] -or
         $sourceTestPolicy.changedPaths -isnot [array] -or
         @($sourceTestPolicy.changedPaths | Where-Object { $_ -isnot [string] }).Count -gt 0 -or
-        $null -eq $sourceTestPolicy.PSObject.Properties['exhaustive'] -or $sourceTestPolicy.exhaustive -isnot [bool]) {
-        throw 'SourceTestPolicyPath requires changedPaths as a string array and exhaustive as a boolean.'
+        $null -eq $sourceTestPolicy.PSObject.Properties['exhaustive'] -or $sourceTestPolicy.exhaustive -isnot [bool] -or $sourceTestPolicy.exhaustive) {
+        throw 'SourceTestPolicyPath requires changedPaths as a string array and exhaustive set to false.'
     }
-}
-if ($ExhaustiveTests) {
-    if ($null -eq $sourceTestPolicy) { $sourceTestPolicy = [pscustomobject]@{changedPaths = @(); exhaustive = $true} }
-    else { $sourceTestPolicy.exhaustive = $true }
 }
 if (-not $HostVersion) {
     $appRelease = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'azrael-app-release.json') -Raw | ConvertFrom-Json
@@ -240,12 +234,12 @@ $checkpointTool = Join-Path $PSScriptRoot 'preparation-state.cjs'
 $uiSourceObservation = [ordered]@{ statePath = (Join-Path $OutputDirectory 'ui-source-state.json'); generation = [guid]::NewGuid().ToString() }
 $projectSourceObservation = [ordered]@{ statePath = (Join-Path $OutputDirectory 'project-source-state.json'); generation = [guid]::NewGuid().ToString() }
 $config = [ordered]@{ release = $release; source = $source; stateRoot = [IO.Path]::GetFullPath($StateRoot); devinExecutable = $DevinExecutable; sourceCodexHome = [IO.Path]::GetFullPath($SourceCodexHome); skipSnapshot = [bool]$SkipCodexEnvironmentSnapshot; toolDirectory = $toolDirectory.FullName }
-$config.changedOnlyTests = [bool]$ChangedOnlyTests
+$config.changedOnlyTests = $true
 if ($null -ne $sourceTestPolicy) { $config.sourceTestPolicy = $sourceTestPolicy }
 $config.hostVersion = $HostVersion
 $config.cacheDirectory = [IO.Path]::GetFullPath($CacheDirectory)
 $config.namespaceCacheProjectRoot = if ($NamespaceCacheProjectRoot) { [IO.Path]::GetFullPath($NamespaceCacheProjectRoot) } else { $null }
-if ($ChangedOnlyTests) { $config.preservationFeatureIds = @() }
+$config.preservationFeatureIds = @()
 $configPath = Join-Path $OutputDirectory 'preparation-inputs.json'
 $config | ConvertTo-Json | Set-Content -LiteralPath $configPath -Encoding utf8NoBOM
 # Prevent module cache collection while preparation uses cached TypeScript/vsce.
@@ -279,7 +273,7 @@ try {
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $OutputDirectory 'feature-preservation')
         area = 'ui'; typeScriptPath = (Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js')
     }
-    if ($ChangedOnlyTests) { $preservationConfig.featureIds = @() }
+    $preservationConfig.featureIds = @()
     if ($null -ne $sourceTestPolicy) { $preservationConfig.sourceTestPolicy = $sourceTestPolicy }
     $preservationConfigPath = Join-Path $OutputDirectory 'feature-preservation-inputs.json'
     $preservationConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM

@@ -35,7 +35,7 @@ try {
     & node (Join-Path $PSScriptRoot 'test-pipeline-state.cjs') (Join-Path $reports 'pipeline-state-fixture')
     if ($LASTEXITCODE -ne 0) { throw 'Pipeline state behavioral checks failed.' }
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
-$changedCases = @('policy selection', 'full install', 'module cache install', 'exhaustive regression verify only', 'related integration verify only', 'explicit policy verify only', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
+$changedCases = @('policy selection', 'full install', 'module cache install', 'related integration verify only', 'explicit policy verify only', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 $pwsh = (Get-Process -Id $PID).Path
 $changedCases += @('environment preflight failure', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
 $changedCases += @('deployment capacity guard')
@@ -52,22 +52,30 @@ $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
 $policyEnd = $prepareSource.IndexOf('if (-not $HostVersion)', $policyStart)
 $policyReader = [scriptblock]::Create($prepareSource.Substring($policyStart, $policyEnd - $policyStart))
 $policyFixture = Join-Path $reports 'preparation-policy.json'
-foreach ($invalid in @('{}', '{"changedPaths":"x","exhaustive":false}', '{"changedPaths":[1],"exhaustive":false}', '{"changedPaths":[],"exhaustive":"false"}')) {
+foreach ($invalid in @('{}', '{"changedPaths":"x","exhaustive":false}', '{"changedPaths":[1],"exhaustive":false}', '{"changedPaths":[],"exhaustive":"false"}', '{"changedPaths":[],"exhaustive":true}')) {
     $invalid | Set-Content -LiteralPath $policyFixture -Encoding utf8NoBOM
     $rejected = $false
-    try { & { $SourceTestPolicyPath=$policyFixture; $ExhaustiveTests=$false; . $policyReader } } catch { $rejected = $_.Exception.Message -like 'SourceTestPolicyPath requires*' }
+    try { & { $SourceTestPolicyPath=$policyFixture; . $policyReader } } catch { $rejected = $_.Exception.Message -like 'SourceTestPolicyPath requires*' }
     if (-not $rejected) { throw 'Preparation accepted malformed source test policy.' }
 }
 '{"changedPaths":["scripts/a.cjs"],"exhaustive":false}' | Set-Content -LiteralPath $policyFixture -Encoding utf8NoBOM
 & {
-    $SourceTestPolicyPath=$policyFixture; $ExhaustiveTests=$true; . $policyReader
-    if (-not $sourceTestPolicy.exhaustive -or $sourceTestPolicy.changedPaths[0] -cne 'scripts/a.cjs') { throw 'Preparation exhaustive override lost policy inputs.' }
+    $SourceTestPolicyPath=$policyFixture; . $policyReader
+    if ($sourceTestPolicy.exhaustive -or $sourceTestPolicy.changedPaths[0] -cne 'scripts/a.cjs') { throw 'Preparation changed policy lost inputs.' }
 }
 & {
-    $SourceTestPolicyPath=''; $ExhaustiveTests=$false; . $policyReader
-    if ($null -ne $sourceTestPolicy) { throw 'Manual preparation must retain its default complete test policy.' }
+    $SourceTestPolicyPath=''; . $policyReader
+    if ($null -ne $sourceTestPolicy) { throw 'Manual preparation must not inject an aggregate test policy.' }
 }
 Remove-Item -LiteralPath $policyFixture
+# Keep the build entry points from accidentally regaining a second regression mode.
+foreach ($entry in @('deploy-azrael.ps1', 'prepare-independent-vscode.ps1', 'prepare-app-release.ps1')) {
+    $entryAst = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $entry), [ref]$null, [ref]$null)
+    $entryParameters = @($entryAst.ParamBlock.Parameters.Name.VariablePath.UserPath)
+    foreach ($retired in @('FullRegression', 'ExhaustiveRegression', 'ExhaustiveTests', 'ChangedOnlyTests')) {
+        if ($retired -in $entryParameters) { throw "Retired build mode returned: $entry -$retired" }
+    }
+}
 
 function Assert-True([bool]$Condition, [string]$Message) { if (-not $Condition) { throw $Message } }
 function Write-Utf8([string]$Path, [string]$Text) { $Text | Set-Content -LiteralPath $Path -Encoding utf8NoBOM }
@@ -286,7 +294,7 @@ if(args[0]==='run'){
 }else throw Error('unexpected preservation command');
 '@
 $prepareStub = @'
-param([string]$ReleaseDirectory,[string]$OutputDirectory,[string]$StateRoot,[string]$SourceCodexHome,[string]$SourceExtensionPath,[string]$TypeScriptPath,[switch]$SkipCodexEnvironmentSnapshot,[switch]$ChangedOnlyTests,[string]$NamespaceCacheProjectRoot,[string]$SourceTestPolicyPath,[switch]$ExhaustiveTests,[string]$SourceStatePath,[string]$SourceGeneration)
+param([string]$ReleaseDirectory,[string]$OutputDirectory,[string]$StateRoot,[string]$SourceCodexHome,[string]$SourceExtensionPath,[string]$TypeScriptPath,[switch]$SkipCodexEnvironmentSnapshot,[string]$NamespaceCacheProjectRoot,[string]$SourceTestPolicyPath,[string]$SourceStatePath,[string]$SourceGeneration)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
@@ -300,7 +308,7 @@ if($scenario.sourceHandoffUnavailable){
  if($engineConfig.sourceStatePath -eq $SourceStatePath -or $engineConfig.sourceGeneration -cne $SourceGeneration){throw 'consumers must have independent state files'}
  if((Get-FileHash -LiteralPath $engineConfig.sourceStatePath).Hash -cne (Get-FileHash -LiteralPath $SourceStatePath).Hash){throw 'consumers did not receive the same observation'}
 }
-@{SourceTestPolicy=(Get-Content -LiteralPath $SourceTestPolicyPath -Raw | ConvertFrom-Json);ReleaseDirectory=$ReleaseDirectory;OutputDirectory=$OutputDirectory;TypeScriptPath=$TypeScriptPath;SourceExtensionPath=$SourceExtensionPath;NamespaceCacheProjectRoot=$NamespaceCacheProjectRoot;SkipCodexEnvironmentSnapshot=[bool]$SkipCodexEnvironmentSnapshot;ChangedOnlyTests=[bool]$ChangedOnlyTests;ChangedOnlyTestsBound=$PSBoundParameters.ContainsKey('ChangedOnlyTests')} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-invocation.json')
+@{SourceTestPolicy=(Get-Content -LiteralPath $SourceTestPolicyPath -Raw | ConvertFrom-Json);ReleaseDirectory=$ReleaseDirectory;OutputDirectory=$OutputDirectory;TypeScriptPath=$TypeScriptPath;SourceExtensionPath=$SourceExtensionPath;NamespaceCacheProjectRoot=$NamespaceCacheProjectRoot;SkipCodexEnvironmentSnapshot=[bool]$SkipCodexEnvironmentSnapshot} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-invocation.json')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-start.json')
 if($scenario.mode -like 'account-*' -or $scenario.mode -eq 'source-fail-after-build'){
  $deadline=[DateTime]::UtcNow.AddSeconds(10)
@@ -331,7 +339,7 @@ $preservationReport=Join-Path $OutputDirectory 'preservation-report.json'
 $preservationBinding=Join-Path $OutputDirectory 'preservation-binding.json'
 @{fixture=($scenario.mode -ne 'package-preservation-binding')} | ConvertTo-Json | Set-Content $preservationBinding
 if($scenario.mode -eq 'package-preservation-receipt'){Remove-Item -LiteralPath $preservationReceipt}
-$featureIds=if($ChangedOnlyTests){@()}else{@($scenario.uiFeatureIds)}
+$featureIds=@()
 @{PreservationFeatureIds=@($featureIds);HostVsix=$vsix;HostSha256=$hash;HostVersion=$version;ReleaseDirectory=$ReleaseDirectory;PreservationReceipt=$preservationReceipt;PreservationReport=$preservationReport;PreservationBinding=$preservationBinding} | ConvertTo-Json | Set-Content (Join-Path $OutputDirectory 'independent-prepared.json')
 @{time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds();outputDirectory=$OutputDirectory} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-end.json')
 if($scenario.mode -eq 'prepare-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
@@ -465,11 +473,11 @@ function Test-InstructionsVerificationSelection([string]$DeployPath) {
     $ast = [Management.Automation.Language.Parser]::ParseFile($DeployPath, [ref]$null, [ref]$null)
     $selection = $ast.Find({param($n) $n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left.Extent.Text -eq '$instructionsRequired'}, $true)
     $instructionOwners = @('extensions/azrael-ex/src/instructionView.ts')
-    $cases = @(@{paths=@('docs/README.md');expected=$false},@{paths=@('extensions/azrael-ex/src/instructionView.ts');expected=$true},@{paths=@('instructions/task-memory/a.md');expected=$true},@{paths=@('extensions\azrael-ex\src\instructionView.ts');expected=$true},@{paths=@();expected=$false},@{paths=@();explicit=$true;expected=$true},@{paths=@();full=$true;expected=$true})
+    $cases = @(@{paths=@('docs/README.md');expected=$false},@{paths=@('extensions/azrael-ex/src/instructionView.ts');expected=$true},@{paths=@('instructions/task-memory/a.md');expected=$true},@{paths=@('extensions\azrael-ex\src\instructionView.ts');expected=$true},@{paths=@();expected=$false},@{paths=@();explicit=$true;expected=$true})
     foreach ($case in $cases) {
         # Default deployment derives policyPaths from Git without ChangedPath.
         $ChangedPath = $null; $policyPaths = $case.paths
-        $VerifyInstructions = [bool]$case['explicit']; $FullRegression = [bool]$case['full']
+        $VerifyInstructions = [bool]$case['explicit']
         . ([scriptblock]::Create($selection.Extent.Text))
         Assert-True ($instructionsRequired -eq $case.expected) 'Instructions selection lost derived paths or explicit scope'
     }
@@ -669,10 +677,9 @@ function Test-RuntimeStagingResume {
     }
 }
 
-function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
+function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
-    if($Exhaustive){$FullRegression=$true}
     $root = Join-Path $fixtures $Name
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
@@ -900,13 +907,13 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             $readerStart = $deployText.IndexOf('    $policyPaths = @($ChangedPath)')
             $readerEnd = $deployText.IndexOf('    $focusedEngineFeatureIds =', $readerStart)
             $reader = [scriptblock]::Create($deployText.Substring($readerStart, $readerEnd - $readerStart))
-            $ChangedPath = @(); $ExhaustiveRegression = $false; $logs = $a
+            $ChangedPath = @(); $logs = $a
             . $reader
             Assert-True ((@($policyPaths | Sort-Object) -join '|') -ceq 'spaces 한글.txt|tracked.txt') 'git policy paths lost tracked or UTF8 untracked path'
             $argsStart = $deployText.IndexOf('    $sourceTestArgs = @(')
             $argsEnd = $deployText.IndexOf('    $sourceFixtureRoot = Join-Path', $argsStart)
             $argumentBuilder = [scriptblock]::Create('param([string]$PSScriptRoot)' + "`n" + $deployText.Substring($argsStart, $argsEnd - $argsStart))
-            $SourceTestConcurrency = 4; $FullRegression = $false
+            $SourceTestConcurrency = 4
             . $argumentBuilder (Join-Path $savedProject 'scripts')
             $forwardedPaths = @(for ($index = 0; $index -lt $sourceTestArgs.Count; $index++) {
                 if ($sourceTestArgs[$index] -ceq '--changed') { $sourceTestArgs[$index + 1] }
@@ -914,14 +921,13 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             $policy = Get-Content -LiteralPath $sourceTestPolicyPath -Raw | ConvertFrom-Json
             Assert-True (($forwardedPaths -join '|') -ceq ($policyPaths -join '|')) 'source argv changed the collected UTF8 policy paths'
             Assert-True ((@($policy.changedPaths) -join '|') -ceq ($forwardedPaths -join '|') -and $policy.exhaustive -eq $false) 'policy JSON and source argv disagree'
-            $ChangedPath = @('docs\README.md'); $ExhaustiveRegression = $true
+            $ChangedPath = @('docs\README.md')
             . $reader
             Assert-True (($policyPaths -join '|') -ceq 'docs/README.md') 'explicit policy path normalization failed'
             $policy = Get-Content -LiteralPath $sourceTestPolicyPath -Raw | ConvertFrom-Json
-            Assert-True ($policy.exhaustive -eq $true) 'exhaustive policy input lost'
-            $FullRegression = $true
+            Assert-True ($policy.exhaustive -eq $false) 'changed policy unexpectedly expanded'
             . $argumentBuilder (Join-Path $savedProject 'scripts')
-            Assert-True ('--exhaustive' -in $sourceTestArgs -and '--defer-preservation-cache-owner' -in $sourceTestArgs -and '--changed-only' -notin $sourceTestArgs) 'full exhaustive source argv policy lost'
+            Assert-True ('--exhaustive' -notin $sourceTestArgs -and '--area' -notin $sourceTestArgs -and '--changed-only' -in $sourceTestArgs) 'unified source scope expanded'
             # Exercise the production serializer with a logical argv that cannot enter Process.Start directly.
             $largePaths = @(0..5501 | ForEach-Object { 'docs/' + $_ + '-' + ('x' * 65) + '.md' })
             $largePaths[0] = 'docs/spaces 한글 "quote" $() & ;.md'
@@ -936,6 +942,8 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             function Start-OwnedCommand { param($Name, $Executable, [string[]]$Arguments) [pscustomobject]@{Executable=$Executable;Arguments=$Arguments} }
             $metrics = [ordered]@{}
             . ([scriptblock]::Create($deployText.Substring($transportStart, $transportEnd - $transportStart)))
+            $sourceLaunch = $ast.Find({param($node) $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq '$sourceTests'}, $true)
+            . ([scriptblock]::Create($sourceLaunch.Extent.Text))
             Assert-True ($sourceTests.Arguments.Count -eq 5 -and $sourceTests.Arguments[1] -ceq '--args-file' -and $sourceTests.Arguments[3] -ceq '--args-sha256') 'large logical argv entered process command line'
             $retainedArgs = @(Get-Content -LiteralPath $metrics.sourceTestArguments.path -Raw | ConvertFrom-Json)
             Assert-True (($retainedArgs | ConvertTo-Json -Compress) -ceq (@($sourceTestArgs | Select-Object -Skip 1) | ConvertTo-Json -Compress)) 'retained logical argv changed'
@@ -1110,7 +1118,6 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     if($TargetKind){$argsList += @('-EngineTargetDirectory',$target)}
     if($VerifyOnly){$argsList += '-VerifyOnly'}
     if($SkipSnapshot){$argsList += '-SkipCodexEnvironmentSnapshot'}
-    if($Exhaustive){$argsList += '-ExhaustiveRegression'}elseif($FullRegression){$argsList += '-FullRegression'}
     if($PolicyChangedPath){$argsList += @('-ChangedPath',$PolicyChangedPath)}
     if($ForceNative){$argsList += '-ForceNativeVerification'}
     if($ReuseSourcePreflight){
@@ -1316,21 +1323,20 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Assert-True ($sourceLaunch.Count -eq 4 -and $sourceLaunch[0] -ceq '--args-file' -and $sourceLaunch[1] -ceq $metrics.sourceTestArguments.path -and $sourceLaunch[2] -ceq '--args-sha256' -and $sourceLaunch[3] -ceq $metrics.sourceTestArguments.sha256) 'source launch lost owned argument file or expected identity'
     Assert-True ($metrics.sourceTestArguments.count -eq $invocation.Count -and $metrics.sourceTestArguments.sha256 -ceq (Get-FileHash -LiteralPath $sourceLaunch[1]).Hash.ToLowerInvariant()) 'source argv metrics lost logical identity'
     $expectedSourceArgs=@('--test-concurrency','4')
-    $expectedSourceArgs+=@(if($FullRegression){'--area';'current';'--area';'standalone';'--defer-preservation-cache-owner'}else{'--changed-only'})
+    $expectedSourceArgs+=@('--changed-only')
     $expectedPolicyPaths=@(if($PolicyChangedPath){$PolicyChangedPath.Replace('\','/')}elseif($Mode -eq 'submodule-mutation'){'modules/vendor'})
     foreach($changed in $expectedPolicyPaths){$expectedSourceArgs+=@('--changed',$changed)}
-    if($Exhaustive){$expectedSourceArgs+='--exhaustive'}
     $policy=Get-Content -LiteralPath (Join-Path $a 'logs/deploy-chosen/source-test-policy-inputs.json') -Raw | ConvertFrom-Json
-    Assert-True ((@($policy.changedPaths) -join '|') -ceq ($expectedPolicyPaths -join '|') -and $policy.exhaustive -eq $Exhaustive) 'source policy inputs mismatch'
+    Assert-True ((@($policy.changedPaths) -join '|') -ceq ($expectedPolicyPaths -join '|') -and $policy.exhaustive -eq $false) 'source policy inputs mismatch'
     $expectedSourceArgs+=@('--log-directory',(Join-Path $a 'logs/deploy-chosen/source-tests'))
     $sourceReuseConfigPath=Join-Path $a 'logs/deploy-chosen/engine-source-preflight-inputs.json'
     $expectedSourceArgs+=@('--source-preflight-config',$sourceReuseConfigPath)
     $sourceReuseConfig=Get-Content -LiteralPath $sourceReuseConfigPath -Raw | ConvertFrom-Json
     Assert-True ($sourceReuseConfig.checkPhase -ceq 'source' -and (Test-Path -LiteralPath $sourceReuseConfig.receiptPath -PathType Leaf)) 'source runner did not receive the completed preflight receipt'
     Assert-True (($invocation -join '|') -ceq ($expectedSourceArgs -join '|')) 'source argv did not match selected regression scope'
-    Assert-True ($metrics.testScope -ceq $(if($FullRegression){'full'}else{'changed'})) 'source test scope metric lost'
+    Assert-True ($metrics.testScope -ceq 'changed') 'source test scope metric lost'
     Assert-True ($metrics.forceNativeVerification -is [bool] -and $metrics.forceNativeVerification -eq $ForceNative) 'native verification policy metric lost'
-    Assert-True ($metrics.verificationPolicy.scope -ceq $(if($FullRegression){'full'}else{'changed'}) -and $metrics.verificationPolicy.nativeReuse -eq (-not $ForceNative)) 'scope and reuse policies were conflated'
+    Assert-True ($metrics.verificationPolicy.scope -ceq 'changed' -and $metrics.verificationPolicy.nativeReuse -eq (-not $ForceNative)) 'scope and reuse policies were conflated'
     $fixtureEnvironment=Get-Content (Join-Path $a 'source-fixture-environment.json') -Raw | ConvertFrom-Json
     $executionEnvironment=Get-Content (Join-Path $a 'source-execution-environment.json') -Raw | ConvertFrom-Json
     foreach($binding in @(@{key='AZRAEL_INSTRUCTION_TEST_ROOT';name='instructions'},@{key='AZRAEL_CATALOG_TEST_ROOT';name='catalog'},@{key='AZRAEL_MIGRATION_TEST_ROOT';name='migration'})) {
@@ -1350,10 +1356,9 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         if($ReuseSourcePreflight){Assert-True ($sourceReuseConfig.receiptPath -ceq $priorReceipt) 'explicit prior receipt handoff lost'}
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
             Assert-True ($call.config.reuseNativeChecks -is [bool] -and $call.config.reuseNativeChecks -eq (-not $ForceNative)) 'native preservation reuse policy lost'
-            if($FullRegression){Assert-True ($null -eq $call.config.PSObject.Properties['featureIds']) 'full engine preservation was restricted'}
-            else{Assert-True ((@($call.config.featureIds) -join '|') -ceq $(if($PolicyChangedPath -ceq 'engine/codex-rs/core/src/session/mod.rs'){'engine.fixture'}else{''})) 'changed engine preservation scope lost'}
+            Assert-True ((@($call.config.featureIds) -join '|') -ceq $(if($PolicyChangedPath -ceq 'engine/codex-rs/core/src/session/mod.rs'){'engine.fixture'}else{''})) 'changed engine preservation scope lost'
         }
-        $expectedUiIds=if($FullRegression){$uiFeatureIds}else{@()}
+        $expectedUiIds=@()
         foreach($call in @($preservationCalls | Where-Object action -eq 'verify')){
             Assert-True ($null -ne $call.config.PSObject.Properties['featureIds']) 'package verification feature selection missing'
             Assert-True ((@($call.config.featureIds) -join '|') -ceq (@($expectedUiIds) -join '|')) 'package verification feature scope lost'
@@ -1416,15 +1421,13 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         $expectedTool=if($ModuleCache){Join-Path $a 'cache/modules/companion/pinned/companion/node_modules/typescript/lib/typescript.js'}else{Join-Path $a 'build/chosen/companion/node_modules/typescript/lib/typescript.js'}
         Assert-True ($prepare.TypeScriptPath -ceq $expectedTool) 'wrong pinned TypeScript'
         Assert-True (-not $check.TypeScriptPath -and $check.UseFreshState -eq $true) 'acceptance must use fresh state without historical build tools'
-        Assert-True ($check.VerifyInstructions -eq ($FullRegression -or $Exhaustive -or $PolicyChangedPath -eq 'extensions/azrael-ex/src/instructionView.ts')) 'Instructions must be scoped to related or full verification'
+        Assert-True ($check.VerifyInstructions -eq ($PolicyChangedPath -eq 'extensions/azrael-ex/src/instructionView.ts')) 'Instructions must be scoped to related verification'
         Assert-True ($check.HostVsixPath -ceq (Join-Path $prepare.OutputDirectory 'azrael-host.vsix')) 'acceptance used a different package'
         $expectedFixtureState = Join-Path $check.FixtureRoot $(if ($Name -eq 'short fixture install') { 's' } else { 'state' })
         Assert-True ($check.StateRoot -ceq $expectedFixtureState) 'fixture state was not isolated with the selected short/default child'
         Assert-True ((Get-Content -LiteralPath (Join-Path $a 'verification-state-paths.txt')) -ccontains $check.StateRoot) 'acceptance state differs from the guarded preflight state'
         if($Name -eq 'short fixture install') { Assert-True ($check.FixtureRoot -ceq (Join-Path $a 'v')) 'explicit short fixture was not forwarded' }
-        Assert-True ((@($prepare.SourceTestPolicy.changedPaths) -join '|') -ceq ($expectedPolicyPaths -join '|') -and $prepare.SourceTestPolicy.exhaustive -eq $Exhaustive) 'prepare source policy handoff lost'
-        Assert-True ($prepare.ChangedOnlyTests -is [bool] -and $prepare.ChangedOnlyTests -eq (-not $FullRegression)) 'prepare changed-only policy lost'
-        Assert-True ($prepare.ChangedOnlyTestsBound -eq (-not $FullRegression)) 'full prepare must omit ChangedOnlyTests'
+        Assert-True ((@($prepare.SourceTestPolicy.changedPaths) -join '|') -ceq ($expectedPolicyPaths -join '|') -and $prepare.SourceTestPolicy.exhaustive -eq $false) 'prepare source policy handoff lost'
         Assert-True ($prepare.SourceExtensionPath -ceq (Join-Path $a 'pristine UI')) 'prepare UI pin lost'
         Assert-True ($prepare.SkipCodexEnvironmentSnapshot -is [bool] -and $prepare.SkipCodexEnvironmentSnapshot -eq $SkipSnapshot) 'prepare snapshot policy was not forwarded exactly'
         Assert-True ([string]::IsNullOrEmpty($check.UiSourcePath)) 'final acceptance must use the prepared package without the preparation UI source'
@@ -1525,15 +1528,12 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'resume after prepare failure' 'prepare-fail'
     Invoke-Case 'short fixture install' 'success'
     Invoke-Case 'module cache install' 'success' -ModuleCache $true
-    Invoke-Case 'exhaustive regression verify only' 'success' $true -Exhaustive $true
     Invoke-Case 'related integration verify only' 'success' $true -PolicyChangedPath 'engine/codex-rs/core/src/session/mod.rs'
     Invoke-Case 'explicit policy verify only' 'success' $true -PolicyChangedPath 'docs/README.md'
     Invoke-Case 'instructions changes verify only' 'success' $true -PolicyChangedPath 'extensions/azrael-ex/src/instructionView.ts'
     Invoke-Case 'host changes verify only' 'success' $true -PolicyChangedPath 'scripts/integrated-azrael-entry.cjs'
     Invoke-Case 'runtime changes verify only' 'success' $true -PolicyChangedPath 'scripts/shared-engine-host.cjs'
     Invoke-Case 'account source verify only' 'success' $true -PolicyChangedPath 'extensions/azrael-ex/src/extension.ts'
-    Invoke-Case 'full regression verify only' 'success' $true -FullRegression $true
-    Invoke-Case 'full regression force native' 'success' $true -FullRegression $true -ForceNative $true
     Invoke-Case 'selected force native' 'success' $true -ForceNative $true
     Invoke-Case 'shared module cache install' 'success' -ModuleCache $true -SharedModuleOwner $true
     Invoke-Case 'skip environment snapshot install' 'success' -SkipSnapshot $true

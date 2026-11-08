@@ -60,7 +60,6 @@ try {
             OutputDirectory = (Join-Path $output 'preparation')
             HostVersion = [string]$configuration.version
             SkipCodexEnvironmentSnapshot = $true
-            ChangedOnlyTests = $true
         }
         if ($SourceExtensionPath) { $arguments.SourceExtensionPath = $SourceExtensionPath }
         if ($TypeScriptPath) { $arguments.TypeScriptPath = $TypeScriptPath }

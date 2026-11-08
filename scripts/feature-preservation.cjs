@@ -208,7 +208,7 @@ function verificationSelection(manifest, config) {
   return { profile: name, sourceFeatureIds: engineFeatures.filter(feature => sourceIds.includes(feature.id)).map(feature => feature.id),
     nativeCheckIds: [...nativeCheckIds], unmappedNativePaths: [...unmappedNativePaths],
     omittedNative: engineFeatures.flatMap(feature => feature.checks.filter(check => check.level === 'native' && !nativeCheckIds.includes(check.id))
-      .map(check => ({ featureId: feature.id, checkId: check.id, reason: `outside explicit native profile ${name}; select its feature or FullRegression when required` }))) };
+      .map(check => ({ featureId: feature.id, checkId: check.id, reason: `outside explicit native profile ${name}; select its functional feature when required` }))) };
 }
 function selectedFeatures(manifest, area, config) {
   if (!['ui', 'engine', 'all'].includes(area)) throw Error('Explicit area ui, engine or all required');
