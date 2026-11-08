@@ -184,7 +184,7 @@ test('real Git/source identity validates preflight handoff and detects changed i
     assert.equal(spawn('git', ['init', '--quiet', dir], { windowsHide: true }).status, 0);
     fs.writeFileSync(path.join(dir, '.gitignore'), 'artifacts/\n'); fs.writeFileSync(path.join(dir, 'input.txt'), 'immutable');
   }
-  for (const file of ['feature-preservation.cjs', 'directory-state.cjs', 'deployment-input-snapshot.cjs', 'engine-provenance.py']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', file), 'stable identity');
+  for (const file of ['feature-preservation.cjs', 'directory-state.cjs', 'deployment-input-snapshot.cjs', 'project-source-state.cjs', 'source-observation.cjs', 'engine-source-metadata.cjs', 'engine-provenance.py']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', file), 'stable identity');
   fs.writeFileSync(path.join(config.projectRoot, 'scripts/azrael-feature-contracts.json'), JSON.stringify(config.manifest));
   const execute = config.execute;
   config.execute = async (command, args, options) => {
