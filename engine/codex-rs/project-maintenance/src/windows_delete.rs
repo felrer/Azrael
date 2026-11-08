@@ -356,11 +356,17 @@ public static class MaintenanceJunctionNative {
         readonly string target;
         readonly IDictionary approved, junctions;
         readonly Action<string> assertJunction;
+        readonly Dictionary<string,AncestorPaths> ancestors=new Dictionary<string,AncestorPaths>(StringComparer.Ordinal);
         public DeletionContext(string target, IDictionary approved, IDictionary junctions, Action<string> assertJunction) {
             this.target=target; this.approved=approved; this.junctions=junctions; this.assertJunction=assertJunction;
         }
         public void AssertAncestors(string literal) {
-            MaintenanceJunctionNative.AssertAncestors(literal,LiteralRoot(literal),junctions.Contains(literal) ? assertJunction : null);
+            AncestorPaths paths;
+            if(literal==null || !ancestors.TryGetValue(literal,out paths)) {
+                paths=new AncestorPaths(literal,LiteralRoot(literal));
+                ancestors.Add(literal,paths);
+            }
+            paths.Assert(junctions.Contains(literal) ? assertJunction : null);
         }
         public void AssertTree() {
             var pending=new Stack<string>(); pending.Push(target);
@@ -444,6 +450,32 @@ public static class MaintenanceJunctionNative {
             }
         }
     }
+    // Request-local lexical strings only. Discover the next parent after its
+    // child's fresh observation/callback, preserving even lexical error order.
+    sealed class AncestorPaths {
+        readonly string literal, root;
+        readonly List<string> paths=new List<string>();
+        bool complete;
+        public AncestorPaths(string literal, string root) {
+            this.literal=literal; this.root=root;
+            if(!String.IsNullOrEmpty(literal)) paths.Add(literal);
+        }
+        public void Assert(Action<string> assertJunction) {
+            for(int position=0;position<paths.Count;position++) {
+                string cursor=paths[position];
+                AssertAncestor(literal,cursor,assertJunction);
+                if(position+1<paths.Count || complete) continue;
+                if(String.Equals(cursor.TrimEnd('\\'),root.TrimEnd('\\'),StringComparison.InvariantCultureIgnoreCase)) {
+                    complete=true;
+                } else {
+                    string parent=cursor.Substring(0,cursor.TrimEnd('\\').LastIndexOf('\\'));
+                    string next=parent.Length<root.Length ? root : parent;
+                    if(String.IsNullOrEmpty(next)) complete=true;
+                    else paths.Add(next);
+                }
+            }
+        }
+    }
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern SafeFileHandle CreateFileW(string p, uint a, uint s, IntPtr sa, uint c, uint f, IntPtr t);
     [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetFileInformationByHandleEx(SafeFileHandle h, int c, IntPtr b, uint n);
     [DllImport("kernel32.dll", SetLastError=true)] static extern bool DeviceIoControl(SafeFileHandle h, uint c, IntPtr i, uint ni, byte[] o, uint no, out uint n, IntPtr ov);
@@ -462,17 +494,19 @@ public static class MaintenanceJunctionNative {
         // entries or between the separate deletion validation boundaries.
         string cursor=literal;
         while(!String.IsNullOrEmpty(cursor)) {
-            int attributes=(int)System.IO.File.GetAttributes(cursor);
-            if((attributes & 1024)!=0) {
-                if(!String.Equals(cursor,literal,StringComparison.InvariantCultureIgnoreCase) || assertJunction==null)
-                    throw new InvalidOperationException("Ancestor reparse path protected");
-                // Preserve the approved leaf's provider/target/pin checks before
-                // walking further, rather than postponing them until return.
-                assertJunction(literal);
-            }
+            AssertAncestor(literal,cursor,assertJunction);
             if(String.Equals(cursor.TrimEnd('\\'),root.TrimEnd('\\'),StringComparison.InvariantCultureIgnoreCase)) break;
             string parent=cursor.Substring(0,cursor.TrimEnd('\\').LastIndexOf('\\'));
             cursor=parent.Length<root.Length ? root : parent;
+        }
+    }
+    static void AssertAncestor(string literal, string cursor, Action<string> assertJunction) {
+        int attributes=(int)System.IO.File.GetAttributes(cursor);
+        if((attributes & 1024)!=0) {
+            if(!String.Equals(cursor,literal,StringComparison.InvariantCultureIgnoreCase) || assertJunction==null)
+                throw new InvalidOperationException("Ancestor reparse path protected");
+            // Re-evaluate the approved leaf before observing its parent.
+            assertJunction(literal);
         }
     }
     public static string NormalizationPin(string path) {
@@ -869,6 +903,48 @@ if(!$alreadyBackground) { throw 'Worker was not already in process background mo
             .unwrap();
         assert_eq!(report["status"], "deleted");
         assert!(!target.exists());
+    }
+
+    #[test]
+    fn cached_lexical_ancestors_still_detect_a_later_junction() {
+        let root = tempfile::tempdir().unwrap();
+        let ancestor = root.path().join("ancestor");
+        let physical = root.path().join("ancestor-physical");
+        fs::create_dir(&ancestor).unwrap();
+        let target = ancestor.join("payload");
+        fs::write(&target, "must survive ancestor replacement").unwrap();
+        // A future attempt to cache ancestor metadata alongside the strings
+        // would miss this replacement between the first tree walk and Normalize.
+        let script = SCRIPT.replace(
+            "    $deletionContext.Normalize($changes)",
+            r#"    $ancestor=[IO.Path]::GetDirectoryName([string]$request.path)
+    $physical=$ancestor+'-physical'
+    [IO.Directory]::Move($ancestor,$physical)
+    $null=New-Item -ItemType Junction -Path $ancestor -Target $physical
+    $deletionContext.Normalize($changes)"#,
+        );
+        let mut worker = Worker::spawn(&script).unwrap();
+        let report = worker
+            .delete(&target, std::slice::from_ref(&target), &[])
+            .unwrap();
+        drop(worker);
+        // Remove only the injected link, then restore the physical fixture.
+        fs::remove_dir(&ancestor).unwrap();
+        fs::rename(&physical, &ancestor).unwrap();
+        assert_eq!(report["status"], "failed");
+        assert_eq!(report["remaining"], true);
+        assert!(
+            report["error"]
+                .as_str()
+                .unwrap()
+                .contains("Ancestor reparse path protected"),
+            "{report}"
+        );
+        assert_eq!(report["attributes"], json!([]));
+        assert_eq!(
+            fs::read_to_string(&target).unwrap(),
+            "must survive ancestor replacement"
+        );
     }
 
     #[test]
