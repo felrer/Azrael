@@ -4513,7 +4513,8 @@
         "scripts/build-resource-admission.cjs",
         "scripts/test-build-resource-admission.cjs",
         "scripts/source-check-selection.cjs",
-        "scripts/test-source-check-selection.cjs"
+        "scripts/test-source-check-selection.cjs",
+        "scripts/lifecycle-test-policy.cjs"
       ],
       "contract": "docs/architecture/project-maintenance.md",
       "checks": [
@@ -4596,7 +4597,21 @@
           "level": "source",
           "sourceSelection": {
             "files": [
-              "scripts/test-artifact-lifecycle.cjs",
+              "scripts/test-artifact-lifecycle.cjs"
+            ]
+          }
+        },
+        {
+          "id": "tool.project-maintenance.packaging-source",
+          "executable": "node",
+          "args": [
+            "scripts/check-artifact-lifecycle.cjs",
+            "--stage",
+            "packaging"
+          ],
+          "level": "source",
+          "sourceSelection": {
+            "files": [
               "scripts/test-build-platform.cjs",
               "scripts/test-committed-build-context.cjs",
               "scripts/test-platform-packaging.cjs"

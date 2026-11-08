@@ -6,6 +6,7 @@ const maintenanceRegressionChecks = new Set([
   "tool.project-maintenance.adapter", "tool.project-maintenance.lifecycle-source",
   "tool.project-maintenance.writers", "tool.project-maintenance.library",
   "tool.project-maintenance.windows-cleanup",
+  "tool.project-maintenance.packaging-source",
 ]);
 const isProductInput = file => !/^(?:work\/|artifacts\/(?:tasks|logs|verification)\/)/.test(normalize(file));
 function maintenanceRegressionFiles(manifest) {
@@ -73,6 +74,8 @@ function planSourceTests({ files, changedPaths = [], exhaustive = false }) {
   const changed = new Set(changedPaths.map(normalize));
   const selected = [...files];
   const omitted = [];
+  if (selected.includes('scripts/test-artifact-lifecycle.cjs')) omitted.push(...require('./lifecycle-test-policy.cjs')
+    .planLifecycleTests({ changedPaths, exhaustive }).omitted);
   if (!exhaustive && !changed.has(POLICY)) {
     if (selected.includes(MATRIX_FILE) && !changed.has(MATRIX_FILE)) omitted.push(...omittedMatrixCases(changed));
     for (const candidate of candidates) {

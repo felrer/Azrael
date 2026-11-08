@@ -637,6 +637,7 @@ try {
     $metrics.forceNativeVerification = [bool]$ForceNativeVerification
     $metrics.changedPaths = @($ChangedPath)
     $sourceConfig = [ordered]@{
+        lifecycleChangedPaths = @($policyPaths)
         productBuild = $productBuild
         deploymentFixtureIdentity = @{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$sourceFixtureRoot}
         reuseDecisionsPath = $ReuseDecisionsPath
@@ -727,6 +728,7 @@ try {
     # Entry/resume validates the frozen inputs; pre-install validates them again.
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
+        lifecycleChangedPaths = @($policyPaths)
         productBuild = $productBuild
         deploymentFixtureIdentity = @{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$sourceFixtureRoot}
         reuseDecisionsPath = $ReuseDecisionsPath

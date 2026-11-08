@@ -4,6 +4,29 @@ const assert = require("node:assert/strict");
 const { planSourceTests, pinnedAssetMatrix, matrixTestName, PINNED_UI_ROOT } = require("./source-test-policy.cjs");
 const files = ["scripts/test-asset-transform-cache.cjs", "scripts/test-feature-preservation-cache.cjs", "scripts/test-session-links.cjs", "scripts/test-project-selection.cjs", "scripts/test-unknown.cjs"];
 
+test('lifecycle defaults retain 15 core cases and expand only related or shared changes', () => {
+  const { planLifecycleTests, FILE } = require('./lifecycle-test-policy.cjs');
+  const base = planLifecycleTests();
+  assert.equal(base.selected.length, 15);
+  assert.equal(base.omitted.length, 50);
+  const selected = new RegExp(base.skipPattern);
+  assert.ok(base.selected.every(name => !selected.test(name)));
+  assert.ok(base.omitted.every(item => selected.test(item.test)));
+  for (const changed of [FILE, 'scripts/artifact-lifecycle.cjs', 'scripts/maintenance-lock-owner.cjs', 'scripts/lifecycle-test-policy.cjs'])
+    assert.equal(planLifecycleTests({ changedPaths: [changed] }).omitted.length, 0);
+  const windows = planLifecycleTests({ changedPaths: ['scripts/artifact-lifecycle.ps1'] });
+  assert.ok(windows.selected.some(name => name.startsWith('PowerShell deletion')));
+  assert.ok(windows.omitted.some(item => item.test.startsWith('physical custody')));
+  const observations = planLifecycleTests({ changedPaths: ['scripts/artifact-observations.cjs'] });
+  assert.ok(observations.selected.some(name => name.startsWith('physical custody')));
+  assert.ok(observations.omitted.some(item => item.test.startsWith('PowerShell deletion')));
+  assert.deepEqual(planLifecycleTests({ changedPaths: ['work/session/proof.json'] }), base);
+  const runner = planSourceTests({ files: [FILE], changedPaths: [] });
+  assert.deepEqual(runner.omitted, base.omitted);
+  assert.equal(runner.skipPattern, base.skipPattern);
+  assert.deepEqual(planSourceTests({ files: [FILE], exhaustive: true }).omitted, []);
+});
+
 test("routine policy omits only registered expensive cases and the runner regression file", () => {
   const result = planSourceTests({ files, changedPaths: ["docs/README.md"] });
   for (const file of files.slice(0, -1)) assert.ok(result.omitted.some(item => item.file === file));

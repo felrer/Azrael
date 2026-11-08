@@ -22,8 +22,12 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
       [process.execPath, ["--test", "--test-name-pattern=instruction release ownership", "scripts/tests/instruction-package.test.cjs"]],
     ];
   }
-  if (stage === "source") return [
-    [process.execPath, ["--test", "scripts/test-artifact-lifecycle.cjs", "scripts/test-build-platform.cjs", "scripts/test-committed-build-context.cjs"]],
+  if (stage === "source") {
+    const policy = require('./lifecycle-test-policy.cjs').planLifecycleTests();
+    return [[process.execPath, ['--test', ...(policy.skipPattern ? [`--test-skip-pattern=${policy.skipPattern}`] : []), 'scripts/test-artifact-lifecycle.cjs']]];
+  }
+  if (stage === "packaging") return [
+    [process.execPath, ["--test", "scripts/test-build-platform.cjs", "scripts/test-committed-build-context.cjs"]],
     [process.execPath, ["scripts/test-platform-packaging.cjs"]],
   ];
   if (stage !== "windows" || platform !== "win32") throw new Error("Windows cleanup checks require --stage windows on Windows");
@@ -40,7 +44,7 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
   ];
 }
 function main(argv) {
-  if (argv.length < 2 || argv[0] !== "--stage" || (argv.length - 2) % 2) throw new Error("Usage: check-artifact-lifecycle.cjs --stage source|writers|windows|pipeline [--test-file file]");
+  if (argv.length < 2 || argv[0] !== "--stage" || (argv.length - 2) % 2) throw new Error("Usage: check-artifact-lifecycle.cjs --stage source|packaging|writers|windows|pipeline [--test-file file] [--changed-path path]");
   const root = path.resolve(__dirname, ".."), id = crypto.randomUUID();
   // Keep Git's initial config path below Windows' pre-config path limit.
   // The full UUID still identifies the run; removing separators is lossless.
@@ -78,16 +82,24 @@ function main(argv) {
   return 0;
 }
 function selectCommands(argv, platform, root, run) {
-  const all = commands(argv[1], platform, root, run);
+  let all = commands(argv[1], platform, root, run);
   if (argv.length === 2) return all;
-  if (!["source", "writers"].includes(argv[1])) throw Error("Test-file selection requires source or writers stage");
+  if (!["source", "packaging", "writers"].includes(argv[1])) throw Error("Test-file selection requires source, packaging or writers stage");
   const requested = [];
+  const changed = []; let pattern;
   for (let index = 2; index < argv.length; index += 2) {
+    if (argv[index] === '--changed-path' && argv[1] === 'source') { changed.push(argv[index + 1]); continue; }
+    if (argv[index] === '--test-skip-pattern' && argv[1] === 'source' && pattern === undefined) { pattern = argv[index + 1]; continue; }
     if (argv[index] !== "--test-file" || requested.includes(argv[index + 1])) throw Error("Invalid or duplicate test-file selection");
     requested.push(argv[index + 1]);
   }
+  if (changed.length && pattern !== undefined) throw Error('Conflicting lifecycle case selection');
+  if (changed.length) pattern = require('./lifecycle-test-policy.cjs').planLifecycleTests({ changedPaths: changed }).skipPattern;
+  if (pattern !== undefined) all = all.map(([command, args]) => [command, [args[0],
+    ...(pattern ? [`--test-skip-pattern=${pattern}`] : []), ...args.slice(1).filter(arg => !arg.startsWith('--test-skip-pattern='))]]);
   const files = all.flatMap(([, args]) => args.filter(arg => /^scripts\/.*\.cjs$/.test(arg)));
-  if (!requested.length || requested.some(file => !files.includes(file))) throw Error("Unknown test-file selection");
+  if (requested.some(file => !files.includes(file))) throw Error("Unknown test-file selection");
+  if (!requested.length) return all;
   return all.flatMap(([command, args]) => {
     const own = args.filter(arg => files.includes(arg));
     if (!own.some(file => requested.includes(file))) return [];

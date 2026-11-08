@@ -11,7 +11,7 @@ test('product deployment separates module regression while retaining core/prompt
   const config = { projectRoot: path.join(__dirname, '..'), sourceCheckPaths: ['scripts/azrael-feature-contracts.json'] };
   const product = selection.select([feature], { ...config, productBuild: true });
   const ids = product.features.flatMap(feature => feature.checks.map(check => check.id));
-  for (const suffix of ['adapter', 'lifecycle-source', 'writers', 'library', 'windows-cleanup']) {
+  for (const suffix of ['adapter', 'lifecycle-source', 'packaging-source', 'writers', 'library', 'windows-cleanup']) {
     const id = `tool.project-maintenance.${suffix}`;
     assert.ok(!ids.includes(id));
     assert.ok(product.selection.deferred.some(item => item.checkId === id));
@@ -64,7 +64,7 @@ test("unmapped feature owners, global selection inputs and omitted scope retain 
 });
 
 test("lifecycle subcommands retain arguments and reject unknown, duplicated or unsupported selection", () => {
-  const source = lifecycleChecks.selectCommands(["--stage", "source", "--test-file", "scripts/test-build-platform.cjs"], process.platform, ".", ".");
+  const source = lifecycleChecks.selectCommands(["--stage", "packaging", "--test-file", "scripts/test-build-platform.cjs"], process.platform, ".", ".");
   assert.deepEqual(source, [[process.execPath, ["--test", "scripts/test-build-platform.cjs"]]]);
   const writers = lifecycleChecks.selectCommands(["--stage", "writers", "--test-file", "scripts/test-deployment-workspace.cjs"], process.platform, ".", "owned-run");
   assert.deepEqual(writers, [[process.execPath, ["scripts/test-deployment-workspace.cjs", path.join("owned-run", "temporary/workspace")]]]);
@@ -78,11 +78,11 @@ test("lifecycle subcommands retain arguments and reject unknown, duplicated or u
 test("inventory preserves all source files once and validates exact lifecycle dispatcher coverage", () => {
   const feature = require("./azrael-feature-contracts.json").features.find(feature => feature.id === "tool.project-maintenance");
   const checks = feature.checks.filter(check => check.sourceSelection);
-  assert.equal(checks.length, 3);
+  assert.equal(checks.length, 4);
   const files = checks.flatMap(check => check.sourceSelection.files);
   assert.equal(files.filter(file => file === "scripts/test-artifact-lifecycle.cjs").length, 1);
   for (const check of checks) selection.validate(check, file => assert.ok(fs.statSync(path.join(__dirname, "..", file)).isFile()));
-  const invalid = structuredClone(checks.find(check => check.id.endsWith("lifecycle-source")));
+  const invalid = structuredClone(checks.find(check => check.id.endsWith("packaging-source")));
   invalid.sourceSelection.files.pop();
   assert.throws(() => selection.validate(invalid, () => {}), /Incomplete/);
 });

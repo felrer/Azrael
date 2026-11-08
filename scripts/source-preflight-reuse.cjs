@@ -26,8 +26,52 @@ function completeTestArgs(args) {
   return files.length ? ['--test', ...files] : null;
 }
 
-// In deployment, the verified engine gate owns these unfiltered node:test
-// bundles. This is not permission to reuse arbitrary per-file or native logs.
+function requestedFiles(selection, root) {
+  const candidates = new Map();
+  for (const command of selection.commands) {
+    if (command.name !== 'source' || command.executable !== process.execPath || path.resolve(command.cwd) !== path.resolve(root)) continue;
+    let args = command.args, omitted = [];
+    const skip = args.filter(arg => arg.startsWith('--test-skip-pattern='));
+    if (skip.length) {
+      const policy = selection.testPolicy;
+      if (skip.length !== 1 || !policy || !Array.isArray(policy.omitted) ||
+          skip[0] !== `--test-skip-pattern=${policy.skipPattern}` ||
+          policy.skipPattern !== require('./lifecycle-test-policy.cjs').skipPattern(policy.omitted.filter(item => item.test))) continue;
+      omitted = policy.omitted; args = args.filter(arg => arg !== skip[0]);
+    }
+    const complete = completeTestArgs(args);
+    if (!complete || !complete.slice(1).every(file => command.files.includes(file))) continue;
+    for (const file of complete.slice(1)) candidates.set(file, omitted.filter(item => item.file === file && item.test).map(item => item.test).sort());
+  }
+  return candidates;
+}
+function provenFiles(check, feature, config, root) {
+  const declared = feature?.checks.find(item => item.id === check.checkId);
+  if (!declared || declared.level !== 'source' || declared.executable !== 'node' || check.executable !== 'node' || check.exitCode !== 0 || check.signal || check.error) return [];
+  const direct = completeTestArgs(check.args);
+  if (direct && JSON.stringify(completeTestArgs(declared.args)) === JSON.stringify(direct)) return direct.slice(1).map(file => ({ file, omitted: [] }));
+  if (declared.args[0] !== 'scripts/check-artifact-lifecycle.cjs' || !['source', 'packaging'].includes(declared.args[2])) return [];
+  const expected = require('./source-check-selection.cjs').select([feature], config).features
+    .flatMap(feature => feature.checks).find(item => item.id === check.checkId);
+  if (!expected || JSON.stringify(expected.args) !== JSON.stringify(check.args)) return [];
+  const result = [];
+  const stage = declared.args[2];
+  for (const [executable, args] of require('./check-artifact-lifecycle.cjs').selectCommands(check.args.slice(1), process.platform, root, config.outputDirectory)) {
+    if (executable !== process.execPath) continue;
+    const whole = completeTestArgs(args);
+    if (whole) { result.push(...whole.slice(1).map(file => ({ file, omitted: [] }))); continue; }
+    if (stage !== 'source') continue;
+    const policy = require('./lifecycle-test-policy.cjs').planLifecycleTests({ root,
+      changedPaths: config.lifecycleChangedPaths ?? config.sourceCheckPaths ?? [], exhaustive: config.fullRegression === true });
+    const stripped = completeTestArgs(args.filter(arg => arg === `--test-skip-pattern=${policy.skipPattern}` ? false : true));
+    if (policy.skipPattern && stripped?.length === 2 && stripped[1] === require('./lifecycle-test-policy.cjs').FILE)
+      result.push({ file: stripped[1], omitted: policy.omitted.map(item => item.test).sort() });
+  }
+  return result;
+}
+
+// Verified direct bundles and known wrapper recipes may cover the requested
+// scope. A filtered proof never establishes complete-file coverage.
 async function bindSourcePreflight(selection, config, root, verify = gate.verifyReceipt) {
   if (config.area !== 'engine' || config.checkPhase !== 'source' ||
       !path.isAbsolute(config.receiptPath || '') || physical(config.projectRoot) !== physical(root)) {
@@ -56,36 +100,30 @@ async function bindSourcePreflight(selection, config, root, verify = gate.verify
   };
   const receipt = await validate();
   const manifest = gate.loadManifest(root);
-  const candidates = new Set(selection.commands.filter(command => command.name === 'source' &&
-    command.executable === process.execPath && path.resolve(command.cwd) === path.resolve(root) &&
-    completeTestArgs(command.args)?.slice(1).every(file => command.files.includes(file)))
-    .flatMap(command => completeTestArgs(command.args).slice(1)));
-  const covered = new Set(), records = [];
+  const candidates = requestedFiles(selection, root);
+  const covered = new Set(), scoped = new Set(), records = [];
   for (const check of receipt.status === 'rerun-required' ? [] : receipt.checks) {
-    const declared = manifest.features.find(feature => feature.id === check.featureId)?.checks.find(item => item.id === check.checkId);
-    const actualArgs = completeTestArgs(check.args);
-    if (!declared || declared.level !== 'source' || declared.executable !== check.executable ||
-        !actualArgs || JSON.stringify(completeTestArgs(declared.args)) !== JSON.stringify(actualArgs)) continue;
-    const [, ...files] = actualArgs;
-    // A filtered/operational command can never establish whole-file coverage.
-    if (check.executable !== 'node') continue;
-    const selected = files.filter(file => candidates.has(file));
+    const proof = provenFiles(check, manifest.features.find(feature => feature.id === check.featureId), config, root);
+    const selected = proof.filter(item => candidates.has(item.file) && (!item.omitted.length ||
+      JSON.stringify(item.omitted) === JSON.stringify(candidates.get(item.file))));
     if (!selected.length) continue;
-    selected.forEach(file => covered.add(file));
+    selected.forEach(item => (item.omitted.length ? scoped : covered).add(item.file));
     records.push({ featureId: check.featureId, checkId: check.checkId, executable: check.executable,
+      executionScope: selected.some(item => item.omitted.length) ? 'selected-cases' : 'complete-files',
       args: check.args, logPath: check.logPath, logSha256: check.logSha256,
       errorPath: check.errorPath, errorSha256: check.errorSha256, exitCode: check.exitCode,
       ...(receipt.reuseReview?.mode === 'reviewed' ? { reuseReview: receipt.reuseReview } : {}) });
   }
   const commands = selection.commands.flatMap(command => {
     if (command.name !== 'source') return [command];
-    const files = command.files.filter(file => !covered.has(file));
+    const files = command.files.filter(file => !covered.has(file) && !scoped.has(file));
     if (!files.length) return [];
-    return [{ ...command, files, args: command.args.filter(arg => !covered.has(arg)) }];
+    return [{ ...command, files, args: command.args.filter(arg => !covered.has(arg) && !scoped.has(arg)) }];
   });
   return { validate, environment: gate.checkEnvironment(config), selection: { ...selection, commands,
     sourcePreflight: { receiptPath: receipt.receiptPath, receiptSha256: receiptHash,
       files: [...covered].sort(), checks: records, ...(receipt.reuseReview ? { reuseReview: receipt.reuseReview } : {}),
+      selectedCaseFiles: [...scoped].filter(file => !covered.has(file)).sort(),
       reason: 'Verified source preflight' } } };
 }
 

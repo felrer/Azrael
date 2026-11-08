@@ -2,6 +2,12 @@
 
 상태: `partial`. 공통 Rust·native handler/권한·가용성 지침과 주요 Windows producer/cleaner의 소스 수용을 확인했다. 설치 앱의 가용성, 다른 OS 실기기와 과거 경로의 물리 이전은 별도다. 상세 검증 상태는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)이 소유한다. 기능 보존 ID는 `tool.project-maintenance`다.
 
+## 생명주기 소스 검사 범위
+
+상태: `current` (Windows x64 소스 검증). [작업 기록](../../work/GJ-01-standalone-host-acceptance/06-plan.md)이 실행 결과를 소유한다. `lifecycle-test-policy.cjs`가 기본 핵심 15개와 변경별 추가 사례를 일반 소스 검사와 preservation wrapper에 함께 제공한다. 이관·관찰·복구·캐시·Windows 검사는 관련 경로 변경에서 선택하며 공유 구현·잠금·선택 정책·검사 자체 변경은 보수적으로 확대한다. 분류되지 않은 새 사례는 실행에 남긴다. 검사 원본은 유지한다.
+
+빌드 입력과 패키징 검사는 `packaging-source` 단계가 소유한다. 검증된 wrapper의 node:test 결과는 같은 입력·환경·로그·선택 범위를 확인해 재사용한다. 필터된 사례 통과는 파일 전체 통과가 될 수 없다. 제품 빌드의 기존 module-only 제외 정책과 최종 산출물 검증은 유지한다. 공통 선택 의미는 지원 플랫폼에 적용되며 이번 실기기 검증은 Windows x64다.
+
 ## 성공한 삭제의 상세 이력
 
 상태: `current` (Windows x64 standalone). 공통 소스 구현과 실제 수용은 [빌드 비용 검토](../../work/FT-01-periodic-system-freeze/02-plan.md)에 기록한다. Linux/macOS 실기기 및 앱 내장 실행기 교체는 별도다.

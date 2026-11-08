@@ -15,7 +15,7 @@ function validate(check, reference) {
   value.files.forEach(file => { if (typeof file !== "string") throw Error(`Invalid source selection: ${check.id}`); reference(file); });
   const direct = check.args.includes("--test");
   const lifecycle = check.args.length === 3 && check.args[0] === "scripts/check-artifact-lifecycle.cjs" &&
-    check.args[1] === "--stage" && ["source", "writers"].includes(check.args[2]);
+    check.args[1] === "--stage" && ["source", "packaging", "writers"].includes(check.args[2]);
   if ((!direct && !lifecycle) || (direct && JSON.stringify(sources(check)) !== JSON.stringify(value.files))) {
     throw Error(`Unsupported source selection command: ${check.id}`);
   }
@@ -35,12 +35,23 @@ function select(features, config) {
       deferred.push({ checkId: check.id, reason: 'Module-only regression' });
       return false;
     }) }));
-  if (config.sourceCheckPaths === undefined || config.fullRegression === true) return { features };
+  let lifecycleScope;
+  features = features.map(feature => {
+    if (!feature.checks.some(check => check.args[0] === 'scripts/check-artifact-lifecycle.cjs' && check.args[2] === 'source')) return feature;
+    const plan = require('./lifecycle-test-policy.cjs').planLifecycleTests({
+      changedPaths: config.lifecycleChangedPaths ?? config.sourceCheckPaths ?? [],
+      root: config.projectRoot, exhaustive: config.fullRegression === true });
+    lifecycleScope = { selected: plan.selected, omitted: plan.omitted.map(item => item.test) };
+    return { ...feature, checks: feature.checks.map(check => check.args[0] === 'scripts/check-artifact-lifecycle.cjs' && check.args[2] === 'source'
+      ? { ...check, args: [...check.args, '--test-skip-pattern', plan.skipPattern] } : check) };
+  });
+  if (config.sourceCheckPaths === undefined || config.fullRegression === true)
+    return { features, ...(lifecycleScope ? { selection: { lifecycle: lifecycleScope } } : {}) };
   if (!Array.isArray(config.sourceCheckPaths) || config.sourceCheckPaths.some(file =>
     typeof file !== "string" || !file || file.includes("\0") || path.isAbsolute(file) ||
     /^[A-Za-z]:[\\/]/.test(file) || normalize(file).split("/").includes(".."))) throw Error("Invalid sourceCheckPaths");
   const changedPaths = [...new Set(config.sourceCheckPaths.map(normalize).filter(isProductInput))].sort();
-  const selection = { changedPaths, checks: [], ...(deferred.length ? { deferred } : {}) };
+  const selection = { changedPaths, checks: [], ...(deferred.length ? { deferred } : {}), ...(lifecycleScope ? { lifecycle: lifecycleScope } : {}) };
   const scoped = features.filter(feature => feature.checks.some(check => check.sourceSelection));
   if (!scoped.length) return { features, selection };
   const roots = [...new Set(scoped.flatMap(feature => feature.checks.filter(check => check.level === "source")

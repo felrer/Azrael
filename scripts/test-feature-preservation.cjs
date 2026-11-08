@@ -36,6 +36,37 @@ const path = require('node:path');
     return { assets: [{ fixtureEdits: count }], transformRules: config.transformRules, sourceUi: {
       version: '1.2.3', packageSha256: sha(path.join(config.uiRoot, 'package.json')), webviewSha256: sha(path.join(config.uiRoot, 'picker.js')) } };
   }
+  test('lifecycle wrapper reuses only matching cases and packaging wrapper exposes complete node tests', async () => {
+    const { root, manifest, config } = setup();
+    const policy = require('./lifecycle-test-policy.cjs');
+    const files = [policy.FILE, 'scripts/test-build-platform.cjs', 'scripts/test-committed-build-context.cjs', 'scripts/test-platform-packaging.cjs'];
+    for (const file of [...files, 'scripts/check-artifact-lifecycle.cjs'])
+      fs.copyFileSync(path.join(__dirname, '..', file), path.join(root, file));
+    const feature = manifest.features[1];
+    feature.checks = [
+      { id: 'engine.fixture.lifecycle', level: 'source', executable: 'node', args: ['scripts/check-artifact-lifecycle.cjs', '--stage', 'source'], sourceSelection: { files: [policy.FILE] } },
+      { id: 'engine.fixture.packaging', level: 'source', executable: 'node', args: ['scripts/check-artifact-lifecycle.cjs', '--stage', 'packaging'], sourceSelection: { files: files.slice(1) } },
+    ];
+    fs.writeFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), JSON.stringify(manifest));
+    const sourceConfig = { ...config, area: 'engine', checkPhase: 'source' };
+    const receipt = await gate.runPreservation(sourceConfig);
+    assert.equal(receipt.status, 'passed', receipt.error);
+    const testPolicy = require('./source-test-policy.cjs').planSourceTests({ files: files.slice(0, 3) });
+    const selection = { testPolicy, commands: [{ name: 'source', executable: process.execPath, cwd: root,
+      args: ['--test', `--test-skip-pattern=${testPolicy.skipPattern}`, ...files.slice(0, 3)], files: files.slice(0, 3) }] };
+    const reuseConfig = { ...sourceConfig, receiptPath: receipt.receiptPath };
+    const { bindSourcePreflight } = require('./source-preflight-reuse.cjs');
+    const matching = await bindSourcePreflight(selection, reuseConfig, root);
+    assert.deepEqual(matching.selection.commands, []);
+    assert.deepEqual(matching.selection.sourcePreflight.selectedCaseFiles, [policy.FILE]);
+    assert.deepEqual(matching.selection.sourcePreflight.files, files.slice(1, 3).sort());
+    assert.equal(matching.selection.sourcePreflight.checks[0].executionScope, 'selected-cases');
+    const full = { commands: [{ ...selection.commands[0], args: ['--test', policy.FILE], files: [policy.FILE] }] };
+    const insufficient = await bindSourcePreflight(full, reuseConfig, root);
+    assert.deepEqual(insufficient.selection.commands, full.commands);
+    assert.deepEqual(insufficient.selection.sourcePreflight.files, []);
+    assert.deepEqual(insufficient.selection.sourcePreflight.selectedCaseFiles, []);
+  });
   test('selected source files bind receipts and reuse the same preflight without rerunning', async () => {
     const { root, manifest, config } = setup();
     fs.writeFileSync(path.join(root, 'scripts/check.cjs'), "require('./leaf.cjs')");

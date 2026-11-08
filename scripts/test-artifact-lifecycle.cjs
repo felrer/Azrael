@@ -830,6 +830,16 @@ test("failed producer retains its whole pending identity and append-only members
 
 test("build producer records all planned members before first output creation fails", async t => {
   const { root, at } = fixture(t);
+  const gitEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
+  const git = args => {
+    const result = require('node:child_process').spawnSync('git', ['-C', root, ...args], {
+      env: { ...gitEnv, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: process.platform === 'win32' ? 'NUL' : require('node:os').devNull },
+      encoding: 'utf8', windowsHide: true });
+    assert.equal(result.status, 0, result.stderr);
+  };
+  git(['init', '--quiet']);
+  git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+    '-c', 'commit.gpgsign=false', 'commit', '--allow-empty', '--quiet', '-m', 'fixture']);
   fs.mkdirSync(at("logs/multi-platform"), { recursive: true });
   fs.writeFileSync(at("logs/multi-platform/build"), "directory collision prevents any process execution");
   fs.mkdirSync(at("cache/cargo"), { recursive: true });
@@ -882,9 +892,12 @@ test("shared member protection, report destinations and active consumers protect
 
 test("native projection protects dependencies from inbound consumers without protecting consumers from outbound dependencies", t => {
   const { root, at, record } = fixture(t);
-  record("release", [["releases/main", "release"]]);
-  fs.mkdirSync(at("releases/main"), { recursive: true });
-  record("package", [["packages/main", "package"]], { kind: "run", references: [{ id: "release", reason: "packaging-input" }] });
+  lifecycle.withCatalogLock(root, () => {
+    record("release", [["releases/main", "release"]]);
+    fs.mkdirSync(at("releases/main"), { recursive: true });
+    record("package", [["packages/main", "package"]], { kind: "run", references: [{ id: "release", reason: "packaging-input" }] });
+    record("pending", [["outputs/pending", "output"]], { kind: "run", state: "pending", membership_complete: true });
+  });
   const packagePlan = lifecycle.planCleanup(root, { paths: [at("packages/main")] });
   assert.deepEqual(packagePlan.groups[0].blockers, []);
   const packageRequest = lifecycle.registerRequest(root, "package");
@@ -893,7 +906,6 @@ test("native projection protects dependencies from inbound consumers without pro
   const releaseRequest = lifecycle.registerRequest(root, "release");
   assert.ok(releaseRequest.group.members.every(member => member.references.includes("package:packaging-input")));
   assert.ok(lifecycle.planCleanup(root, { paths: [at("releases/main")] }).groups[0].blockers.includes("active-reference:package"));
-  record("pending", [["outputs/pending", "output"]], { kind: "run", state: "pending", membership_complete: true });
   assert.equal(lifecycle.registerRequest(root, "pending").group.membership_complete, false);
 });
 

@@ -797,7 +797,8 @@ async function main(args = process.argv.slice(2)) {
   for (const reason of selection.reasons) console.log(`${reason.reason}${reason.tests ? `: ${reason.tests.length} checks` : ''}${reason.areas ? `: ${reason.areas.join(', ')}` : ''}`);
   const excluded = [...(selection.testPolicy?.omitted || []), ...(selection.deferredChecks || [])];
   if (excluded.length) console.log(`Excluded: ${[...new Set(excluded.map(item => item.reason))].join('; ')}`);
-  if (report.sourcePreflight?.files.length) console.log(`Reused: verified preflight (${report.sourcePreflight.files.length} files)`);
+  if (report.sourcePreflight && (report.sourcePreflight.files.length || report.sourcePreflight.selectedCaseFiles?.length))
+    console.log(`Reused: verified preflight (${report.sourcePreflight.files.length} files; ${report.sourcePreflight.selectedCaseFiles?.length || 0} case scopes)`);
   for (const check of selection.separateChecks) console.log(check);
   return report.exitCode;
 }
