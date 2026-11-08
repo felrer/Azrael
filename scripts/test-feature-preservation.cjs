@@ -418,6 +418,10 @@ const path = require('node:path');
     for (const [key, name] of Object.entries(fixtureNames)) process.env[key] = path.join(fixtureOwnership.sourceFixtureRoot, name);
     assert.deepEqual(await gate.sourceExecutionIdentity(sourceConfig), receipt.sourceExecution,
       'fresh deployment fixture paths must preserve receipt execution identity');
+    fixtureOwnership.sourceFixtureRoot = path.join(pipelineRoot, 'sf-' + 'b'.repeat(12));
+    for (const [key, name] of Object.entries(fixtureNames)) process.env[key] = path.join(fixtureOwnership.sourceFixtureRoot, name);
+    assert.deepEqual(await gate.sourceExecutionIdentity(sourceConfig), receipt.sourceExecution,
+      'short attempt fixture paths must preserve receipt execution identity');
     const { bindSourcePreflight } = require('./source-preflight-reuse.cjs');
     const selection = { files: [file, 'scripts/remaining.cjs'], commands: [{ name: 'source', executable: process.execPath,
       args: ['--test', '--test-concurrency=4', file, 'scripts/remaining.cjs'], cwd: root, files: [file, 'scripts/remaining.cjs'] }] };

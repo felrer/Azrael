@@ -18,7 +18,7 @@ function logicalBuildEnvironment(environment, ownership, projectRoot) {
     throw Error('Deployment fixture identity is outside the project pipeline boundary');
   }
   const relative = path.relative(path.resolve(pipelineRoot), path.resolve(sourceFixtureRoot)).split(path.sep).join('/');
-  if (!/^(source-fixtures|attempts\/[a-f0-9]{32}\/source-fixtures)$/.test(relative)) {
+  if (!/^(source-fixtures|attempts\/[a-f0-9]{32}\/source-fixtures|sf-[a-f0-9]{12})$/.test(relative)) {
     throw Error('Deployment fixture identity is outside the expected pipeline attempt boundary');
   }
   const names = { AZRAEL_INSTRUCTION_TEST_ROOT: 'instructions', AZRAEL_CATALOG_TEST_ROOT: 'catalog',

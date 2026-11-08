@@ -612,8 +612,9 @@ try {
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
     # The version's owned log root contains fresh per-attempt test fixtures.
     # Never reuse a caller's persistent fixture parent across deployment attempts.
-    $sourceFixtureRoot = Join-Path $pipelineRoot 'source-fixtures'
-    if ($Resume -and $pipelineSnapshot.stages.PSObject.Properties['source-tests'] -and @($pipelineSnapshot.stages.'source-tests')[-1].status -ne 'succeeded') { $sourceFixtureRoot=Join-Path $logs 'source-fixtures' }
+    $retrySourceTests = $Resume -and $pipelineSnapshot.stages.PSObject.Properties['source-tests'] -and @($pipelineSnapshot.stages.'source-tests')[-1].status -ne 'succeeded'
+    $sourceFixtureRoot = Get-DeploymentSourceFixtureRoot -PipelineRoot $pipelineRoot -AttemptId $attemptId -RetrySourceTests:$retrySourceTests
+    if ($retrySourceTests -and (Test-Path -LiteralPath $sourceFixtureRoot)) { throw 'Deployment source fixture attempt path already exists; preserve its owner and select a fresh attempt.' }
     if (-not (Test-Path -LiteralPath $sourceFixtureRoot)) { New-Item -ItemType Directory -Path $sourceFixtureRoot | Out-Null }
     foreach ($selection in @(
         @{ key = 'AZRAEL_INSTRUCTION_TEST_ROOT'; name = 'instructions' },

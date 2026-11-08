@@ -1,11 +1,20 @@
 # Shared by the release build and bounded wrapper validation. Dot-sourcing has
 # no side effects; callers supply a metrics context and log directory.
+function Get-DeploymentSourceFixtureRoot {
+    param([string]$PipelineRoot, [string]$AttemptId, [switch]$RetrySourceTests)
+    if (-not [IO.Path]::IsPathFullyQualified($PipelineRoot)) { throw 'Deployment fixture root requires an absolute pipeline root.' }
+    if ($AttemptId -cnotmatch '^[a-f0-9]{32}$') { throw 'Deployment fixture root requires the exact attempt identity.' }
+    # Keep SQLite homes below Win32 limits while retaining an owned attempt root.
+    $name = if ($RetrySourceTests) { 'sf-' + $AttemptId.Substring(0, 12) } else { 'source-fixtures' }
+    return Join-Path $PipelineRoot $name
+}
+
 function Get-LogicalBuildEnvironment {
     param([System.Collections.IDictionary]$Environment, [string]$PipelineRoot, [string]$SourceFixtureRoot)
     if ($SourceFixtureRoot) {
         if (-not [IO.Path]::IsPathFullyQualified($PipelineRoot) -or -not [IO.Path]::IsPathFullyQualified($SourceFixtureRoot)) { throw 'Deployment fixture identity requires absolute owned paths.' }
         $relative = [IO.Path]::GetRelativePath([IO.Path]::GetFullPath($PipelineRoot), [IO.Path]::GetFullPath($SourceFixtureRoot)).Replace('\', '/')
-        if ($relative -cnotmatch '^(source-fixtures|attempts/[a-f0-9]{32}/source-fixtures)$') { throw 'Deployment fixture identity is outside the expected pipeline attempt boundary.' }
+        if ($relative -cnotmatch '^(source-fixtures|attempts/[a-f0-9]{32}/source-fixtures|sf-[a-f0-9]{12})$') { throw 'Deployment fixture identity is outside the expected pipeline attempt boundary.' }
     }
     $fixtureNames = @{
         AZRAEL_INSTRUCTION_TEST_ROOT = 'instructions'
