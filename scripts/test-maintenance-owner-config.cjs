@@ -11,7 +11,7 @@ test("installed Azrael selection, strict negotiation and legacy bootstrap", t =>
   const parent = process.env.AZRAEL_LIFECYCLE_FIXTURE_ROOT || path.resolve(__dirname, "../artifacts/verification");
   fs.mkdirSync(parent, { recursive: true });
   const root = fs.mkdtempSync(path.join(parent, "maintenance-config-"));
-  const keys = ["AZRAEL_STATE_ROOT", "AZRAEL_MAINTENANCE_INSTALLATION", "AZRAEL_MAINTENANCE_OWNER", "AZRAEL_MAINTENANCE_OWNER_MODE"];
+  const keys = ["AZRAEL_STATE_ROOT", "AZRAEL_MAINTENANCE_INSTALLATION", "AZRAEL_MAINTENANCE_OWNER", "AZRAEL_MAINTENANCE_OWNER_MODE", "AZRAEL_MAINTENANCE_LOCK_WAIT_MS"];
   const before = Object.fromEntries(keys.map(key => [key, process.env[key]]));
   t.after(() => {
     for (const key of keys) if (before[key] === undefined) delete process.env[key]; else process.env[key] = before[key];
@@ -60,6 +60,16 @@ test("installed Azrael selection, strict negotiation and legacy bootstrap", t =>
   assert.deepEqual(config.resolveMaintenanceCommand(root), { executable: binary, args: [] });
   process.env.AZRAEL_MAINTENANCE_OWNER_MODE = "azrael-maintenance";
   assert.deepEqual(config.resolveMaintenanceCommand(root), { executable: binary, args: ["maintenance"] });
+  // Keep explicit override wait forwarding when installer/argv selection changes.
+  for (const wait of [5000, 60000, 600000]) {
+    process.env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS = String(wait);
+    assert.deepEqual(config.resolveMaintenanceCommand(root), { executable: binary, args: ["maintenance"], maxLockWaitMs: wait });
+  }
+  for (const wait of ["", "0", "-1", "4999", "600001", "5e4", "60000ms"]) {
+    process.env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS = wait;
+    assert.throws(() => config.resolveMaintenanceCommand(root), /lock wait capability/);
+  }
+  delete process.env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS;
   process.env.AZRAEL_MAINTENANCE_OWNER_MODE = "invalid";
   assert.throws(() => config.resolveMaintenanceCommand(root), /override mode/);
   for (const key of ["AZRAEL_MAINTENANCE_OWNER", "AZRAEL_MAINTENANCE_OWNER_MODE", "AZRAEL_MAINTENANCE_INSTALLATION"]) delete process.env[key];

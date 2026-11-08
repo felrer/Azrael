@@ -105,7 +105,14 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
       const text = JSON.stringify(entry);
       fs.writeFileSync(temporary, text);
       if (metrics) metrics.cacheWrite.bytes += Buffer.byteLength(text);
-      fs.renameSync(temporary, filename);
+      const delays = [25, 50, 100, 200, 400];
+      for (let attempt = 0; ; attempt++) {
+        try { fs.renameSync(temporary, filename); break; }
+        catch (error) {
+          if (process.platform !== 'win32' || !['EPERM', 'EBUSY'].includes(error.code) || attempt === delays.length) throw error;
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delays[attempt]);
+        }
+      }
     } finally {
       if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
     }

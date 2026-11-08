@@ -19,6 +19,10 @@ function fixture(t) {
   if (process.env.AZRAEL_LIFECYCLE_FIXTURE_ROOT) assert.ok(parent.startsWith(path.join(repo, "artifacts/tasks") + path.sep));
   fs.mkdirSync(parent, { recursive: true });
   const root = fs.mkdtempSync(path.join(parent, "artifact-lifecycle-"));
+  // Each test fixture owns its native coordination domain, including child probes.
+  const inheritedStateRoot = process.env.AZRAEL_STATE_ROOT;
+  const stateRoot = path.join(root, "state"); fs.mkdirSync(stateRoot);
+  process.env.AZRAEL_STATE_ROOT = stateRoot;
   t.after(() => {
     assert.ok(path.resolve(root).startsWith(path.resolve(parent) + path.sep));
     function removeKnown(directory) {
@@ -31,6 +35,10 @@ function fixture(t) {
     }
     removeKnown(root);
     assert.equal(fs.existsSync(root), false);
+    if (process.env.AZRAEL_STATE_ROOT === stateRoot) {
+      if (inheritedStateRoot === undefined) delete process.env.AZRAEL_STATE_ROOT;
+      else process.env.AZRAEL_STATE_ROOT = inheritedStateRoot;
+    }
   });
   const at = relative => path.join(root, "artifacts", relative);
   const record = (id, members, extra = {}) => lifecycle.recordLifecycle(root, { id, kind: "version", owner: "fixture-producer", version: "1.0", state: "complete", membership_complete: true, members: members.map(([name, role]) => ({ path: at(name), role })), ...extra });

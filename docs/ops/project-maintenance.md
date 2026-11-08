@@ -66,6 +66,8 @@ Node lease는 OS 잠금 획득 대기와 초기 응답 여유, 명령 응답 대
 
 ### OS 잠금과 기본 실행기 선택
 
+명시 실행기 override에는 `AZRAEL_MAINTENANCE_LOCK_WAIT_MS`로 대기하는 lease의 한도를 지정할 수 있다. 정수 문자열 `5000`~`600000`만 허용하고 생략하면 기존 기본값을 유지한다. 이 값은 `AZRAEL_MAINTENANCE_OWNER` 선택에만 적용하며 설치 pointer·사용자 기본 설정을 변경하지 않는다. 병렬 빌드의 정상 등록이 기본 5초를 초과하면 고정한 실행기의 지원 범위 안에서 예를 들어 `60000`을 선택한다. 비대기 probe의 명시적 `waitMs:0`, 잠금·예약·소유권·복구 검사는 유지된다.
+
 상태: `current` (Windows x64 standalone·Node·PowerShell). [소유권 전환 작업](../../work/DW-01-build-preflight-timing/16-plan.md)에서 실제 잠금·취소·예약·복구와 producer/cleaner 연동을 검증했다. 새 Node·PowerShell producer는 native lease 프로토콜을 가진 standalone 실행기가 필요하다. 기존 dx05 실행기는 이 프로토콜을 제공하지 않으며 자동 컴파일이나 구형 sentinel fallback은 없다. 별도 검증은 `AZRAEL_MAINTENANCE_OWNER`에 지정한 고정 실행파일을 사용한다. 기본 선택은 `artifacts/maintenance/owner-installation.json`의 `schema:1`, `protocol:"maintenance-owner-lease-v1"`, 프로젝트 상대 `executable`과 `sha256`을 검증한다. 설치 기록은 `artifacts/deployments/maintenance-owner-dw16/installation.json`이며 정확한 version에 installation 참조를 둔다.
 
 새 lease 프로토콜은 기존 producer 레코드의 16 MiB 한도를 유지하고, 줄바꿈을 포함한 JSON 프레임은 64 MiB로 제한한다. 예약 응답은 원본 레코드와 투영한 구성원을 포함하므로 catalog 잠금 안에서 크기를 사전 확인한다. 한도를 넘는 묶음은 durable 예약 생성 전에 거절하며 더 작은 독립 묶음으로 명시적으로 선택한다. 자동 분할이나 구형 잠금 fallback은 제공하지 않는다.

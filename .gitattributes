@@ -5,3 +5,5 @@ instructions/** -text
 archive/window-use-stages-v1/** -text
 # Keep the upstream font license byte-exact for its provenance hash.
 extensions/azrael-ex/media/fonts/CASCADIA-LICENSE.txt -text
+# Preserve the reviewed provider registry snapshot bytes.
+providers/opencodex/vendor/src/providers/registry.ts -text

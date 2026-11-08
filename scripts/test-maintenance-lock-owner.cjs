@@ -16,6 +16,10 @@ if (explicit) assert(path.isAbsolute(explicit) && path.resolve(explicit).startsW
 fs.mkdirSync(explicit ? path.dirname(explicit) : parent, { recursive: true });
 const fixture = explicit ? path.resolve(explicit) : fs.mkdtempSync(path.join(parent, "maintenance-lock-owner-"));
 if (explicit) fs.mkdirSync(fixture);
+// Parallel test files must not share this nonblocking native CAS probe domain.
+const inheritedStateRoot = process.env.AZRAEL_STATE_ROOT;
+const stateRoot = path.join(fixture, "state"); fs.mkdirSync(stateRoot);
+process.env.AZRAEL_STATE_ROOT = stateRoot;
 const lock = path.join(fixture, "catalog.lock");
 const helper = require.resolve("./maintenance-lock-owner.cjs");
 const child = code => spawnSync(process.execPath, ["-e", code], { encoding: "utf8", windowsHide: true, timeout: 20000 });
@@ -416,6 +420,8 @@ readline.createInterface({input:process.stdin}).on("line",line=>{
   completed = true;
   console.log(JSON.stringify({status:"passed",platform:process.platform,arch:process.arch,checks}));
 } finally {
+  if (inheritedStateRoot === undefined) delete process.env.AZRAEL_STATE_ROOT;
+  else process.env.AZRAEL_STATE_ROOT = inheritedStateRoot;
   assert(fixture.startsWith(tasks+path.sep)||(!explicit&&parent===verification&&fixture.startsWith(verification+path.sep)));
   // A failed transport test may leave an unobserved native process or late commit.
   if (completed) { fs.rmSync(fixture,{recursive:true}); assert.equal(fs.existsSync(fixture),false); }
