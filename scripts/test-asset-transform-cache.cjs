@@ -325,6 +325,49 @@ for (const asset of pinnedAssetMatrix().assets) test(matrixTestName(asset), () =
   }
 });
 
+test("Windows cache repair retries only transient rename failures and preserves failed destinations", { skip: process.platform !== 'win32' }, t => {
+  for (const mode of ['transient', 'persistent', 'denied']) {
+    const name = 'rename-' + mode;
+    const expected = cache(name).run(changedPath, changedSource, () => transform(changedPath, changedSource));
+    const directory = path.join(root, name), entryPath = path.join(directory, fs.readdirSync(directory)[0]);
+    const broken = JSON.parse(fs.readFileSync(entryPath));
+    delete broken.result.asset.missingImageEdits;
+    broken.resultSha256 = sha(JSON.stringify(broken.result));
+    const before = JSON.stringify(broken);
+    fs.writeFileSync(entryPath, before);
+    const rename = fs.renameSync, write = fs.writeFileSync, attempts = [], delays = [];
+    let writes = 0;
+    t.mock.method(fs, 'writeFileSync', function (file, ...args) {
+      if (String(file).startsWith(entryPath + '.') && String(file).endsWith('.tmp')) writes++;
+      return write.call(this, file, ...args);
+    });
+    t.mock.method(fs, 'renameSync', function (source, destination) {
+      if (destination !== entryPath) return rename.call(this, source, destination);
+      attempts.push({ source, destination, bytes: fs.readFileSync(source, 'utf8'), writes });
+      if (mode === 'denied' || mode === 'persistent' || attempts.length <= 2) {
+        throw Object.assign(new Error(mode + ' rename failure'), { code: mode === 'denied' ? 'EACCES' : attempts.length % 2 ? 'EPERM' : 'EBUSY' });
+      }
+      return rename.call(this, source, destination);
+    });
+    t.mock.method(Atomics, 'wait', (_slot, _index, _value, delay) => { delays.push(delay); return 'timed-out'; });
+    try {
+      const next = cache(name);
+      assert.deepEqual(next.run(changedPath, changedSource, () => transform(changedPath, changedSource)), expected);
+      assert.equal(attempts.length, mode === 'transient' ? 3 : mode === 'persistent' ? 6 : 1);
+      assert.equal(writes, 1);
+      for (const attempt of attempts) assert.deepEqual(attempt, attempts[0], 'retries must retain the same source, destination and bytes');
+      assert.deepEqual(delays, mode === 'transient' ? [25, 50] : mode === 'persistent' ? [25, 50, 100, 200, 400] : []);
+      assert.equal(next.cleanup.deferred.length, mode === 'transient' ? 0 : 1);
+      if (mode === 'transient') assert.deepEqual(cache(name).run(changedPath, changedSource, miss), expected);
+      else {
+        assert.equal(fs.readFileSync(entryPath, 'utf8'), before, 'failed publication must preserve the destination');
+        assert.match(next.cleanup.deferred[0], new RegExp(mode + ' rename failure'));
+      }
+      assert.equal(fs.readdirSync(directory).some(file => file.endsWith('.tmp')), false);
+    } finally { t.mock.restoreAll(); }
+  }
+});
+
 test("missing-image cache counts reject absent or invalid metadata even with intact hashes", () => {
   const directory = path.join(root, "missing-image-counts");
   const expected = cache("missing-image-counts").run(changedPath, changedSource,

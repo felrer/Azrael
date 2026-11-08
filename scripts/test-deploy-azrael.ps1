@@ -534,6 +534,13 @@ function Test-StageEnvironmentIdentity {
         $script:environmentPatch = @{AZRAEL_ENV_IDENTITY_REGRESSION_VALUE='real-one'}
         foreach ($key in $fixtureNames.Keys) { $script:environmentPatch[$key] = Join-Path $script:sourceFixtureRoot $fixtureNames[$key] }
         $stage = Get-StageInputs $executable @('--log-directory', (Join-Path $logs 'stage'))
+        $stage.fixtureInput = ConvertTo-StageInput @{deploymentFixtureIdentity=@{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$script:sourceFixtureRoot};instructionRoot=(Join-Path $script:sourceFixtureRoot 'instructions')}
+        Assert-True ($stage.fixtureInput.deploymentFixtureIdentity.sourceFixtureRoot -ceq '<attempt-source-fixtures>') 'physical fixture root entered stage input identity'
+        Assert-True ($stage.fixtureInput.instructionRoot -ceq (Join-Path '<attempt-source-fixtures>' 'instructions')) 'fixture child path lost its logical identity'
+        $sibling = $script:sourceFixtureRoot + '-unowned'
+        Assert-True ((ConvertTo-StageInput $sibling) -cne '<attempt-source-fixtures>-unowned') 'unowned sibling was normalized as fixture contents'
+        $embedded = 'literal-prefix:' + $script:sourceFixtureRoot
+        Assert-True ((ConvertTo-StageInput $embedded) -ceq $embedded) 'embedded path text was rewritten'
         $ambientEnvironment = @{}
         foreach ($entry in [Environment]::GetEnvironmentVariables().GetEnumerator()) { $ambientEnvironment[$entry.Key] = [string]$entry.Value }
         foreach ($entry in $script:environmentPatch.GetEnumerator()) { $ambientEnvironment[$entry.Key] = $entry.Value }
@@ -553,6 +560,7 @@ function Test-StageEnvironmentIdentity {
         $observed += $stage
     }
     Assert-True (@($observed.environmentSha256 | Select-Object -Unique).Count -eq 1) 'attempt-owned fixture paths changed review identity'
+    Assert-True (@($observed | ForEach-Object { $_.fixtureInput | ConvertTo-Json -Compress -Depth 5 } | Select-Object -Unique).Count -eq 1) 'initial, legacy and short retry fixture stage inputs differ'
     Assert-True ($script:sourceFixtureRoot -ceq (Join-Path $pipelineRoot ('sf-' + ('b' * 12)))) 'retry source fixture lost its bounded short attempt identity'
     Assert-True ((Get-DeploymentSourceFixtureRoot -PipelineRoot $pipelineRoot -AttemptId ('c' * 32)) -ceq (Join-Path $pipelineRoot 'source-fixtures')) 'initial source fixture changed'
     Assert-True ((Get-DeploymentSourceFixtureRoot -PipelineRoot $pipelineRoot -AttemptId ('c' * 32) -RetrySourceTests) -cne $script:sourceFixtureRoot) 'distinct retry attempts shared a fixture root'

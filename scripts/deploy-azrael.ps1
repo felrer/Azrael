@@ -244,7 +244,12 @@ function ConvertTo-StageInput($Value) {
     }
     if ($Value -is [array]) { return ,@($Value | ForEach-Object { ConvertTo-StageInput $_ }) }
     if ($Value -is [string]) {
-        return ($Value.Replace($logs, '<attempt-logs>').Replace($pipelineRoot, '<attempt-logs>'))
+        foreach ($owned in @(@($script:sourceFixtureRoot, '<attempt-source-fixtures>'), @($logs, '<attempt-logs>'), @($pipelineRoot, '<attempt-logs>'))) {
+            if ($owned[0] -and ($Value -ceq $owned[0] -or $Value.StartsWith($owned[0] + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal))) {
+                return $owned[1] + $Value.Substring($owned[0].Length)
+            }
+        }
+        return $Value
     }
     return $Value
 }
