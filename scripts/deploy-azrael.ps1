@@ -603,7 +603,9 @@ try {
     $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))
     $sourceTestArgs += @('--test-concurrency', [string]$SourceTestConcurrency)
     $sourceTestArgs += '--changed-only'
-    $productBuild = -not ($PSBoundParameters.ContainsKey('EngineFeatureId') -or [bool]$EngineVerificationProfile)
+    $productBuild = -not [bool]$EngineVerificationProfile -and -not (
+        $PSBoundParameters.ContainsKey('EngineFeatureId') -and
+        @($EngineFeatureId).Count -eq 1 -and $EngineFeatureId[0] -ceq 'tool.project-maintenance')
     if ($productBuild) { $sourceTestArgs += '--product-build' }
     foreach ($path in $policyPaths) { $sourceTestArgs += @('--changed', $path) }
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))

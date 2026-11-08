@@ -7,5 +7,3 @@ archive/window-use-stages-v1/** -text
 extensions/azrael-ex/media/fonts/CASCADIA-LICENSE.txt -text
 # Preserve the reviewed provider registry snapshot bytes.
 providers/opencodex/vendor/src/providers/registry.ts -text
-
-engine/codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql -text

@@ -46,6 +46,7 @@ $changedCases += @('runtime staging resume')
 $changedCases += @('standalone host acceptance')
 $changedCases += @('instructions selection')
 $changedCases += @('source handoff unavailable')
+$changedCases += @('product verification scope')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -703,6 +704,19 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if ($Mode -eq 'product-verification-scope') {
+        $text = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
+        $ast = [Management.Automation.Language.Parser]::ParseInput($text, [ref]$null, [ref]$null)
+        $assignment = $ast.Find({param($node) $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -ceq '$productBuild'}, $true)
+        $evaluate = [scriptblock]::Create("param([string[]]`$EngineFeatureId, [string]`$EngineVerificationProfile)`n$($assignment.Extent.Text)`n`$productBuild")
+        Assert-True (& $evaluate) 'ordinary build lost product exclusions'
+        Assert-True (& $evaluate -EngineFeatureId @('engine.shared-engine', 'tool.project-maintenance')) 'explicit functional product bundles retained maintenance regression'
+        Assert-True (& $evaluate -EngineFeatureId @('engine.shared-engine')) 'explicit product feature lost product exclusions'
+        Assert-True (& $evaluate -EngineFeatureId @()) 'explicit empty product scope lost exclusions'
+        Assert-True (-not (& $evaluate -EngineFeatureId @('tool.project-maintenance'))) 'maintenance-only diagnostics lost regression coverage'
+        Assert-True (-not (& $evaluate -EngineVerificationProfile 'cache-lifetime')) 'maintenance profile lost regression coverage'
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null});return
+    }
     if ($Mode -eq 'instructions-selection') {
         $details = Test-InstructionsVerificationSelection (Join-Path $PSScriptRoot 'deploy-azrael.ps1')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
@@ -1538,6 +1552,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'instructions selection' 'instructions-selection'
     Invoke-Case 'deployment capacity guard' 'deployment-capacity'
     Invoke-Case 'stage environment identity' 'stage-environment-identity'
+    Invoke-Case 'product verification scope' 'product-verification-scope'
     Invoke-Case 'release packaging parent' 'release-packaging-parent'
     Invoke-Case 'runtime staging resume' 'runtime-staging-resume'
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
