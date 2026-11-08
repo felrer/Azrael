@@ -188,6 +188,9 @@ function legacyToolOwner(projectRoot, config, option) {
 }
 function hasConsumer(ownerRoot, projectRoot, versionId, module, key) {
   const expected = identity(ownerRoot, projectRoot, versionId, module, key);
+  return lifecycle.withCatalogLock(expected.owner.path, () => hasConsumerUnlocked(expected, ownerRoot, projectRoot));
+}
+function hasConsumerUnlocked(expected, ownerRoot, projectRoot) {
   const listed = listConsumers(ownerRoot, projectRoot).filter(value => value.id === expected.id);
   const recorded = lifecycle.catalog(expected.owner.path).some(record => record.id === expected.id);
   let exists = false;
@@ -267,6 +270,9 @@ function listConsumers(ownerRoot, projectRoot) {
   if (projectRoot !== undefined && (typeof projectRoot !== "string" || !path.isAbsolute(projectRoot) || projectRoot.split(/[\\/]/).includes(".."))) throw new Error("Absolute consumer project path required");
   // A retired/missing/replaced workspace must not hide its durable protection.
   const project = projectRoot === undefined ? undefined : path.resolve(projectRoot);
+  return lifecycle.withCatalogLock(owner.path, () => listConsumersUnlocked(owner, project));
+}
+function listConsumersUnlocked(owner, project) {
   return lifecycle.catalog(owner.path).filter(record => record.owner === "module-cache-consumer").map(record => {
     if (record.members.length !== 1) throw new Error("Consumer proxy membership mismatch");
     const binding = read(physical(path.join(record.members[0].path, "binding.json")).path);

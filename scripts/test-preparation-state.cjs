@@ -347,6 +347,55 @@ for (const outcome of [null, "failure", "unknown"]) test(`shared companion consu
   } else assert.throws(() => consumers.attach(owner, project, source.id, "companion", key), /Exact source companion-tool dependency required/);
 });
 
+test("shared consumer reads hold the owner catalog lease across binding observations", t => {
+  const { root, write } = fixture(t), lifecycle = require("./artifact-lifecycle.cjs"), consumers = require("./module-cache-consumers.cjs");
+  const { spawnSync } = require("node:child_process");
+  const owner = path.join(root, "owner"), project = path.join(owner, "project"), key = "c".repeat(64);
+  fs.mkdirSync(project, { recursive: true });
+  const reference = { id: `run:module-cache:companion:${key}`, reason: "companion-tool", kind: "dependency" };
+  const source = lifecycle.recordLifecycle(project, { id: "version:shared", kind: "version", owner: "azrael-release",
+    state: "pending", membership_complete: false,
+    members: [{ path: path.join(project, "artifacts/releases/shared"), role: "release", generated: true, protection_known: true }], references: [reference] });
+  const proxy = consumers.attach(owner, project, source.id, "companion", key);
+  const writerSource = `const l=require(process.argv[1]),p=require("node:path"),assert=require("node:assert/strict"),root=process.argv[2];
+    try { l.withCatalogLock(root,()=>l.recordLifecycle(root,{id:process.argv[3],owner:"fixture-writer",kind:"run",state:"complete",membership_complete:true,
+      members:[{path:p.join(root,"artifacts",process.argv[3].slice(4)),role:"output",generated:true,protection_known:true}]}),{waitMs:0});
+      assert.equal(process.argv[4],"write");process.stdout.write("written");
+    } catch(error) { if(process.argv[4]!=="blocked"||error.code!=="EEXIST")throw error;process.stdout.write("blocked"); }`;
+  const writer = (id, mode) => {
+    const result = spawnSync(process.execPath, ["-e", writerSource, require.resolve("./artifact-lifecycle.cjs"), owner, id, mode], { encoding: "utf8", windowsHide: true });
+    assert.equal(result.error, undefined); assert.equal(result.signal, null); assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, mode === "blocked" ? "blocked" : "written");
+  };
+  const catalog = lifecycle.catalog;
+  for (const [name, inspect] of [["list", () => assert.equal(consumers.listConsumers(owner, project).length, 1)],
+    ["has", () => assert.equal(consumers.hasConsumer(owner, project, source.id, "companion", key), true)]]) {
+    let observations = 0;
+    lifecycle.catalog = selected => {
+      const result = catalog(selected);
+      if (selected === owner) { observations++; writer(`run:writer-${name}`, "blocked"); }
+      return result;
+    };
+    try { inspect(); assert.ok(observations >= 2, "Actual catalog and binding reads must both execute"); }
+    finally { lifecycle.catalog = catalog; }
+    writer(`run:writer-${name}`, "write");
+  }
+  const bindingBytes = fs.readFileSync(proxy.bindingPath);
+  try { write(proxy.bindingPath, JSON.stringify({ ...JSON.parse(bindingBytes), key: "d".repeat(64) })); assert.throws(() => consumers.listConsumers(owner), /Consumer binding mismatch/); }
+  finally { fs.writeFileSync(proxy.bindingPath, bindingBytes); }
+  const recordPath = lifecycle.registryPath(owner, proxy.id), recordBytes = fs.readFileSync(recordPath);
+  const readFile = fs.readFileSync;
+  let changed = false;
+  fs.readFileSync = (filename, ...args) => {
+    const result = readFile(filename, ...args);
+    if (filename === recordPath && !changed) { changed = true; fs.appendFileSync(recordPath, " "); }
+    return result;
+  };
+  try { assert.throws(() => consumers.listConsumers(owner), /Lifecycle catalog source changed during catalog observation/); }
+  finally { fs.readFileSync = readFile; fs.writeFileSync(recordPath, recordBytes); }
+  assert.equal(consumers.listConsumers(owner, project).length, 1);
+});
+
 test("planned release consumers protect absent packaging and require an immutable physical seal", t => {
   const { root, write } = fixture(t), lifecycle = require("./artifact-lifecycle.cjs"), consumers = require("./module-cache-consumers.cjs");
   const owner = path.join(root, "owner"), project = path.join(owner, "project"), release = path.join(project, "artifacts/releases/planned");
