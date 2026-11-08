@@ -35,6 +35,15 @@ test("preparation checkpoint binds explicit host version and invalidates changes
   write(path.join(config.release, "build-info.json"), JSON.stringify({ sha256: {} }));
   fs.mkdirSync(config.source);
   for (const file of ["typescript/lib/typescript.js", "@vscode/vsce/out/package.js", "@vscode/vsce/out/secretLint.js"]) write(path.join(config.toolDirectory, "companion/node_modules", file), "fixture");
+  // Match the pinned ZIP tool input closure already required by preparation-state.
+  const zipTools = {
+    "companion/package-lock.json": JSON.stringify({ lockfileVersion: 3 }),
+    "companion/node_modules/azrael-yazl/package.json": JSON.stringify({ name: "azrael-yazl", version: "1.0.0", main: "index.js" }),
+    "companion/node_modules/azrael-yazl/index.js": "module.exports = {};",
+    "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/package.json": JSON.stringify({ name: "buffer-crc32", version: "0.2.13", main: "index.js" }),
+    "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/index.js": "module.exports = () => 0;",
+  };
+  for (const [file, content] of Object.entries(zipTools)) write(path.join(config.toolDirectory, file), content);
   const output = path.join(root, "output"); fs.mkdirSync(output);
   const first = await state.initialize(output, config, false);
   assert.deepEqual(await state.initialize(output, config, true), first);
