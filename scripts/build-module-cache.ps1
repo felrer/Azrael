@@ -206,7 +206,7 @@ function Get-BuildCacheProjectInspection($Cache,[string]$Project) {
       }
       # The native owner validates the stable inode and acquires its OS lease;
       # a schema-shaped file alone cannot establish that the catalog is idle.
-      $catalogClient=Start-ArtifactMaintenanceClient $project
+      $catalogClient=Start-ArtifactMaintenanceClient $project -ClaimBeforeCatalog
       $records=@();$offset=0
       do {$page=Invoke-ArtifactLifecycleNode @('catalog','--project-root',$project,'--limit','200','--offset',"$offset");$records+=@($page.groups);$offset+=200}while($offset -lt $page.total)
       $result.groups=@($records)
@@ -217,6 +217,7 @@ function Get-BuildCacheProjectInspection($Cache,[string]$Project) {
       foreach($item in $items){
         Assert-BuildCachePath $item.FullName $Cache.Owner|Out-Null
         if($item.Name -ceq 'catalog.lock' -and -not $item.PSIsContainer){continue}
+        if($item.Name -ceq '.run-claim.lock' -and -not $item.PSIsContainer){$semanticValues+='native-run-claim-v1';continue}
         if($item.Name -ceq 'reservations' -and $item.PSIsContainer){
           $reservationClient=Start-BuildCacheReservationInspection $project $item.FullName
           if(-not @($reservationClient.Report.locks).Count -and -not @($reservationClient.Report.receipts).Count){$semanticValues+='empty-reservations-directory'}
@@ -242,7 +243,10 @@ function Get-BuildCacheProjectInspection($Cache,[string]$Project) {
       }
       if($catalogClient){
         try{
-          $null=Send-ArtifactMaintenanceCommand $catalogClient @{operation='release'}
+          $released=Send-ArtifactMaintenanceCommand $catalogClient @{operation='release'}
+          foreach($terminal in @($released,$released.claim)){
+            if($terminal.native_exit_observed -ne $true -or $terminal.native_exit_code -ne 0 -or $terminal.native_close_observed -ne $true -or $null -ne $terminal.native_signal){throw 'Catalog or claim native release is unconfirmed'}
+          }
           $catalogClient.Process.StandardInput.Close();$catalogClient.Process.WaitForExit()
           if($catalogClient.Process.ExitCode -ne 0){throw 'Catalog inspection lease exit is unconfirmed'}
         }catch{$result.status='blocked';$result.reason=$_.Exception.Message;$result.recoveryCondition='Resolve catalog lease termination and inspect again.'}

@@ -433,11 +433,12 @@ function Send-ArtifactMaintenanceCommand {
     $packet.result
 }
 function Start-ArtifactMaintenanceClient {
-    param([string]$ProjectRoot)
+    param([string]$ProjectRoot,[switch]$ClaimBeforeCatalog)
     $start = [Diagnostics.ProcessStartInfo]::new()
     $start.FileName = (Get-Command node -CommandType Application | Select-Object -First 1).Source
     $start.ArgumentList.Add((Join-Path $PSScriptRoot 'maintenance-lock-client.cjs'))
     $start.ArgumentList.Add([IO.Path]::GetFullPath($ProjectRoot))
+    if ($ClaimBeforeCatalog) { $start.ArgumentList.Add('--claim-before-catalog') }
     $start.UseShellExecute = $false
     $start.CreateNoWindow = $true
     $start.RedirectStandardInput = $true
@@ -453,6 +454,7 @@ function Start-ArtifactMaintenanceClient {
     try {
         $packet = Receive-ArtifactMaintenanceResponse $client
         if ($packet.ready -ne $true) { throw 'Maintenance lock client ready handshake missing.' }
+        if ($ClaimBeforeCatalog -and $packet.claimBeforeCatalog -ne $true) { throw 'Maintenance claim lease handshake missing.' }
         return $client
     } catch {
         $process.StandardInput.Close()

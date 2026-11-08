@@ -1,5 +1,5 @@
 #requires -Version 7.0
-param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RecoveryOnly,[switch]$RegistryOnly,[switch]$LegacyRegistryOnly,[switch]$MissingRegistryOnly,[switch]$InvalidationOnly,[switch]$OwnershipOnly,[string]$FixtureRoot)
+param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RecoveryOnly,[switch]$RegistryOnly,[switch]$ClaimInspectionOnly,[switch]$LegacyRegistryOnly,[switch]$MissingRegistryOnly,[switch]$InvalidationOnly,[switch]$OwnershipOnly,[string]$FixtureRoot)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
 $fixture=if($FixtureRoot){Assert-BuildCachePath $FixtureRoot ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/tasks')))}else{[IO.Path]::GetFullPath((Join-Path $PSScriptRoot ('../artifacts/verification/module-cache-'+[guid]::NewGuid().ToString('N'))))}
@@ -113,7 +113,7 @@ l.recoverCleanup(root,id,{owner:r.owner,expected_revision:r.revision,producer_st
  }finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()}}
 }
 try{
- if($OwnershipOnly -or -not($RecipeOnly -or $CleanupOnly -or $RecoveryOnly -or $RegistryOnly -or $LegacyRegistryOnly -or $MissingRegistryOnly)){
+ if($OwnershipOnly -or -not($RecipeOnly -or $CleanupOnly -or $RecoveryOnly -or $RegistryOnly -or $ClaimInspectionOnly -or $LegacyRegistryOnly -or $MissingRegistryOnly)){
    # Execute the production deployment binding function; the resolver itself has
    # real manifest/working-root coverage in test-deployment-workspace.cjs.
    $tokens=$null;$errors=$null
@@ -387,7 +387,7 @@ try{
    Write-Output 'Legacy registration retirement: opt-in absence, proof/authority identity, process, outputs/races, source/cache preservation and unknown history passed; exit=0'
    return
  }
- if($RegistryOnly){
+ if($RegistryOnly -or $ClaimInspectionOnly){
    $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/retired'
    New-Item -ItemType Directory $project -Force|Out-Null
    $cache=Open-BuildModuleCache $owner
@@ -419,6 +419,53 @@ try{
    finally{Remove-Item -LiteralPath $unknownControl;Remove-Item -LiteralPath $reservationControls}
    $afterLease=Get-BuildCacheProjectInspection $cache $project
    Assert ($afterLease.status -eq 'ready-for-proof' -and $afterLease.catalogSha256 -ceq $inspection.catalogSha256) 'Validated lease metadata renewal preserves semantic catalog identity'
+   # Do not simplify this to an ignored filename: inspection must exclude new
+   # artifact-run claims and validate the real stable native lease at release.
+   $claimLock=Join-Path $project 'artifacts/maintenance/lifecycles/.run-claim.lock'
+   Assert (Test-Path $claimLock) 'Inspection retains the actual stable claim inode'
+   $claimBytes=[IO.File]::ReadAllBytes($claimLock)
+   foreach($invalidClaim in @('{"schema":1}','not JSON')){
+     try{[IO.File]::WriteAllText($claimLock,$invalidClaim);$blocked=Get-BuildCacheProjectInspection $cache $project;Assert ($blocked.status -eq 'blocked') 'Malformed or legacy claim requires explicit recovery';Assert ([IO.File]::ReadAllText($claimLock) -ceq $invalidClaim) 'Rejected claim bytes preserved'}
+     finally{[IO.File]::WriteAllBytes($claimLock,$claimBytes)}
+   }
+   $unknownClaim=Join-Path $project 'artifacts/maintenance/lifecycles/unknown.claim'
+   try{[IO.File]::WriteAllText($unknownClaim,'unknown');Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Only the held exact claim control is recognized';Assert (Test-Path $unknownClaim) 'Unknown claim control preserved'}
+   finally{Remove-Item -LiteralPath $unknownClaim -ErrorAction Stop}
+   $claimAlias=Join-Path $project 'claim-hardlink'
+   try{New-Item -ItemType HardLink -Path $claimAlias -Target $claimLock|Out-Null;Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Hardlinked native claim is not an idle plain sentinel'}
+   finally{if(Test-Path $claimAlias){Remove-Item -LiteralPath $claimAlias -ErrorAction Stop}}
+   Move-Item -LiteralPath $claimLock -Destination $claimAlias -ErrorAction Stop
+   try{New-Item -ItemType Junction -Path $claimLock -Target $owner|Out-Null;Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Linked claim paths remain protected';Assert ((Get-Item -LiteralPath $claimLock).LinkType -eq 'Junction') 'Linked claim preserved'}
+   finally{if(Test-Path $claimLock){Remove-Item -LiteralPath $claimLock -ErrorAction Stop};Move-Item -LiteralPath $claimAlias -Destination $claimLock -ErrorAction Stop}
+   $heldClaim=Start-ArtifactMaintenanceClient $project -ClaimBeforeCatalog
+   try{
+     Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Occupied claim lease blocks retirement inspection'
+     $probe='const path=require("node:path"),{acquire}=require(process.argv[1]);try{const l=acquire(path.join(process.argv[2],"artifacts/maintenance/lifecycles/.run-claim.lock"),{operation:"artifact-run.claim",waitMs:0});l.release();throw Error("Claim unexpectedly available");}catch(e){if(e.code!=="EEXIST")throw e;}'
+     & node -e $probe (Join-Path $PSScriptRoot 'maintenance-lock-owner.cjs') $project
+     Assert ($LASTEXITCODE -eq 0) 'Held inspection prevents a fresh artifact-run claim'
+   }finally{
+     $release=Send-ArtifactMaintenanceCommand $heldClaim @{operation='release'};$heldClaim.Process.StandardInput.Close();$heldClaim.Process.WaitForExit()
+     Assert ($heldClaim.Process.ExitCode -eq 0 -and $release.claim.native_close_observed -eq $true -and $release.claim.native_exit_code -eq 0) 'Both native leases actually terminate successfully'
+     $heldClaim.Process.Dispose()
+   }
+   $heldClaim=Start-ArtifactMaintenanceClient $project -ClaimBeforeCatalog
+   $displacedClaim=Join-Path $project 'displaced-claim'
+   try{
+     Move-Item -LiteralPath $claimLock -Destination $displacedClaim -ErrorAction Stop
+     [IO.File]::WriteAllBytes($claimLock,$claimBytes)
+     try{$null=Send-ArtifactMaintenanceCommand $heldClaim @{operation='release'};throw 'Expected replaced claim refusal'}
+     catch{Assert ($_.Exception.Message -match 'identity|owner changed') 'Replaced claim fails native release verification'}
+     $heldClaim.Process.StandardInput.Close();$heldClaim.Process.WaitForExit()
+     Assert ($heldClaim.Process.ExitCode -ne 0) 'Uncertain claim release cannot report a successful client exit'
+     Assert ((Test-Path $claimLock) -and (Test-Path $displacedClaim)) 'Replaced and original claim evidence preserved'
+   }finally{$heldClaim.Process.StandardInput.Close();$heldClaim.Process.WaitForExit();$heldClaim.Process.Dispose()}
+   # Both stopped fixture sentinels are now disposable. Restore the original
+   # inode so subsequent identity checks observe the canonical owner object.
+   Remove-Item -LiteralPath $claimLock -ErrorAction Stop
+   Move-Item -LiteralPath $displacedClaim -Destination $claimLock -ErrorAction Stop
+   $afterClaim=Get-BuildCacheProjectInspection $cache $project
+   Assert ($afterClaim.status -eq 'ready-for-proof' -and $afterClaim.catalogSha256 -ceq $inspection.catalogSha256) 'Claim renewal and failed admission preserve semantic identity and release custody'
+   if($ClaimInspectionOnly){Write-Output 'Module claim inspection: canonical empty catalog, real claim custody, occupied catalog/claim, malformed/legacy/hardlinked/replaced claim, semantic renewal and terminal release passed; exit=0';return}
    # Exercise immutable controls emitted by the real owner, rather than fabricated idle markers.
    $settledId='run:inspection-terminal';$settledMember=Join-Path $project 'artifacts/inspection-terminal'
    $null=Register-ArtifactLifecycle -ProjectRoot $project -Id $settledId -Kind run -Owner fixture -State complete -MembershipComplete $true -Members @{payload=$settledMember} -Generated -ProtectionKnown

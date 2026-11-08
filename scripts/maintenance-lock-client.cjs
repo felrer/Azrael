@@ -5,11 +5,22 @@ const lifecycle = require("./artifact-lifecycle.cjs");
 const { acquire } = require("./maintenance-lock-owner.cjs");
 const { assertEnabled } = require("./maintenance-preferences.cjs");
 
-function main(root) {
+function main(root, { claimBeforeCatalog = false } = {}) {
   if (!root || !path.isAbsolute(root)) throw Error("Absolute project root required");
   root = path.resolve(root);
   assertEnabled("deletion");
-  const lease = acquire(path.join(root, "artifacts/maintenance/lifecycles/catalog.lock"), { operation: "lifecycle.cleanup", queue: true });
+  // Artifact producers take claim -> catalog. Inspection must use the same
+  // order and retain the claim until the catalog observation has finished.
+  let claim, lease;
+  try {
+    if (claimBeforeCatalog) claim = acquire(path.join(root, "artifacts/maintenance/lifecycles/.run-claim.lock"), { operation: "artifact-run.inspect", waitMs: 0 });
+    lease = acquire(path.join(root, "artifacts/maintenance/lifecycles/catalog.lock"), { operation: "lifecycle.cleanup", ...(claimBeforeCatalog ? { waitMs: 0 } : { queue: true }) });
+  } catch (error) {
+    if (claim) {
+      try { claim.release(); } catch (releaseError) { throw new AggregateError([error, releaseError], `${error.message}; claim release: ${releaseError.message}`); }
+    }
+    throw error;
+  }
   let reservations = [], released = false, reserved = false, finished = false, sequence = 0;
   let buffered = "";
   const maxFrameBytes = 64 * 1024 * 1024;
@@ -18,14 +29,24 @@ function main(root) {
     if (Buffer.byteLength(frame) > maxFrameBytes) throw Error("Maintenance lock client output exceeds frame bound");
     process.stdout.write(frame);
   };
+  const release = () => {
+    released = true;
+    let result, claimResult;
+    const failures = [];
+    try { result = lease.release(); } catch (error) { failures.push(error); }
+    if (claim) {
+      try { claimResult = claim.release(); } catch (error) { failures.push(error); }
+    }
+    if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("; "));
+    return { ...result, ...(claim ? { claim: claimResult } : {}) };
+  };
   const close = () => {
     if (!released) {
-      try { lease.release(); } catch (error) { process.stderr.write(error.message + "\n"); }
-      released = true;
+      try { release(); } catch (error) { process.stderr.write(error.message + "\n"); }
       process.exitCode = 1; // EOF is not confirmation that physical work finished.
     }
   };
-  send({ ok: true, ready: true });
+  send({ ok: true, ready: true, ...(claim ? { claimBeforeCatalog: true } : {}) });
   function dispatch(line) {
     let request;
     try {
@@ -68,9 +89,10 @@ function main(root) {
           finished = true;
           break;
         case "release":
-          result = lease.release(); released = true;
+          try { result = release(); }
+          catch (error) { process.exitCode = 1; throw error; }
+          finally { process.stdin.destroy(); }
           send({ id: request.id, ok: true, result });
-          process.stdin.destroy();
           return;
         default: throw Error("Unsupported maintenance lock client operation");
       }
@@ -97,7 +119,10 @@ function main(root) {
   process.stdin.on("error", close);
 }
 if (require.main === module) {
-  try { main(process.argv[2]); } catch (error) {
+  try {
+    if (process.argv.length > 4 || (process.argv[3] !== undefined && process.argv[3] !== "--claim-before-catalog")) throw Error("Unknown private maintenance client option");
+    main(process.argv[2], { claimBeforeCatalog: process.argv[3] === "--claim-before-catalog" });
+  } catch (error) {
     process.stdout.write(JSON.stringify({ ok: false, error: error.message }) + "\n");
     process.exitCode = 1;
   }

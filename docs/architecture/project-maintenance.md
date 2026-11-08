@@ -307,6 +307,8 @@ Windows 삭제에 사용하는 내부 PowerShell은 공용 `background_command` 
 
 ## 정리 결정과 적용
 
+모듈 캐시의 완료 프로젝트 등록 검사는 정상적인 `.run-claim.lock`을 파일 이름만으로 무시하거나 삭제하지 않는다. 검사 전용 경로는 기존 생성자와 같은 claim→catalog 순서로 실제 native OS lease를 획득하고 관찰이 끝날 때 역순으로 반환한다. 정확히 획득한 claim control만 의미적 catalog identity에 포함하며 갱신되는 진단 bytes는 내용 identity로 사용하지 않는다. 점유·변조·legacy/잘못된 owner·링크·교체·미확인 lease 종료와 알 수 없는 control은 계속 차단한다. 이 공통 계약의 구현은 `maintenance-lock-client.cjs`, `artifact-lifecycle.ps1`, `build-module-cache.ps1`이며 필수 회귀 `test-build-module-cache.ps1`와 함께 [feature inventory](../../scripts/azrael-feature-contracts.json)의 `tool.project-maintenance`가 소유한다. 실제 플랫폼 수용은 현재 작업 기록에서 별도로 확인한다.
+
 ### 기능 의존 캐시와 연결 정리
 
 동결 작업 사본의 module cache는 명시적인 `artifactProjectRoot`를 장기 소유자로 사용한다. 새 배포 manifest는 `moduleCacheProjectRoot`와 물리 owner identity를 고정하고, 파생 사본과 읽기 전용 재사용도 이를 검증한다. 기존 manifest는 선택 경계에서 명시된 artifact root만 검증해 전환한다. 독립 build의 로컬 기본값과 명시적 owner 선택은 유지한다.
