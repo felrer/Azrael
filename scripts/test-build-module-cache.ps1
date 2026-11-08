@@ -1,5 +1,5 @@
 #requires -Version 7.0
-param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RecoveryOnly,[switch]$RegistryOnly,[switch]$ClaimInspectionOnly,[switch]$LegacyRegistryOnly,[switch]$MissingRegistryOnly,[switch]$InvalidationOnly,[switch]$OwnershipOnly,[string]$FixtureRoot)
+param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RecoveryOnly,[switch]$RegistryOnly,[switch]$ClaimInspectionOnly,[switch]$ProcessInspectionOnly,[switch]$LegacyRegistryOnly,[switch]$MissingRegistryOnly,[switch]$InvalidationOnly,[switch]$OwnershipOnly,[string]$FixtureRoot)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
 $fixture=if($FixtureRoot){Assert-BuildCachePath $FixtureRoot ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/tasks')))}else{[IO.Path]::GetFullPath((Join-Path $PSScriptRoot ('../artifacts/verification/module-cache-'+[guid]::NewGuid().ToString('N'))))}
@@ -113,7 +113,7 @@ l.recoverCleanup(root,id,{owner:r.owner,expected_revision:r.revision,producer_st
  }finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()}}
 }
 try{
- if($OwnershipOnly -or -not($RecipeOnly -or $CleanupOnly -or $RecoveryOnly -or $RegistryOnly -or $ClaimInspectionOnly -or $LegacyRegistryOnly -or $MissingRegistryOnly)){
+ if($OwnershipOnly -or -not($RecipeOnly -or $CleanupOnly -or $RecoveryOnly -or $RegistryOnly -or $ClaimInspectionOnly -or $ProcessInspectionOnly -or $LegacyRegistryOnly -or $MissingRegistryOnly)){
    # Execute the production deployment binding function; the resolver itself has
    # real manifest/working-root coverage in test-deployment-workspace.cjs.
    $tokens=$null;$errors=$null
@@ -387,7 +387,7 @@ try{
    Write-Output 'Legacy registration retirement: opt-in absence, proof/authority identity, process, outputs/races, source/cache preservation and unknown history passed; exit=0'
    return
  }
- if($RegistryOnly -or $ClaimInspectionOnly){
+ if($RegistryOnly -or $ClaimInspectionOnly -or $ProcessInspectionOnly){
    $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/retired'
    New-Item -ItemType Directory $project -Force|Out-Null
    $cache=Open-BuildModuleCache $owner
@@ -404,6 +404,41 @@ try{
    $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$project,'--id','run:consumer')
    $inspection=Get-BuildCacheProjectInspection $cache $project
    Assert ($inspection.status -eq 'ready-for-proof') ("Genuine catalog survives canonical finalization: "+($inspection|ConvertTo-Json -Depth 10 -Compress))
+   if($RegistryOnly -or $ProcessInspectionOnly){
+     $proof=Join-Path $owner 'process-retirement-proof.json'
+     @{schema=1;project=$project;registry_sha256=$inspection.registrySha256;catalog_sha256=$inspection.catalogSha256;producer_stopped_verified=$true;consumers_released_verified=$true;installations_released_verified=$true;rollback_released_verified=$true;reason='Isolated fixture has no consumers, installations or producers'}|ConvertTo-Json|Set-Content -LiteralPath $proof
+     $proofHash=Get-BuildModuleFileHash $proof
+     $cache.Lease.Dispose();$cache=$null
+     $cli=Join-Path $PSScriptRoot 'manage-module-cache-projects.ps1'
+     $invokeCli={
+       $start=[Diagnostics.ProcessStartInfo]::new();$start.FileName=(Get-Process -Id $PID).Path
+       foreach($argument in @('-NoProfile','-File',$cli,'-CacheProjectRoot',$owner,'-Action','retire','-Project',$project,'-EvidencePath',$proof,'-EvidenceSha256',$proofHash)){$start.ArgumentList.Add($argument)}
+       $start.UseShellExecute=$false;$start.CreateNoWindow=$true;$start.RedirectStandardOutput=$true;$start.RedirectStandardError=$true
+       $process=[Diagnostics.Process]::Start($start)
+       try{$stdout=$process.StandardOutput.ReadToEndAsync();$stderr=$process.StandardError.ReadToEndAsync();$process.WaitForExit();@{exitCode=$process.ExitCode;stdout=$stdout.Result;stderr=$stderr.Result}}finally{$process.Dispose()}
+     }
+     $preview=& $invokeCli
+     Assert ($preview.exitCode -eq 0 -and ($preview.stdout|ConvertFrom-Json).status -eq 'selected') ('Actual management CLI excludes only itself: '+$preview.stderr)
+     $start=[Diagnostics.ProcessStartInfo]::new();$start.FileName=(Get-Process -Id $PID).Path
+     foreach($argument in @('-NoProfile','-CommandWithArgs','param([string]$Project) [Console]::Out.WriteLine("ready");[Console]::Out.Flush();$null=[Console]::ReadLine()',$project)){$start.ArgumentList.Add($argument)}
+     $start.UseShellExecute=$false;$start.CreateNoWindow=$true;$start.RedirectStandardInput=$true;$start.RedirectStandardOutput=$true;$start.RedirectStandardError=$true
+     $projectProcess=[Diagnostics.Process]::Start($start)
+     try{
+       Assert ($projectProcess.StandardOutput.ReadLine() -eq 'ready') 'Separate project process is actually running'
+       $blocked=& $invokeCli
+       Assert ($blocked.exitCode -ne 0 -and $blocked.stderr -match 'Running project process or compiler reference') 'Separate project process remains protective'
+     }finally{$projectProcess.StandardInput.Close();$projectProcess.WaitForExit();Assert ($projectProcess.ExitCode -eq 0) 'Owned project child actually stopped';$projectProcess.Dispose()}
+     $cache=Open-BuildModuleCache $owner
+     try{
+       $script:running=@(@{ProcessId=$PID+10000;Name='cargo.exe';CommandLine='cargo build'})
+       try{Remove-BuildCacheProjectRegistration $cache $project $proof $proofHash|Out-Null;throw 'Expected compiler guard'}catch{Assert ($_.Exception.Message -match 'Running project process or compiler reference') 'Other compiler remains protective'}
+     }finally{$script:running=@();$cache.Lease.Dispose();$cache=$null}
+     $preview=& $invokeCli
+     Assert ($preview.exitCode -eq 0 -and ($preview.stdout|ConvertFrom-Json).status -eq 'selected') ('Stopped project child releases process guard: '+$preview.stderr)
+     Write-Output 'Module retirement process inspection: actual CLI self exclusion, separate project child protection/terminal release, and other compiler guard passed; exit=0'
+     if($ProcessInspectionOnly){return}
+     $cache=Open-BuildModuleCache $owner
+   }
    $catalogLock=Join-Path $project 'artifacts/maintenance/lifecycles/catalog.lock'
    Assert (Test-Path $catalogLock) 'Canonical finalization preserves the stable OS lock file'
    $heldCatalog=Start-ArtifactMaintenanceClient $project

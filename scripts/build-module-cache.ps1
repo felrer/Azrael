@@ -280,7 +280,7 @@ function Remove-BuildCacheProjectRegistration($Cache,[string]$Project,[string]$E
       foreach($receipt in Get-ChildItem -LiteralPath $deployments -Filter deployment.json -Recurse -Force -ErrorAction Stop){Assert-BuildCachePath $receipt.FullName $Cache.Owner|Out-Null;$installed=Get-Content -LiteralPath $receipt.FullName -Raw|ConvertFrom-Json;if($installed.hostInstalled){throw 'Installed or rollback deployment remains in project'}}
     }
     $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
-    if(@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$' -or ($_.CommandLine -and $_.CommandLine.IndexOf($project,[StringComparison]::OrdinalIgnoreCase) -ge 0)}).Count){throw 'Running project process or compiler reference'}
+    if(@($processes|Where-Object {$_.ProcessId -ne $PID -and ($_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$' -or ($_.CommandLine -and $_.CommandLine.IndexOf($project,[StringComparison]::OrdinalIgnoreCase) -ge 0))}).Count){throw 'Running project process or compiler reference'}
     $fresh=Get-BuildCacheProjectInspection $Cache $project
     if($fresh.status -ne 'ready-for-proof' -or $fresh.registrySha256 -cne $inspection.registrySha256 -or $fresh.catalogSha256 -cne $inspection.catalogSha256 -or (Get-BuildModuleFileHash $evidence) -ine $EvidenceSha256){throw 'Project retirement inputs changed; inspect and verify fresh proof'}
     $result=[ordered]@{project=$project;status='selected';registrationAbsent=$false;evidence=$evidence;evidenceSha256=$EvidenceSha256;reason=$proof.reason}
