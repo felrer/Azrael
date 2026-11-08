@@ -1,6 +1,7 @@
 "use strict";
 
 const path = require("node:path");
+const { isProductInput, maintenanceRegressionChecks } = require('./source-test-policy.cjs');
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
 const within = (file, owner) => file === owner || file.startsWith(owner.replace(/\/$/, "") + "/");
 const sources = check => check.args.filter(arg => /\.(?:cjs|mjs|js|py)$/.test(arg) && !arg.includes("{"));
@@ -27,12 +28,19 @@ function validate(check, reference) {
 
 // Reuse the source runner's syntax parser; never load test modules to discover imports.
 function select(features, config) {
+  const deferred = [];
+  if (config.productBuild === true) features = features.map(feature => ({ ...feature,
+    checks: feature.checks.filter(check => {
+      if (!maintenanceRegressionChecks.has(check.id)) return true;
+      deferred.push({ checkId: check.id, reason: 'Maintenance-module regression belongs to module development, outside product acceptance' });
+      return false;
+    }) }));
   if (config.sourceCheckPaths === undefined || config.fullRegression === true) return { features };
   if (!Array.isArray(config.sourceCheckPaths) || config.sourceCheckPaths.some(file =>
     typeof file !== "string" || !file || file.includes("\0") || path.isAbsolute(file) ||
     /^[A-Za-z]:[\\/]/.test(file) || normalize(file).split("/").includes(".."))) throw Error("Invalid sourceCheckPaths");
-  const changedPaths = [...new Set(config.sourceCheckPaths.map(normalize))].sort();
-  const selection = { changedPaths, checks: [] };
+  const changedPaths = [...new Set(config.sourceCheckPaths.map(normalize).filter(isProductInput))].sort();
+  const selection = { changedPaths, checks: [], ...(deferred.length ? { deferred } : {}) };
   const scoped = features.filter(feature => feature.checks.some(check => check.sourceSelection));
   if (!scoped.length) return { features, selection };
   const roots = [...new Set(scoped.flatMap(feature => feature.checks.filter(check => check.level === "source")
@@ -62,7 +70,7 @@ function select(features, config) {
     const unmapped = changedPaths.filter(file => feature.owners.some(owner => within(file, owner)) &&
       !featureRoots.has(file) && ![...(owners.get(file) ?? [])].some(test => featureRoots.has(test)) &&
       !dynamic.some(item => featureRoots.has(item.test) && file.startsWith(item.prefix)));
-    const fallback = !changedPaths.length || changedPaths.some(file => globalInputs.has(file)) || unmapped.length > 0;
+    const fallback = !config.sourceCheckPaths.length || changedPaths.some(file => globalInputs.has(file)) || unmapped.length > 0;
     return { ...feature, checks: feature.checks.flatMap(check => {
       if (!check.sourceSelection) return [check];
       const files = check.sourceSelection.files.filter(file => fallback || affected.has(file));

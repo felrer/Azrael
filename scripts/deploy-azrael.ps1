@@ -194,11 +194,12 @@ function Assert-ProjectSnapshot {
     }
 }
 function Assert-DeploymentCapacity {
-    if ($RequiredFreeBytes -le 0) { return }
+    $capacityBudget = [Math]::Max($RequiredFreeBytes, $EstimatedCompilerGrowthBytes)
+    if ($capacityBudget -le 0) { return }
     $drive = [IO.DriveInfo]::new([IO.Path]::GetPathRoot($project))
     $available = $drive.AvailableFreeSpace
-    if ($available -lt $RequiredFreeBytes) {
-        throw "Deployment capacity guard: project volume $($drive.Name) has $available available bytes; RequiredFreeBytes is $RequiredFreeBytes. Stop owned stages before reviewing safe cleanup and retry only after capacity recovers."
+    if ($available -lt $capacityBudget) {
+        throw "Deployment capacity guard: project volume $($drive.Name) has $available available bytes; RequiredFreeBytes is $RequiredFreeBytes; EstimatedCompilerGrowthBytes is $EstimatedCompilerGrowthBytes. Stop owned stages before reviewing safe cleanup and retry only after capacity recovers."
     }
 }
 function Invoke-PipelineState {
@@ -231,13 +232,18 @@ function ConvertTo-StageInput($Value) {
     if ($Value -is [System.Collections.IDictionary]) {
         $normalized = @{}
         foreach ($entry in $Value.GetEnumerator()) {
-            if ($entry.Key -notin @('outputDirectory','temporaryDirectory','logDirectory','reuseDecisionsPath','sourceStatePath','sourceGeneration')) { $normalized[$entry.Key] = ConvertTo-StageInput $entry.Value }
+            if ($entry.Key -notin @('outputDirectory','temporaryDirectory','logDirectory','reuseDecisionsPath','sourceStatePath','sourceGeneration','requiredFreeBytes','estimatedGrowthBytes')) { $normalized[$entry.Key] = ConvertTo-StageInput $entry.Value }
         }
         return $normalized
     }
     if ($Value -is [array]) { return ,@($Value | ForEach-Object { ConvertTo-StageInput $_ }) }
     if ($Value -is [string]) {
-        return ($Value.Replace($logs, '<attempt-logs>').Replace($pipelineRoot, '<attempt-logs>'))
+        foreach ($owned in @(@($script:sourceFixtureRoot, '<attempt-source-fixtures>'), @($logs, '<attempt-logs>'), @($pipelineRoot, '<attempt-logs>'))) {
+            if ($owned[0] -and ($Value -ceq $owned[0] -or $Value.StartsWith($owned[0] + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal))) {
+                return $owned[1] + $Value.Substring($owned[0].Length)
+            }
+        }
+        return $Value
     }
     return $Value
 }
@@ -381,7 +387,7 @@ function Wait-OwnedCommands {
     $capacityTimer = [Diagnostics.Stopwatch]::StartNew()
     $checkCapacity = $true
     while (@($Commands | Where-Object { -not $_.Completed }).Count) {
-        if ($RequiredFreeBytes -gt 0 -and ($checkCapacity -or $capacityTimer.ElapsedMilliseconds -ge 1000)) {
+        if (($RequiredFreeBytes -gt 0 -or $EstimatedCompilerGrowthBytes -gt 0) -and ($checkCapacity -or $capacityTimer.ElapsedMilliseconds -ge 1000)) {
             Assert-DeploymentCapacity
             $checkCapacity = $false
             $capacityTimer.Restart()
@@ -597,6 +603,8 @@ try {
     $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))
     $sourceTestArgs += @('--test-concurrency', [string]$SourceTestConcurrency)
     $sourceTestArgs += '--changed-only'
+    $productBuild = -not ($PSBoundParameters.ContainsKey('EngineFeatureId') -or [bool]$EngineVerificationProfile)
+    if ($productBuild) { $sourceTestArgs += '--product-build' }
     foreach ($path in $policyPaths) { $sourceTestArgs += @('--changed', $path) }
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
     # The version's owned log root contains fresh per-attempt test fixtures.
@@ -629,6 +637,7 @@ try {
     $metrics.forceNativeVerification = [bool]$ForceNativeVerification
     $metrics.changedPaths = @($ChangedPath)
     $sourceConfig = [ordered]@{
+        productBuild = $productBuild
         deploymentFixtureIdentity = @{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$sourceFixtureRoot}
         reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
@@ -718,6 +727,7 @@ try {
     # Entry/resume validates the frozen inputs; pre-install validates them again.
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
+        productBuild = $productBuild
         deploymentFixtureIdentity = @{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$sourceFixtureRoot}
         reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)

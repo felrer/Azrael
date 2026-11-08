@@ -6,6 +6,20 @@ const path = require("node:path");
 const selection = require("./source-check-selection.cjs");
 const lifecycleChecks = require("./check-artifact-lifecycle.cjs");
 
+test('product deployment separates module regression while retaining core/prompt integration and explicit module scope', () => {
+  const feature = require('./azrael-feature-contracts.json').features.find(feature => feature.id === 'tool.project-maintenance');
+  const config = { projectRoot: path.join(__dirname, '..'), sourceCheckPaths: ['scripts/azrael-feature-contracts.json'] };
+  const product = selection.select([feature], { ...config, productBuild: true });
+  const ids = product.features.flatMap(feature => feature.checks.map(check => check.id));
+  for (const suffix of ['adapter', 'lifecycle-source', 'writers', 'library', 'windows-cleanup']) {
+    const id = `tool.project-maintenance.${suffix}`;
+    assert.ok(!ids.includes(id));
+    assert.ok(product.selection.deferred.some(item => item.checkId === id));
+    assert.ok(selection.select([feature], config).features[0].checks.some(check => check.id === id));
+  }
+  for (const suffix of ['core', 'prompts']) assert.ok(ids.includes(`tool.project-maintenance.${suffix}`));
+});
+
 function fixture(t) {
   const parent = process.env.AZRAEL_SOURCE_SELECTION_TEST_ROOT || path.join(__dirname, "../artifacts/verification");
   fs.mkdirSync(parent, { recursive: true });
@@ -42,6 +56,7 @@ test("unmapped feature owners, global selection inputs and omitted scope retain 
     assert.ok(plan(files).selection.checks.every(check => check.fallback));
   }
   assert.strictEqual(selection.select([feature], { projectRoot: root }).features[0], feature);
+  assert.deepEqual(plan(['work/session/verification.json']).features[0].checks.map(check => check.id), ['native']);
   assert.strictEqual(selection.select([feature], { projectRoot: root, fullRegression: true, sourceCheckPaths: ["scripts/first.cjs"] }).features[0], feature);
   for (const files of [null, ["../escape"], ["C:\\escape"], ["/escape"], [""]]) {
     assert.throws(() => plan(files), /sourceCheckPaths/);

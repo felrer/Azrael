@@ -8,6 +8,22 @@ const { spawnSync } = require("node:child_process");
 const { parseArgs, select, fixtureFiles, runCommand } = require("./test-project.cjs");
 const selection = args => select(parseArgs(args));
 
+test('work and verification metadata never select product tests; module diagnostics remain explicit', () => {
+  const metadata = ['work/session/verification.json', 'work/session/retry.ps1', 'artifacts/tasks/build/runs/1/reports/result.json', 'artifacts/logs/deploy-one/input.json', 'artifacts/verification/receipt.json'];
+  const onlyRecords = selection(['--changed-only', ...metadata.flatMap(file => ['--changed', file])]);
+  assert.deepEqual(onlyRecords.files, []);
+  assert.deepEqual(onlyRecords.commands, []);
+  assert.deepEqual(onlyRecords.separateChecks, []);
+  const changed = ['--changed-only', '--changed', 'scripts/test-project-maintenance.cjs'];
+  const product = selection([...changed, '--product-build']);
+  assert.ok(!product.files.includes('scripts/test-project-maintenance.cjs'));
+  assert.ok(product.testPolicy.omitted.some(item => item.file === 'scripts/test-project-maintenance.cjs'));
+  assert.ok(selection(changed).files.includes('scripts/test-project-maintenance.cjs'));
+  const source = selection(['--changed-only', '--product-build', '--changed', 'scripts/test-session-links.cjs']);
+  assert.ok(source.files.includes('scripts/test-session-links.cjs'));
+  for (const args of [['--product-build'], ['--product-build', '--changed-only', '--exhaustive']]) assert.throws(() => selection(args), /product-build requires/);
+});
+
 test("cache ownership helpers select their retained lifecycle regressions", () => {
   for (const source of ["scripts/build-module-cache.ps1", "scripts/window-control-cache.ps1", "scripts/build-window-control.ps1", "scripts/build-azrael.ps1"]) {
     assert(selection(["--changed-only", "--changed", source, "--list"]).files.includes("scripts/test-build-module-cache.ps1"), source);

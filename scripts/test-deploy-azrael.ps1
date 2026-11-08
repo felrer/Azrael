@@ -579,6 +579,11 @@ function Test-StageEnvironmentIdentity {
     $rejected = $false
     try { Get-LogicalBuildEnvironment -Environment $ambientEnvironment -PipelineRoot $pipelineRoot -SourceFixtureRoot (Join-Path $pipelineRoot '../outside/source-fixtures') | Out-Null } catch { $rejected = $true }
     Assert-True $rejected 'unowned fixture metadata was accepted'
+    $before = ConvertTo-StageInput @{requiredFreeBytes=50GB;estimatedGrowthBytes=10GB;input='source';fixture=(Join-Path $script:sourceFixtureRoot 'catalog')}
+    $after = ConvertTo-StageInput @{requiredFreeBytes=30GB;estimatedGrowthBytes=5GB;input='source';fixture=(Join-Path $script:sourceFixtureRoot 'catalog')}
+    Assert-True (($before | ConvertTo-Json -Compress) -ceq ($after | ConvertTo-Json -Compress)) 'capacity policy changed completed stage identity'
+    Assert-True ((ConvertTo-StageInput ($pipelineRoot + '-external/input.json')) -ceq ($pipelineRoot + '-external/input.json')) 'sibling path was incorrectly normalized'
+    Assert-True ((ConvertTo-StageInput (Join-Path $script:sourceFixtureRoot 'catalog')) -ceq ('<attempt-source-fixtures>' + [IO.Path]::DirectorySeparatorChar + 'catalog')) 'owned fixture input was not normalized'
     return @{attempts=3;sharedBuildIdentity=$true;genuineEnvironmentChange=$true;changedFixtureDestination=$true;unownedMetadataRejected=$true}
 }
 
@@ -720,6 +725,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
                 . ([scriptblock]::Create($definition.Extent.Text.Replace('$PSScriptRoot', $quotedScripts)))
             }
             $RequiredFreeBytes = 0L
+            $EstimatedCompilerGrowthBytes = 0L
             $project = 'invalid-project-volume'
             Assert-DeploymentCapacity
             $project = $root
@@ -730,6 +736,13 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             try { Start-OwnedCommand 'capacity-blocked' 'must-not-launch' @() | Out-Null }
             catch { $rejected = $_.Exception.Message -like 'Deployment capacity guard:*available bytes*RequiredFreeBytes*' }
             Assert-True $rejected 'insufficient physical volume capacity did not block stage launch'
+            $RequiredFreeBytes = 0L
+            $EstimatedCompilerGrowthBytes = [long]::MaxValue
+            $rejected = $false
+            try { Assert-DeploymentCapacity } catch { $rejected = $_.Exception.Message -like 'Deployment capacity guard:*EstimatedCompilerGrowthBytes*' }
+            Assert-True $rejected 'growth budget was not enforced independently of reuse identity'
+            $EstimatedCompilerGrowthBytes = 0L
+            $RequiredFreeBytes = 1L
 
             $probe = [pscustomobject]@{ waiting = $false; rejected = $false; sleeps = 0 }
             $child = [pscustomobject]@{ Completed = $false; Process = [pscustomobject]@{ HasExited = $false } }
@@ -914,6 +927,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             $argsEnd = $deployText.IndexOf('    $sourceFixtureRoot = Join-Path', $argsStart)
             $argumentBuilder = [scriptblock]::Create('param([string]$PSScriptRoot)' + "`n" + $deployText.Substring($argsStart, $argsEnd - $argsStart))
             $SourceTestConcurrency = 4
+            $EngineVerificationProfile = ''
             . $argumentBuilder (Join-Path $savedProject 'scripts')
             $forwardedPaths = @(for ($index = 0; $index -lt $sourceTestArgs.Count; $index++) {
                 if ($sourceTestArgs[$index] -ceq '--changed') { $sourceTestArgs[$index + 1] }
@@ -1324,6 +1338,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Assert-True ($metrics.sourceTestArguments.count -eq $invocation.Count -and $metrics.sourceTestArguments.sha256 -ceq (Get-FileHash -LiteralPath $sourceLaunch[1]).Hash.ToLowerInvariant()) 'source argv metrics lost logical identity'
     $expectedSourceArgs=@('--test-concurrency','4')
     $expectedSourceArgs+=@('--changed-only')
+    $expectedSourceArgs+=@('--product-build')
     $expectedPolicyPaths=@(if($PolicyChangedPath){$PolicyChangedPath.Replace('\','/')}elseif($Mode -eq 'submodule-mutation'){'modules/vendor'})
     foreach($changed in $expectedPolicyPaths){$expectedSourceArgs+=@('--changed',$changed)}
     $policy=Get-Content -LiteralPath (Join-Path $a 'logs/deploy-chosen/source-test-policy-inputs.json') -Raw | ConvertFrom-Json
@@ -1332,6 +1347,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     $sourceReuseConfigPath=Join-Path $a 'logs/deploy-chosen/engine-source-preflight-inputs.json'
     $expectedSourceArgs+=@('--source-preflight-config',$sourceReuseConfigPath)
     $sourceReuseConfig=Get-Content -LiteralPath $sourceReuseConfigPath -Raw | ConvertFrom-Json
+    Assert-True ($sourceReuseConfig.productBuild -eq $true) 'ordinary product preflight retained module regression scope'
     Assert-True ($sourceReuseConfig.checkPhase -ceq 'source' -and (Test-Path -LiteralPath $sourceReuseConfig.receiptPath -PathType Leaf)) 'source runner did not receive the completed preflight receipt'
     Assert-True (($invocation -join '|') -ceq ($expectedSourceArgs -join '|')) 'source argv did not match selected regression scope'
     Assert-True ($metrics.testScope -ceq 'changed') 'source test scope metric lost'

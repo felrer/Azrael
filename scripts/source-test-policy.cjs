@@ -1,6 +1,18 @@
 "use strict";
 
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
+// Full maintenance-module regression is separate from product acceptance.
+const maintenanceRegressionChecks = new Set([
+  "tool.project-maintenance.adapter", "tool.project-maintenance.lifecycle-source",
+  "tool.project-maintenance.writers", "tool.project-maintenance.library",
+  "tool.project-maintenance.windows-cleanup",
+]);
+const isProductInput = file => !/^(?:work\/|artifacts\/(?:tasks|logs|verification)\/)/.test(normalize(file));
+function maintenanceRegressionFiles(manifest) {
+  return new Set(manifest.features.flatMap(feature => feature.checks
+    .filter(check => maintenanceRegressionChecks.has(check.id))
+    .flatMap(check => check.sourceSelection?.files ?? [])));
+}
 const POLICY = "scripts/source-test-policy.cjs";
 const sharedInputs = /^(?:scripts\/(?:.*cache[^/]*\.cjs|directory-state\.cjs|capture-project-inputs\.cjs|deployment-input-snapshot\.cjs|ordered-asset-reader\.cjs|azrael-feature-contracts\.json|ui-test-transform-fixture\.cjs|namespace-azrael-host\.cjs|namespace-cache-owner\.cjs|inject-[^/]+\.cjs|content-fonts\.cjs|provider-context-labels\.cjs)|artifacts\/upstream-ui\/.*|extensions\/azrael-ex\/(?:package(?:-lock)?\.json|tsconfig[^/]*\.json|node_modules\/typescript\/.*)|scripts\/(?:prepare-|freeze-|build-|package-)[^/]+|.*(?:ui-pin|upstream-ui|source-ui)[^/]*\.(?:json|cjs|ps1))$/;
 const preservationInputs = /^scripts\/(?:feature-preservation|verification-result-cache|native-verification-cache|directory-state|capture-project-inputs)\.cjs$/;
@@ -76,4 +88,5 @@ function planSourceTests({ files, changedPaths = [], exhaustive = false }) {
   return { files: selected, skipPattern: names.length ? `^(?:${names.join("|")})$` : "", omitted };
 }
 
-module.exports = { planSourceTests, pinnedAssetMatrix, matrixTestName, PINNED_UI_ROOT };
+module.exports = { planSourceTests, pinnedAssetMatrix, matrixTestName, PINNED_UI_ROOT,
+  isProductInput, maintenanceRegressionChecks, maintenanceRegressionFiles };

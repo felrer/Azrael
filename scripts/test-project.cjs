@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { randomUUID, createHash } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
-const { planSourceTests } = require("./source-test-policy.cjs");
+const { planSourceTests, isProductInput, maintenanceRegressionFiles } = require("./source-test-policy.cjs");
 const { spawn, spawnSync } = require("node:child_process");
 const ROOT = path.resolve(__dirname, "..");
 const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue", "question-withdrawal", "question-queue"].map(name => `scripts/test-${name}.cjs`);
@@ -51,6 +51,7 @@ function parseArgs(args) {
     if (option === "--check-fixtures") { options.checkFixtures = true; continue; }
     if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
+    if (option === "--product-build") { options.productBuild = true; continue; }
     if (!["--area", "--changed", "--log-directory", "--test-concurrency", "--work-id", "--source-preflight-config", "--source-preflight-receipt"].includes(option)) throw new Error(`Unknown option: ${option}`);
     const value = args[++i];
     if (!value || value.startsWith("--")) throw new Error(`Missing value for ${option}`);
@@ -97,6 +98,8 @@ function changedFiles(root) {
 }
 
 function select(options, root = ROOT) {
+  if (options.productBuild && (!options.changedOnly || options.areas.length || options.exhaustive))
+    throw new Error('--product-build requires changed-only scope without explicit areas or exhaustive diagnostics');
   if (options.deferPreservationCacheOwner && (options.changedOnly || !options.areas.some(area => ["current", "ui"].includes(area))))
     throw new Error("--defer-preservation-cache-owner requires an explicit current/ui area and the mandatory UI preservation gate");
   // Explicit areas retain their full-area contracts, even with --changed-only.
@@ -139,7 +142,7 @@ function select(options, root = ROOT) {
   }
   for (const area of options.areas) add(area, "explicit --area");
   for (const file of changed) {
-    if (/\.(md|markdown)$/i.test(file)) { reasons.push({ path: file, reason: "Markdown documentation only; no source tests selected" }); continue; }
+    if (!isProductInput(file) || /\.(md|markdown)$/i.test(file)) { reasons.push({ path: file, reason: "Work evidence or documentation only; no source tests selected" }); continue; }
     if (/(?:engine|provider|codex-rs|artifacts\/worktrees|^scripts\/(?:install-|prepare-|deploy-|deployment-input-snapshot|test-deployment-input-snapshot|test-deploy-))/i.test(file)) separateChecks.add("Packaged, native, install/preparation and live acceptance belongs to the separate operational checks; source tests do not establish it.");
     const buildChange = /(?:^scripts\/(?:build-|install-|prepare-|deploy-|package-|test-(?:incremental-extension-build|ordered-asset-reader|deployment-input-snapshot|build-metrics|deploy-azrael|preparation-routing))|^scripts\/(?:ordered-asset-reader|preparation-state|deployment-input-snapshot)\.|^extensions\/azrael-ex\/scripts\/build-)/.test(file);
     if (buildChange) add("build", `build tooling changed: ${file}`);
@@ -491,7 +494,7 @@ function selectChanged(options, root) {
   let extension;
   const add = (file, test, reason, evidence) => { files.add(test); reasons.push({ path: file, test, reason, ...(evidence ? { evidence } : {}) }); };
   for (const file of changed) {
-    if (/\.(md|markdown)$/i.test(file)) {
+    if (!isProductInput(file) || /\.(md|markdown)$/i.test(file)) {
       reasons.push({ path: file, reason: "Documentation only; no code tests selected" });
       continue;
     }
@@ -558,6 +561,14 @@ function selectChanged(options, root) {
   }
   if (!changed.length) reasons.push({ reason: "No changed paths; no tests selected" });
   const testPolicy = { ...planSourceTests({ files: [...files].sort(), changedPaths: changed, exhaustive: options.exhaustive }), exhaustive: !!options.exhaustive, changedPaths: changed };
+  if (options.productBuild) {
+    const moduleFiles = maintenanceRegressionFiles(JSON.parse(fs.readFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), 'utf8')));
+    testPolicy.files = testPolicy.files.filter(file => {
+      if (!moduleFiles.has(file)) return true;
+      testPolicy.omitted.push({ file, reason: 'Maintenance-module regression belongs to module development, outside product acceptance' });
+      return false;
+    });
+  }
   files.clear();
   for (const file of testPolicy.files) files.add(file);
   const commands = [];
