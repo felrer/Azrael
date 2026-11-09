@@ -2,6 +2,8 @@
 
 Each document or owning section labels its own state (see [document states](../README.md#document-state-and-ownership)). This index groups contracts by responsibility. Source implementation, native execution, package and installed-host acceptance have distinct scopes; the owning section determines preservation requirements.
 
+For section-level keyword/alias search and related contract/implementation/check discovery, use the [local retrieval tools](tools/README.md) when helpful. The [retrieval contract](architecture-search.md) owns their scope; ordinary source search remains available. During authorized changes, review affected owning sections and terminology, keep enduring contracts current, and leave diagnostic findings and task history in the work record.
+
 ## Host, storage and recovery
 
 - [azrael-ex host and storage](azrael-ex.md): single-extension host, private state, local history import, session links, recent chats, native conversation/file actions and integration inputs.
