@@ -844,6 +844,576 @@
           "summary": "44 codex-features lib tests passed on registered baseline plus this selective backport and prior #56081. Covers stable/default-on and explicit disable. Core integration/snapshot execution, live model requests, installed product and other OS are not verified."
         }
       }
+    },
+    "pr:55993": {
+      "id": "pr:55993",
+      "kind": "pr",
+      "number": 55993,
+      "mergeCommit": "d51e9c935fab31e13f7b576a026ae56fb18603bf",
+      "title": "Preserve per-execution trace context in code-mode stdio callbacks",
+      "url": "https://github.com/openai/codex/pull/55993",
+      "commits": [
+        "d51e9c935fab31e13f7b576a026ae56fb18603bf"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56001": {
+      "id": "pr:56001",
+      "kind": "pr",
+      "number": 56001,
+      "mergeCommit": "6203846fb3ef040f62eed9b35bc6629c8e88980a",
+      "title": "Support confidential OAuth clients for enterprise-managed MCP auth",
+      "url": "https://github.com/openai/codex/pull/56001",
+      "commits": [
+        "6203846fb3ef040f62eed9b35bc6629c8e88980a"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56003": {
+      "id": "pr:56003",
+      "kind": "pr",
+      "number": 56003,
+      "mergeCommit": "82ef0672e34391ffe1bd61e1185ed6e9d664a64e",
+      "title": "Scope MITM credential substitution to trusted origins and placeholders",
+      "url": "https://github.com/openai/codex/pull/56003",
+      "commits": [
+        "82ef0672e34391ffe1bd61e1185ed6e9d664a64e"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56006": {
+      "id": "pr:56006",
+      "kind": "pr",
+      "number": 56006,
+      "mergeCommit": "3206e532d7515c50f22af6dad3a20b9f3c38b639",
+      "title": "Assert shell tool overlap directly in the parallelism test",
+      "url": "https://github.com/openai/codex/pull/56006",
+      "commits": [
+        "3206e532d7515c50f22af6dad3a20b9f3c38b639"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56022": {
+      "id": "pr:56022",
+      "kind": "pr",
+      "number": 56022,
+      "mergeCommit": "38da85f49e0ab8247d1840f7437ce06fd12d7856",
+      "title": "Preserve config overrides across CLI subcommand boundaries",
+      "url": "https://github.com/openai/codex/pull/56022",
+      "commits": [
+        "38da85f49e0ab8247d1840f7437ce06fd12d7856"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56049": {
+      "id": "pr:56049",
+      "kind": "pr",
+      "number": 56049,
+      "mergeCommit": "2a77e82f09212c9e1bbf02656afca5d8172c5f9e",
+      "title": "Support configured credential providers in remote execution",
+      "url": "https://github.com/openai/codex/pull/56049",
+      "commits": [
+        "2a77e82f09212c9e1bbf02656afca5d8172c5f9e"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56097": {
+      "id": "pr:56097",
+      "kind": "pr",
+      "number": 56097,
+      "mergeCommit": "86e17e98c7f901277aeeb4649cf1b01462b082f2",
+      "title": "Prepare TUI startup to accept multiple backend sessions",
+      "url": "https://github.com/openai/codex/pull/56097",
+      "commits": [
+        "86e17e98c7f901277aeeb4649cf1b01462b082f2"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56124": {
+      "id": "pr:56124",
+      "kind": "pr",
+      "number": 56124,
+      "mergeCommit": "07316174c6f62deb20278c53add2dbd9dcf6da70",
+      "title": "Forward Guardian reviewer events to parent raw-event subscribers",
+      "url": "https://github.com/openai/codex/pull/56124",
+      "commits": [
+        "07316174c6f62deb20278c53add2dbd9dcf6da70"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56127": {
+      "id": "pr:56127",
+      "kind": "pr",
+      "number": 56127,
+      "mergeCommit": "c260087efe8cc6dcc0526e7018ae9e0e3fc134e3",
+      "title": "Avoid blocking EMA auth status checks on account refresh",
+      "url": "https://github.com/openai/codex/pull/56127",
+      "commits": [
+        "c260087efe8cc6dcc0526e7018ae9e0e3fc134e3"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56132": {
+      "id": "pr:56132",
+      "kind": "pr",
+      "number": 56132,
+      "mergeCommit": "2dbe6bfa44195e0c63b9a2ee59f46482bfd64fae",
+      "title": "Cancel MCP tool requests when response futures are dropped",
+      "url": "https://github.com/openai/codex/pull/56132",
+      "commits": [
+        "2dbe6bfa44195e0c63b9a2ee59f46482bfd64fae"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56133": {
+      "id": "pr:56133",
+      "kind": "pr",
+      "number": 56133,
+      "mergeCommit": "b337fe06b7d8d6e5b42295e04c5e92c2b9c46567",
+      "title": "Defer agent mail after empty final answers",
+      "url": "https://github.com/openai/codex/pull/56133",
+      "commits": [
+        "b337fe06b7d8d6e5b42295e04c5e92c2b9c46567"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56139": {
+      "id": "pr:56139",
+      "kind": "pr",
+      "number": 56139,
+      "mergeCommit": "61f34c35af77777db4d77d0ea2aeb8547a6b4523",
+      "title": "Fix the MCP auth status test's IdP OAuth configuration",
+      "url": "https://github.com/openai/codex/pull/56139",
+      "commits": [
+        "61f34c35af77777db4d77d0ea2aeb8547a6b4523"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56153": {
+      "id": "pr:56153",
+      "kind": "pr",
+      "number": 56153,
+      "mergeCommit": "67fb9da4b6442c16c4032b1e074f9b1c80a43bbc",
+      "title": "Preserve safe enterprise MCP authentication error details",
+      "url": "https://github.com/openai/codex/pull/56153",
+      "commits": [
+        "67fb9da4b6442c16c4032b1e074f9b1c80a43bbc"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56154": {
+      "id": "pr:56154",
+      "kind": "pr",
+      "number": 56154,
+      "mergeCommit": "94350a910143c406013683ae634708320f93f1f6",
+      "title": "Add managed network review domains before allow rules",
+      "url": "https://github.com/openai/codex/pull/56154",
+      "commits": [
+        "94350a910143c406013683ae634708320f93f1f6"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56182": {
+      "id": "pr:56182",
+      "kind": "pr",
+      "number": 56182,
+      "mergeCommit": "9a8a85bc539325f2819dd0717f88b6ba6286495e",
+      "title": "Add AWS SigV4 signing to network proxy MITM hooks",
+      "url": "https://github.com/openai/codex/pull/56182",
+      "commits": [
+        "9a8a85bc539325f2819dd0717f88b6ba6286495e"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56210": {
+      "id": "pr:56210",
+      "kind": "pr",
+      "number": 56210,
+      "mergeCommit": "8ba7aed55f85cdea4876c906a26275fac291d82c",
+      "title": "Stabilize the marketplace staging cleanup test",
+      "url": "https://github.com/openai/codex/pull/56210",
+      "commits": [
+        "8ba7aed55f85cdea4876c906a26275fac291d82c"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56211": {
+      "id": "pr:56211",
+      "kind": "pr",
+      "number": 56211,
+      "mergeCommit": "a390571745da105cfdc85443dd1d38bf78e5ea6e",
+      "title": "Default fresh memory profiles to v2",
+      "url": "https://github.com/openai/codex/pull/56211",
+      "commits": [
+        "a390571745da105cfdc85443dd1d38bf78e5ea6e"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56214": {
+      "id": "pr:56214",
+      "kind": "pr",
+      "number": 56214,
+      "mergeCommit": "be537fb60c96d2f89c2ee4be161edb7206bf791e",
+      "title": "Remove the `u64` cast from WSL DrvFS detection",
+      "url": "https://github.com/openai/codex/pull/56214",
+      "commits": [
+        "be537fb60c96d2f89c2ee4be161edb7206bf791e"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56220": {
+      "id": "pr:56220",
+      "kind": "pr",
+      "number": 56220,
+      "mergeCommit": "96a0d8d551a1419e78c5d83f8dc3bdc066826324",
+      "title": "Use cargo_bin in the Windows sandbox manifest test",
+      "url": "https://github.com/openai/codex/pull/56220",
+      "commits": [
+        "96a0d8d551a1419e78c5d83f8dc3bdc066826324"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 두 번째 20개 중 #56163을 제외한 나머지 19개를 반영 대상에서 제외하도록 명시적으로 결정함. 기술적 부적합 판정은 아니며 향후 새 요청으로 재검토 가능.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-07.json",
+            "sha256": "8173c1fef89e7ef134fb31f3114a928015647f6a6e1ddb7e249019e4f536e3d4"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
     }
   },
   "ranges": []
