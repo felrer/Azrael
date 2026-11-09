@@ -249,7 +249,7 @@ if (-not $SkipEngineBuild) {
             $env:AZRAEL_CARGO_CACHE_SCOPE = $sharedCargoCache.identity.scope
         }
         $env:AZRAEL_CARGO_STABLE_SOURCE = '1'
-        Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') + $(if (-not $CodeModeHostPath) { @('-p', 'codex-code-mode-host', '--bin', 'codex-code-mode-host') } else { @() })) 'engine.log'
+        Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--jobs', '6', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') + $(if (-not $CodeModeHostPath) { @('-p', 'codex-code-mode-host', '--bin', 'codex-code-mode-host') } else { @() })) 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
         if ($externalCodeModeHost -and (Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
         $selectedCodeModeHost = if ($externalCodeModeHost) { $externalCodeModeHost } else { Join-Path $EngineDirectory 'codex-code-mode-host.exe' }

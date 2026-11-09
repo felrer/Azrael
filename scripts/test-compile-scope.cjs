@@ -144,6 +144,7 @@ test("Windows and portable product builds request the remote-only bridge", () =>
     const command = read(file).split(/\r?\n/).find(line => /--bin/.test(line) && /azrael-bridge/.test(line));
     assert.ok(command, file);
     assert.ok(command.includes("--no-default-features"), file);
+    if (file.endsWith(".ps1")) assert.match(command, /'--jobs',\s*'6'/, file);
   }
 });
 
