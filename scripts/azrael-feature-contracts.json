@@ -615,6 +615,7 @@
         "scripts/test-cargo-stable-source.cjs",
         "scripts/cargo-shared-cache.cjs",
         "scripts/cargo-owner-audit.cjs",
+        "docs/architecture/project-maintenance.md",
         "scripts/test-cargo-owner-audit.cjs",
         "scripts/test-cargo-shared-cache.cjs",
         "scripts/test-cargo-target-owner.cjs",

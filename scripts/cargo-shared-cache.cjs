@@ -27,21 +27,22 @@ function plain(filename) {
   return filename;
 }
 function tool(command, args, cwd, env) {
-  const installed = path.join(env.CARGO_HOME || path.join(require("node:os").homedir(), ".cargo"), "bin", command + (process.platform === "win32" ? ".exe" : ""));
-  if (fs.existsSync(installed)) command = installed;
+  // Identify the executable selected by the invocation environment, rather
+  // than preferring a different installed compiler outside its PATH.
+  if (command === "rustc") command = env.RUSTC || env.CARGO_BUILD_RUSTC || command;
   const result = spawnSync(command, args, { cwd, env, windowsHide: true, encoding: "utf8" });
   if (result.error || result.signal || result.status !== 0) throw Error(`Cannot identify Cargo cache tool ${command}: ${result.error?.message || result.stderr || result.signal}`);
   return result.stdout.trim();
 }
 function selectCache({ projectRoot, sourceRoot, target, env = process.env, tools }) {
   const scope = env.AZRAEL_CARGO_CACHE_SCOPE;
-  if (scope !== undefined && (typeof scope !== "string" || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(scope))) throw Error("Invalid Cargo cache scope");
+  if (typeof scope !== "string" || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(scope)) throw Error("Explicit valid Cargo cache scope (AZRAEL_CARGO_CACHE_SCOPE) required before selecting a shared Cargo cache");
   projectRoot = plain(projectRoot); sourceRoot = plain(sourceRoot);
   if (!fs.statSync(projectRoot).isDirectory() || !fs.statSync(sourceRoot).isDirectory()) throw Error("Existing cache owner and source roots required");
   const cwd = path.join(sourceRoot, "codex-rs");
   if (!fs.existsSync(path.join(cwd, "Cargo.toml"))) throw Error("Selected engine Cargo manifest required");
   tools ??= { rustc: tool("rustc", ["-vV"], cwd, env), cargo: tool("cargo", ["-V"], cwd, env) };
-  if (typeof tools.rustc !== "string" || !tools.rustc || typeof tools.cargo !== "string" || !tools.cargo) throw Error("Complete Cargo tool identity required");
+  if (typeof tools.rustc !== "string" || !tools.rustc.trim() || typeof tools.cargo !== "string" || !tools.cargo.trim()) throw Error("Complete Cargo tool identity required");
   target ||= /^host: (.+)$/m.exec(tools.rustc)?.[1];
   if (typeof target !== "string" || !/^[A-Za-z0-9_.-]+$/.test(target)) throw Error("Explicit Cargo target identity required");
   const configuration = [];
@@ -53,25 +54,41 @@ function selectCache({ projectRoot, sourceRoot, target, env = process.env, tools
     }
     if (directory === path.dirname(directory)) break;
   }
-  const flags = Object.fromEntries(Object.entries(env).filter(([name]) => name !== "CARGO_TARGET_DIR" && /^(?:CARGO_(?:ENCODED_RUSTFLAGS|BUILD_RUSTFLAGS|BUILD_TARGET|TARGET_.*|PROFILE_.*)|RUSTFLAGS|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER)$/.test(name)).sort(([a], [b]) => a.localeCompare(b)));
+  // Cargo also reads its user configuration when it is outside the source's
+  // ancestor chain. Bind its bytes without depending on the source-copy path.
+  if (env.CARGO_HOME !== undefined && (typeof env.CARGO_HOME !== "string" || !path.isAbsolute(env.CARGO_HOME))) throw Error("Absolute CARGO_HOME required for shared cache identity");
+  const cargoHome = path.resolve(env.CARGO_HOME || path.join(require("node:os").homedir(), ".cargo"));
+  for (const name of ["config", "config.toml"]) {
+    const file = path.join(cargoHome, name);
+    if (fs.existsSync(file) && !configuration.some(([relative]) => path.resolve(cwd, relative) === file)) {
+      plain(file); configuration.push([`cargo-home/${name}`, hash(fs.readFileSync(file).toString("base64"))]);
+    }
+  }
+  const flags = Object.fromEntries(Object.entries(env).filter(([name]) => name !== "CARGO_TARGET_DIR" &&
+    /^(?:CARGO_(?:ENCODED_RUST(?:DOC)?FLAGS|BUILD_(?:RUSTFLAGS|RUSTC|RUSTDOC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER|TARGET)|TARGET_.*|PROFILE_.*|INCREMENTAL)|RUSTFLAGS|RUSTDOCFLAGS|RUSTC|RUSTDOC|RUSTC_WRAPPER|RUSTC_WORKSPACE_WRAPPER)$/.test(name)).sort(([a], [b]) => a.localeCompare(b)));
   const identity = { schema: 1, platform: process.platform, arch: process.arch, target, tools, configuration, flags,
-    ...(scope === undefined ? {} : { scope }) };
+    scope };
   // Scoped verification targets need short Windows paths. The full identity
   // marker and full lifecycle key still reject a prefix collision before use.
-  const key = hash(identity), directory = plain(scope === undefined
-    ? path.join(projectRoot, "artifacts/cache/cargo", key)
-    : path.join(projectRoot, "artifacts/cargo", key.slice(0, 32)));
+  const key = hash(identity), directory = plain(path.join(projectRoot, "artifacts/cargo", key.slice(0, 32)));
   return { projectRoot, key, identity, directory, targetDirectory: path.join(directory, "target"), lifecycleId: `shared:cargo-target:${key}` };
 }
 function beginExecution(selection, token) {
   const { projectRoot, lifecycleId, directory, identity } = selection;
+  // A saved legacy selection cannot bypass the future-writer scope contract.
+  if (identity?.schema !== 1 || typeof identity.scope !== "string" || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(identity.scope) ||
+      !identity.tools?.rustc?.trim() || !identity.tools?.cargo?.trim() || !identity.platform || !identity.arch || !identity.target ||
+      !Array.isArray(identity.configuration) || !identity.flags || hash(identity) !== selection.key ||
+      lifecycleId !== `shared:cargo-target:${selection.key}` || path.resolve(directory) !== path.join(path.resolve(projectRoot), "artifacts/cargo", selection.key.slice(0, 32))) {
+    throw Error("Complete scoped Cargo cache identity required before creating a generation");
+  }
   plain(directory);
   const marker = plain(path.join(directory, "identity.json"));
   if (fs.existsSync(marker)) {
     const stat = fs.lstatSync(marker);
     if (!stat.isFile() || stat.nlink !== 1) throw Error("Shared Cargo cache identity must be an unlinked regular file");
   }
-  const old = lifecycle.catalog(projectRoot).find(record => record.id === lifecycleId);
+  const old = lifecycle.withCatalogLock(projectRoot, () => lifecycle.catalog(projectRoot).find(record => record.id === lifecycleId), { operation: "cargo-cache.observe" });
   if (old && (!old.producer || old.producer.status !== "stopped" || old.producer.outcome === "unknown" && !lifecycle.canRestartGeneration(projectRoot, old))) throw Error("Shared Cargo cache has an unresolved producer; explicit recovery required");
   if (old?.restart_recovery && fs.existsSync(plain(path.join(selection.targetDirectory, ".azrael-cargo-owner")))) throw Error("Shared Cargo target lease is still active");
   if (fs.existsSync(directory) && (!fs.existsSync(marker) || fs.readFileSync(marker, "utf8") !== JSON.stringify(identity))) throw Error("Shared Cargo cache identity missing or changed");
@@ -199,9 +216,10 @@ if (require.main === module) {
   try {
     const args = process.argv.slice(2), options = {};
     for (let i = 0; i < args.length; i += 2) {
-      if (!["--project-root", "--source-root", "--target"].includes(args[i]) || !args[i + 1] || options[args[i]]) throw Error("Usage: cargo-shared-cache --project-root ABS --source-root ABS [--target TARGET]");
+      if (!["--project-root", "--source-root", "--target", "--scope"].includes(args[i]) || !args[i + 1] || options[args[i]]) throw Error("Usage: cargo-shared-cache --project-root ABS --source-root ABS [--target TARGET] --scope PURPOSE");
       options[args[i]] = args[i + 1];
     }
-    console.log(JSON.stringify(selectCache({ projectRoot: options["--project-root"], sourceRoot: options["--source-root"], target: options["--target"] })));
+    console.log(JSON.stringify(selectCache({ projectRoot: options["--project-root"], sourceRoot: options["--source-root"], target: options["--target"],
+      env: { ...process.env, ...(options["--scope"] === undefined ? {} : { AZRAEL_CARGO_CACHE_SCOPE: options["--scope"] }) } })));
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

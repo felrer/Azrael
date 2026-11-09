@@ -32,13 +32,12 @@ try {
   const fixed = inventoryTree(frozen).sha256;
   const env = { ...process.env, PATH: path.join(require("node:os").homedir(), ".cargo/bin") + path.delimiter + process.env.PATH,
     AZRAEL_CARGO_CACHE_PROJECT_ROOT: root, AZRAEL_CARGO_RUN_ID: run.lifecycleId,
+    AZRAEL_CARGO_CACHE_SCOPE: process.env.AZRAEL_CARGO_CACHE_SCOPE ?? "agent-image-attachments",
     RUSTUP_TOOLCHAIN: "1.95.0", TEMP: run.temporary, TMP: run.temporary, TMPDIR: run.temporary,
     INSTA_PENDING_DIR: path.join(run.temporary, "insta"), RUST_MIN_STACK: "33554432" };
-  // Do not inherit another caller's cache scope. Select before both the direct
-  // lookup and isolated Cargo execution, including the private profile flags.
-  delete env.AZRAEL_CARGO_CACHE_SCOPE;
+  // Select before both direct lookup and isolated Cargo execution, including
+  // the private profile flags, while preserving an explicit caller scope.
   if (privateTarget) {
-    env.AZRAEL_CARGO_CACHE_SCOPE = "agent-image-attachments";
     env.CARGO_PROFILE_DEV_DEBUG = "0";
     env.CARGO_PROFILE_TEST_DEBUG = "0";
   }

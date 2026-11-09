@@ -29,6 +29,7 @@ try {
   const fixed = inventoryTree(frozen).sha256;
   const env = { ...process.env, PATH: path.join(require("node:os").homedir(), ".cargo/bin") + path.delimiter + process.env.PATH,
     AZRAEL_CARGO_CACHE_PROJECT_ROOT: root, AZRAEL_CARGO_RUN_ID: run.lifecycleId,
+    AZRAEL_CARGO_CACHE_SCOPE: process.env.AZRAEL_CARGO_CACHE_SCOPE ?? "task-memory-verification",
     RUSTUP_TOOLCHAIN: "1.95.0", TEMP: run.temporary, TMP: run.temporary, TMPDIR: run.temporary,
     INSTA_PENDING_DIR: path.join(run.temporary, "insta"), RUST_MIN_STACK: "33554432" };
   const cache = selectCache({ projectRoot: root, sourceRoot: frozen, env });

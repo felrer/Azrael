@@ -49,6 +49,7 @@ function runChecks({ root, run, resume = false, frozenRoot, expectedHelperSha256
     const pathKey = Object.keys(env).find(name => name.toLowerCase() === "path") || "PATH";
     env[pathKey] = path.join(require("node:os").homedir(), ".cargo/bin") + path.delimiter + env[pathKey];
     Object.assign(env, { AZRAEL_CARGO_CACHE_PROJECT_ROOT: root, AZRAEL_CARGO_RUN_ID: run.lifecycleId,
+      AZRAEL_CARGO_CACHE_SCOPE: process.env.AZRAEL_CARGO_CACHE_SCOPE ?? "find-names-verification",
       RUSTUP_TOOLCHAIN: "1.95.0", CARGO_BUILD_JOBS: "2", TEMP: run.temporary, TMP: run.temporary,
       TMPDIR: run.temporary, INSTA_PENDING_DIR: path.join(run.temporary, "insta"), RUST_MIN_STACK: "33554432" });
     fs.mkdirSync(run.temporary, { recursive: true });

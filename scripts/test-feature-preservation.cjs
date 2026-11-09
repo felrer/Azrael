@@ -196,6 +196,8 @@ const path = require('node:path');
   test('native consumers share preparation owned by their physical Cargo target and frozen source identity', async () => {
     const { config } = setup(); config.area = 'engine';
     config.cargoTargetDirectory = path.join(config.projectRoot, 'artifacts', 'cargo-target');
+    config.cargoCacheProjectRoot = config.projectRoot;
+    config.cargoCacheScope = 'product-release';
     const sourceIdentity = 'a'.repeat(64);
     config.identityProvider = async () => ({ engineSource: { sha256: sourceIdentity } });
     const execute = config.execute; let observed = false;
@@ -203,11 +205,15 @@ const path = require('node:path');
       observed = true;
       assert.equal(options.env.AZRAEL_CARGO_PREPARATION_SOURCE_IDENTITY, sourceIdentity);
       assert.equal(options.env.AZRAEL_CARGO_PREPARATION_DIR, path.join(config.cargoTargetDirectory, '.azrael-test-preparation'));
+      assert.equal(options.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT, config.cargoCacheProjectRoot);
+      assert.equal(options.env.CARGO_TARGET_DIR, config.cargoTargetDirectory);
+      assert.equal(options.env.AZRAEL_CARGO_CACHE_SCOPE, config.cargoCacheScope);
       return execute(executable, args, options);
     };
     const receipt = await gate.runPreservation(config);
     assert.equal(receipt.status, 'passed', receipt.error); assert.equal(observed, true);
     config.outputDirectory = path.join(config.projectRoot, 'retry-output');
+    config.cargoCacheScope = 'win017-ft02';
     const retried = await gate.runPreservation(config);
     assert.equal(retried.status, 'passed', retried.error);
   });
@@ -221,6 +227,23 @@ const path = require('node:path');
       if (!key.startsWith('AZRAEL_CARGO_PREPARATION_')) assert.equal(prepared[key], value);
     }
     assert.deepEqual(gate.checkEnvironment(config), baseline);
+    const shared = { ...config, cargoCacheProjectRoot: config.projectRoot,
+      cargoTargetDirectory: path.join(config.projectRoot, 'cargo-target'), cargoCacheScope: '' };
+    assert.throws(() => gate.checkEnvironment(shared), /require cargoCacheScope or AZRAEL_CARGO_CACHE_SCOPE/);
+    const saved = Object.fromEntries(['AZRAEL_CARGO_CACHE_PROJECT_ROOT', 'CARGO_TARGET_DIR', 'AZRAEL_CARGO_CACHE_SCOPE']
+      .map(key => [key, process.env[key]]));
+    try {
+      process.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT = shared.cargoCacheProjectRoot;
+      process.env.CARGO_TARGET_DIR = shared.cargoTargetDirectory;
+      delete process.env.AZRAEL_CARGO_CACHE_SCOPE;
+      assert.throws(() => gate.checkEnvironment(config), /require cargoCacheScope or AZRAEL_CARGO_CACHE_SCOPE/);
+      process.env.AZRAEL_CARGO_CACHE_SCOPE = 'win017-ft02';
+      assert.equal(gate.checkEnvironment(config).AZRAEL_CARGO_CACHE_SCOPE, 'win017-ft02');
+    } finally {
+      for (const [key, value] of Object.entries(saved)) {
+        if (value === undefined) delete process.env[key]; else process.env[key] = value;
+      }
+    }
   });
   test('inventory rejects missing coverage, duplicate IDs, missing checks and missing references', () => {
     const { root, manifest, config } = setup();

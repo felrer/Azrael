@@ -15,7 +15,7 @@ function fixture() {
   const sourceRoot = path.join(projectRoot, "source");
   fs.mkdirSync(path.join(sourceRoot, "codex-rs"), { recursive: true });
   fs.writeFileSync(path.join(sourceRoot, "codex-rs/Cargo.toml"), "[workspace]\n");
-  return { projectRoot, sourceRoot, target: "x86_64-pc-windows-msvc", env: {}, tools: { rustc: "rustc fixture\nhost: x86_64-pc-windows-msvc", cargo: "cargo fixture" } };
+  return { projectRoot, sourceRoot, target: "x86_64-pc-windows-msvc", env: { AZRAEL_CARGO_CACHE_SCOPE: "cache-verification", CARGO_HOME: path.join(projectRoot, "cargo-home") }, tools: { rustc: "rustc fixture\nhost: x86_64-pc-windows-msvc", cargo: "cargo fixture" } };
 }
 after(() => { for (const directory of owned) fs.rmSync(directory, { recursive: true }); });
 test("same compiler/configuration shares storage across source copies, without creating outputs during selection", () => {
@@ -24,8 +24,21 @@ test("same compiler/configuration shares storage across source copies, without c
   fs.mkdirSync(path.join(other, "codex-rs"), { recursive: true }); fs.writeFileSync(path.join(other, "codex-rs/Cargo.toml"), "[workspace]\n");
   assert.equal(first.targetDirectory, cache.selectCache({ ...options, sourceRoot: other }).targetDirectory);
   assert.equal(fs.existsSync(first.directory), false);
-  assert.equal(first.key, cache.selectCache({ ...options, env: { CARGO_TARGET_DIR: first.targetDirectory } }).key);
-  for (const changed of [{ target: "aarch64-apple-darwin" }, { tools: { ...options.tools, rustc: "different" } }, { env: { RUSTFLAGS: "-C debuginfo=0" } }]) assert.notEqual(first.key, cache.selectCache({ ...options, ...changed }).key);
+  assert.equal(first.key, cache.selectCache({ ...options, env: { ...options.env, CARGO_TARGET_DIR: first.targetDirectory } }).key);
+  for (const changed of [{ target: "aarch64-apple-darwin" }, { tools: { ...options.tools, rustc: "different" } }, { tools: { ...options.tools, cargo: "different" } },
+    ...["RUSTFLAGS", "CARGO_INCREMENTAL", "CARGO_PROFILE_TEST_DEBUG", "RUSTDOCFLAGS"].map(name => ({ env: { ...options.env, [name]: "changed" } }))]) {
+    assert.notEqual(first.key, cache.selectCache({ ...options, ...changed }).key);
+  }
+  // Retained: a future caller addition must not silently return to the broad
+  // unscoped cache, or permit saved legacy selections to create generations.
+  assert.throws(() => cache.selectCache({ ...options, env: {} }), /SCOPE|scope/);
+  const legacyIdentity = { ...first.identity }; delete legacyIdentity.scope;
+  assert.throws(() => cache.beginExecution({ ...first, identity: legacyIdentity }, "legacy"), /scoped/);
+  assert.equal(fs.existsSync(first.directory), false);
+  fs.mkdirSync(options.env.CARGO_HOME);
+  fs.writeFileSync(path.join(options.env.CARGO_HOME, "config.toml"), "[build]\nrustflags=['-Cdebuginfo=0']\n");
+  assert.notEqual(first.key, cache.selectCache(options).key, "User Cargo configuration must affect the cache identity");
+  fs.unlinkSync(path.join(options.env.CARGO_HOME, "config.toml"));
   fs.mkdirSync(path.join(options.sourceRoot, "codex-rs/.cargo")); fs.writeFileSync(path.join(options.sourceRoot, "codex-rs/.cargo/config.toml"), "[build]\njobs=1\n");
   assert.notEqual(first.key, cache.selectCache(options).key);
 });
@@ -44,6 +57,7 @@ test("cache lifecycle precedes payload, permits known-close reuse and blocks unr
       const lease = require(workerData.helper).acquire(workerData.lock, { operation: 'test.cache-begin' });
       Atomics.store(signal, 0, 1); Atomics.notify(signal, 0);
       Atomics.wait(signal, 1, 0, 300);
+      Atomics.store(signal, 0, 2); Atomics.notify(signal, 0);
       lease.release();
       Atomics.store(signal, 1, 1); Atomics.notify(signal, 1);
     } catch {
@@ -53,6 +67,11 @@ test("cache lifecycle precedes payload, permits known-close reuse and blocks unr
   `, { eval: true, workerData: { helper: require.resolve("./maintenance-lock-owner.cjs"), lock, signal: signal.buffer } });
   const recordLifecycle = lifecycle.recordLifecycle;
   const claim = context.mock.method(lifecycle, "recordLifecycle", (...args) => recordLifecycle(...args));
+  const catalog = lifecycle.catalog;
+  const observation = context.mock.method(lifecycle, "catalog", (...args) => {
+    assert.equal(Atomics.load(signal, 0), 2, "catalog observation must wait for the active writer to finish under its lease");
+    return catalog(...args);
+  });
   let first;
   try {
     Atomics.wait(signal, 0, 0, 15000);
@@ -63,6 +82,7 @@ test("cache lifecycle precedes payload, permits known-close reuse and blocks unr
     Atomics.wait(signal, 1, 0, 15000);
     assert.equal(Atomics.load(signal, 1), 1, "native holder must release before fixture cleanup");
     claim.mock.restore();
+    observation.mock.restore();
   }
   assert.equal(lifecycle.catalog(options.projectRoot)[0].state, "pending");
   assert.throws(() => cache.beginExecution(selection, "competing"), /unresolved/);
@@ -78,6 +98,8 @@ test("cache lifecycle precedes payload, permits known-close reuse and blocks unr
   assert.equal(lifecycle.catalog(options.projectRoot)[0].producer.outcome, "success");
   assert.notEqual(lifecycle.catalog(options.projectRoot)[0].producer.evidence_ref, failed.producer.evidence_ref);
   assert.deepEqual(fs.readFileSync(failed.producer.evidence_ref), priorEvidence);
+  const nested = lifecycle.withCatalogLock(options.projectRoot, () => cache.beginExecution(selection, "nested"));
+  cache.finishExecution(nested, { status: 0 }, { exitCode: 0 });
   fs.writeFileSync(path.join(selection.directory, "identity.json"), "changed");
   assert.throws(() => cache.beginExecution(selection, "third"), /identity/);
 });
@@ -87,7 +109,7 @@ test("scoped verification cache reopens the same target without copying or hashi
   const options = fixture();
   options.env = { AZRAEL_CARGO_CACHE_SCOPE: "agent-image-attachments", CARGO_PROFILE_TEST_DEBUG: "0" };
   const selection = cache.selectCache(options);
-  assert.notEqual(selection.key, cache.selectCache({ ...options, env: {} }).key);
+  assert.throws(() => cache.selectCache({ ...options, env: {} }), /SCOPE|scope/);
   assert.notEqual(selection.key, cache.selectCache({ ...options, env: { ...options.env, AZRAEL_CARGO_CACHE_SCOPE: "another-check" } }).key);
   assert.notEqual(selection.key, cache.selectCache({ ...options, env: { ...options.env, CARGO_PROFILE_TEST_DEBUG: "1" } }).key);
   assert.equal(selection.identity.scope, "agent-image-attachments");

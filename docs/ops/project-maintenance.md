@@ -291,6 +291,14 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 모듈 cache owner는 새 키 선택 직후 이전 미사용 키를 정리한다. 새 빌드 실패 때문에 이전 키를 fallback으로 남기지 않으며 별도의 레거시 정리 요청을 요구하지 않는다. 명시적 보존 수, 실제 설치·다른 소비자·실행 중인 자료와 조회 불확실성은 기존 guard가 보호하고 결과에 사유를 남긴다. 이미 누적된 기존 unknown/pending 기록은 종료 근거 없이 일괄 해제하지 않는다.
 
+### Cargo 캐시의 용량과 퇴역 검토
+
+신규 shared Cargo 선택에는 `AZRAEL_CARGO_CACHE_SCOPE` 또는 selector CLI의 `--scope <purpose>`가 필요하다. 기본 제품 경로는 `product-release`이며 반복 검증은 고정된 용도 scope를 사용한다. 직접 지정한 shared owner/target에는 같은 scope를 함께 전달한다. scope 없는 기존 캐시는 새 선택에서 재사용하지 않으며 임의 이동·삭제하지 않는다. 경계와 보호 의미는 [공유 캐시 계약](../architecture/project-maintenance.md)의 `engine.shared-engine.fixture-guards` 연결을 따른다.
+
+`node scripts/cargo-owner-audit.cjs --project-root <absolute-root> --older-than-hours <positive>`는 메타데이터만 읽어 producer·참조·lease·캐시 identity의 확인 상태를 보고한다. 용량 검토에는 `--inventory <owned-json-file> --capacity-budget-bytes <positive-integer>`를 함께 제공한다. inventory 파일은 같은 프로젝트의 native `inventory` 결과 한 페이지 또는 순서대로 수집한 완전한 페이지 배열이며 일부 페이지만으로 총량을 판단하지 않는다. 기존 등록 측정값을 사용하므로 별도 payload 해시나 파일별 manifest가 필요하지 않다. 호출 요청·출력 파일은 호출자의 단일 run이 소유하며 현재 사용 후 최소 결과만 인계하고 정리한다.
+
+보고서의 cached logical bytes는 현재 물리 용량·회수량이 아니다. `uncertain`은 예산 충족을 뜻하지 않는다. canonical shared-cache entry만 합산하고 하위 target/pending 소유 기록을 중복 합산하지 않는다. 미사용 기간 또는 용량 예산에 따른 후보는 검토 대상일 뿐이다. 실제 퇴역 전에는 정확한 소비자의 종료·복구 근거를 보존하고 지원 `releaseReferences`로 선택 참조만 해제한 뒤 native 보호 갱신·fresh review를 수행한다. 신규 미등록 entry는 최초 지원 등록의 측정이 필요하며 이미 등록된 불변 entry를 매번 재해시하지 않는다. 보호·활성·불확실한 항목은 유지하고 실패 결과를 성공으로 바꾸지 않는다. 사용자가 요청한 archive 이관은 새 소유 경계를 먼저 계획하고 기존 이관 절차를 따른다.
+
 ## 작업·버전 묶음 연결과 이전
 
 ### 확인된 legacy 로그의 보관 이관

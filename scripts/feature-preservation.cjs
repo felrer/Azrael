@@ -307,7 +307,14 @@ function reviewReceiptReuse(config, receipt, current, scope = 'preservation-rece
 }
 function validatedReceiptReuse(receipt) { return validatedReuse.get(receipt); }
 function checkEnvironment(config, preparation) {
+  const cargoCacheScope = config.cargoCacheScope ?? process.env.AZRAEL_CARGO_CACHE_SCOPE;
+  const cargoCacheProjectRoot = config.cargoCacheProjectRoot || process.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT;
+  const cargoTargetDirectory = config.cargoTargetDirectory || process.env.CARGO_TARGET_DIR;
+  if (cargoCacheProjectRoot && cargoTargetDirectory && !cargoCacheScope) {
+    throw Error('Explicit shared Cargo cache project root and target require cargoCacheScope or AZRAEL_CARGO_CACHE_SCOPE');
+  }
   return { ...process.env, ...(config.cargoTargetDirectory ? { CARGO_TARGET_DIR: config.cargoTargetDirectory } : {}),
+    ...(cargoCacheScope !== undefined ? { AZRAEL_CARGO_CACHE_SCOPE: cargoCacheScope } : {}),
     ...(config.cargoCacheProjectRoot ? { AZRAEL_CARGO_CACHE_PROJECT_ROOT: config.cargoCacheProjectRoot } : {}), AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
     ...(config.outputDirectory ? {AZRAEL_WINDOW_SETTINGS_TEST_ROOT:process.env.AZRAEL_WINDOW_SETTINGS_TEST_ROOT || path.join(config.outputDirectory,'window-use-settings-fixtures')} : {}),
     AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js'),

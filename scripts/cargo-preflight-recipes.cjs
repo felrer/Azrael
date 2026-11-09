@@ -9,10 +9,10 @@ const { createHash } = require('node:crypto');
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
-  'check-agent-image-attachments': '882d37200bbcd734ba557965b3caee1a35790b383e4335e87a2967b2d3373c2f',
-  'check-find-names': '069e33fb0d0162298f46bd71052669dce96c7913e33f9b2c05c2d50491af6c96',
+  'check-agent-image-attachments': 'cd163c4a4b7b8f45539549aa3d3193e966632ad2a58d1ca1e5b0252db29e1e2b',
+  'check-find-names': 'ca76c4c96c8240322096bd9d271ea00e2bb7a6153527d557ce63d527405bbf9a',
   'check-devin-compaction': 'e5e9113405e0ec7875ab871975c4598e17b20a60e9485ec54f83742235be5c4a',
-  'check-role-profiles-native': '74d340d26d6801f63c260c772f1afaba8ed0506d18abf5be353432184bd0b0bc',
+  'check-role-profiles-native': '3c84c80fce595b8e04562ba77406c2546b45c89d2262eba807938876dc5d6cf0',
   'check-executor-completion': 'fbba5203634989dcdd30802d2f58af11418b8f32d9b8613ef05cbf7f80a28c09',
   'check-deletion-approval-native': '139f05599adda7215de9fd9c67a986803fc08a7b081dc9fc3184441ac8631829',
   'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
@@ -27,7 +27,7 @@ const wrapperHashes = Object.freeze({
   'check-capacity-recovery': 'ca6cccb3d50df005500d5ceeedbba0c064806a74aa4c089c880f82186b6d4c37',
   'check-task-profile-skills': '8b917134a02db256c4b5940e8611aaf37da7699934382563a4a34a0c895923e5',
   'check-shared-engine-native': '99fa4ff0be0f2306361bab0a4e29af83b1f2c9d7a8de78c35887774b682075b1',
-  'check-task-memory': 'f436acee6c3aa87b6cf2b41d81350fae0f577cde4d76a0ff506bf8ba31b80f51',
+  'check-task-memory': '69ce4a4f4f43d11fcfd074efbae8d7182e8a885e656936640ad7ca54df195840',
   'check-question-withdrawal-native': 'b17ee0244ec76cb3fa54d0384dfdb260bd8d8055a5ff32958bd1305d5bf22080',
   'check-mcp-oauth-store': '1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa',
   'check-startup-performance-native': '5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2',

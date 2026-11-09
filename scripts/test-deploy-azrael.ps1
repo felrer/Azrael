@@ -133,7 +133,7 @@ fs.writeFileSync(path.join(a,'source-execution-environment.json'),JSON.stringify
 })().catch(e=>{console.error(e);process.exit(9)});
 '@
 $buildStub = @'
-param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$CargoCacheProjectRoot,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$VirtualInputRuntimeDirectory,[string]$MultiPointerRuntimeDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory,[switch]$LifecycleParentActive,[switch]$Resume,[string]$PipelineContextPath,[string]$SourceStateHandoffPath,[string]$SourceStateHandoffToken)
+param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$CargoCacheProjectRoot,[string]$CargoCacheScope,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$VirtualInputRuntimeDirectory,[string]$MultiPointerRuntimeDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory,[switch]$LifecycleParentActive,[switch]$Resume,[string]$PipelineContextPath,[string]$SourceStateHandoffPath,[string]$SourceStateHandoffToken)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
@@ -145,7 +145,7 @@ $lifecycle[0] | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $a 'build-life
 $runLifecycle=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object kind -eq 'run')
 if(-not $runLifecycle.Count -or @($runLifecycle | Where-Object {$_.state -ne 'pending' -or $_.membership_complete}).Count){throw 'fixture run ownership was not pending before build'}
 ConvertTo-Json -InputObject $runLifecycle -Depth 12 | Set-Content (Join-Path $a 'build-fixture-lifecycle-start.json')
-@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;CargoCacheProjectRoot=$CargoCacheProjectRoot;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;WindowControlTargetDirectory=$WindowControlTargetDirectory;VirtualInputRuntimeDirectory=$VirtualInputRuntimeDirectory;MultiPointerRuntimeDirectory=$MultiPointerRuntimeDirectory;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
+@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;CargoCacheProjectRoot=$CargoCacheProjectRoot;CargoCacheScope=$CargoCacheScope;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;WindowControlTargetDirectory=$WindowControlTargetDirectory;VirtualInputRuntimeDirectory=$VirtualInputRuntimeDirectory;MultiPointerRuntimeDirectory=$MultiPointerRuntimeDirectory;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-start.json')
 $context=Get-Content -LiteralPath $PipelineContextPath -Raw|ConvertFrom-Json -AsHashtable
 $stateRequest=Join-Path $a 'build-state-request.json'
@@ -1068,12 +1068,12 @@ assert.equal(actual.maxLockWaitMs,selected.maxLockWaitMs,'Fixture must preserve 
     Write-Utf8 (Join-Path $scripts 'cargo-shared-cache.cjs') @'
 const fs=require('node:fs'),path=require('node:path');
 const root=path.dirname(__dirname),a=path.join(root,'artifacts'),args=process.argv.slice(2);
-if(args.length!==6 || args[0]!=='--project-root' || args[2]!=='--source-root' || args[4]!=='--target') throw Error('Unexpected shared Cargo selection arguments');
-const [projectRoot,sourceRoot,target]=[args[1],args[3],args[5]];
+if(args.length!==8 || args[0]!=='--project-root' || args[2]!=='--source-root' || args[4]!=='--target' || args[6]!=='--scope') throw Error('Unexpected shared Cargo selection arguments');
+const [projectRoot,sourceRoot,target,scope]=[args[1],args[3],args[5],args[7]];
 if(projectRoot!==root || !path.isAbsolute(sourceRoot) || target!=='x86_64-pc-windows-msvc') throw Error('Shared Cargo selection lost its explicit owner/source/target');
 const key='c'.repeat(64),directory=path.join(projectRoot,'artifacts/cache/cargo',key);
-const selection={projectRoot,key,identity:{schema:1,platform:'win32',arch:'x64',target},directory,targetDirectory:path.join(directory,'target'),lifecycleId:`shared:cargo-target:${key}`};
-fs.appendFileSync(path.join(a,'cargo-selection-invocation.jsonl'),JSON.stringify({projectRoot,sourceRoot,target,selection})+'\n');
+const selection={projectRoot,key,identity:{schema:1,platform:'win32',arch:'x64',target,scope},directory,targetDirectory:path.join(directory,'target'),lifecycleId:`shared:cargo-target:${key}`};
+fs.appendFileSync(path.join(a,'cargo-selection-invocation.jsonl'),JSON.stringify({projectRoot,sourceRoot,target,scope,selection})+'\n');
 // Keep the JSON protocol lossless through the fixture's native PowerShell pipe.
 console.log(JSON.stringify(selection).replace(/[^\x00-\x7f]/g,value=>'\\u'+value.charCodeAt(0).toString(16).padStart(4,'0')));
 '@
@@ -1153,6 +1153,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     # The deployment process computes its account socket before launching the
     # mocked command, so it also inherits the registered short temporary owner.
     foreach($temporaryName in @('TEMP','TMP','TMPDIR')){$info.Environment[$temporaryName]=$shortTemporary}
+    $info.Environment.Remove('AZRAEL_CARGO_CACHE_SCOPE') | Out-Null
     $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $root 'engine'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
     if(-not $FullBuild){$argsList += @('-SkipEngineBuild','-EngineDirectory',(Join-Path $a 'explicit engine'))}
     else{$argsList += @('-CodeModeHostPath',(Join-Path $a 'code mode host.exe'),'-VirtualInputRuntimeDirectory',(Join-Path $a 'official virtual input runtime'),'-MultiPointerRuntimeDirectory',(Join-Path $a 'official multi pointer runtime'),'-ComputerUseRuntimeDirectory',(Join-Path $a 'official computer runtime'),'-ComputerUsePluginDirectory',(Join-Path $a 'official computer plugin'))}
@@ -1419,10 +1420,15 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
             $cargoSelections=@(Get-Content (Join-Path $a 'cargo-selection-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
             Assert-True ($cargoSelections.Count -eq 1) 'shared Cargo selection was not invoked exactly once'
             $cargoSelection=$cargoSelections[0]
+            $expectedCargoScope='product-release'
+            Assert-True ($cargoSelection.scope -ceq $expectedCargoScope) 'shared Cargo selection lost its default or explicit scope'
+            Assert-True ($buildCalls[0].CargoCacheScope -ceq $cargoSelection.selection.identity.scope) 'shared Cargo scope was not forwarded to build exactly'
+            Assert-True ($metrics.cargoCache.identity.scope -ceq $cargoSelection.selection.identity.scope) 'shared Cargo scope metric lost selection'
             Assert-True ($cargoSelection.projectRoot -ceq $root -and $cargoSelection.sourceRoot -ceq $buildCalls[0].SourceRoot -and $cargoSelection.target -ceq 'x86_64-pc-windows-msvc') 'shared Cargo selection owner/source/target changed'
             Assert-True ($buildCalls[0].CargoCacheProjectRoot -ceq $cargoSelection.selection.projectRoot -and $buildCalls[0].EngineTargetDirectory -ceq $cargoSelection.selection.targetDirectory) 'shared Cargo owner/target were not forwarded to build exactly'
             Assert-True ($metrics.cargoCache.projectRoot -ceq $cargoSelection.selection.projectRoot -and $metrics.cargoCache.targetDirectory -ceq $cargoSelection.selection.targetDirectory) 'shared Cargo owner/target metrics lost selection'
             foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
+                Assert-True ($call.config.cargoCacheScope -ceq $cargoSelection.selection.identity.scope) 'shared Cargo scope was not forwarded to preservation exactly'
                 Assert-True ($call.config.cargoCacheProjectRoot -ceq $cargoSelection.selection.projectRoot -and $call.config.cargoTargetDirectory -ceq $cargoSelection.selection.targetDirectory) 'shared Cargo owner/target were not forwarded to preservation exactly'
             }
         }else{

@@ -85,7 +85,10 @@ const linkDestination = path.join(root, "artifacts", "lease-destination");
 fs.mkdirSync(linkDestination, { recursive: true });
 // A directory junction works without Windows Developer Mode privileges.
 fs.symlinkSync(linkDestination, path.join(linked.target, ".azrael-cargo-owner"), process.platform === "win32" ? "junction" : "dir");
-const bytesBefore = fs.readdirSync(registry).map(name => [name, fs.readFileSync(path.join(registry, name), "utf8")]);
+// Read custody may maintain its catalog.lock sentinel; ownership JSON must stay byte-identical.
+const recordBytes = () => fs.readdirSync(registry).filter(name => name.endsWith(".json")).sort()
+  .map(name => [name, fs.readFileSync(path.join(registry, name), "utf8")]);
+const bytesBefore = recordBytes();
 const leaseBefore = fs.readFileSync(path.join(pending.target, ".azrael-cargo-owner/owner.json"), "utf8");
 const originalRead = fs.readFileSync;
 let report;
@@ -120,7 +123,7 @@ assert.equal(row("complete").termination.investigation_required, false);
 assert.equal(row("unknown").termination.investigation_required, true);
 assert.ok(report.records.every(value => value.deletion_authorized === false && value.references.investigation_required));
 assert.equal(report.records.some(value => value.id === "unrelated"), false);
-assert.deepEqual(fs.readdirSync(registry).map(name => [name, fs.readFileSync(path.join(registry, name), "utf8")]), bytesBefore);
+assert.deepEqual(recordBytes(), bytesBefore);
 assert.equal(fs.readFileSync(path.join(pending.target, ".azrael-cargo-owner/owner.json"), "utf8"), leaseBefore);
 assert.equal(fs.existsSync(absent.target), false);
 assert.ok(auditCargoOwners({ projectRoot: root, olderThanHours: 24, now: new Date(NaN) }).errors.includes("clock-invalid"));
@@ -143,3 +146,106 @@ assert.match(extra.additional_targets[0].ownerSha256, /^[a-f0-9]{64}$/);
 assert.equal(extra.additional_targets[1].status, "target-absent");
 assert.equal(extra.additional_targets[2].status, "uncertain");
 assert.ok(extra.additional_targets.every(target => target.deletion_authorized === false));
+
+// Retain these cases against later simplification of partial-size and protection guards.
+const cacheMetadata = { schema: 1, platform: process.platform, arch: process.arch, target: "fixture-target", tools: { rustc: "fixture", cargo: "fixture" }, configuration: [], flags: {} };
+function reviewCache(name, options = {}) {
+  const entry = path.join(root, "artifacts/cache/cargo", name);
+  const result = record(name, { state: "complete", membership_complete: true, producer: terminal, owner: "cargo-shared-cache",
+    members: [{ path: entry, role: "cargo-cache", generated: true, protection_known: true }], ...options });
+  result.target = entry;
+  fs.mkdirSync(entry, { recursive: true });
+  fs.writeFileSync(path.join(entry, "identity.json"), JSON.stringify(cacheMetadata));
+  return result;
+}
+const ready = reviewCache("review-ready");
+fs.mkdirSync(ready.target, { recursive: true });
+const referred = reviewCache("review-referred");
+fs.mkdirSync(referred.target, { recursive: true });
+record("review-consumer", { references: [{ id: referred.value.id, reason: "fixture consumer" }] });
+const outgoing = reviewCache("review-outgoing", {
+  references: [{ id: ready.value.id, reason: "fixture outgoing" }] });
+fs.mkdirSync(outgoing.target, { recursive: true });
+const unprotected = reviewCache("review-unprotected", {
+  members: [{ path: path.join(root, "artifacts/cache/cargo/review-unprotected"), role: "cargo-cache", generated: true, protection_known: false }] });
+fs.mkdirSync(unprotected.target, { recursive: true });
+const eligible = reviewCache("review-eligible");
+fs.mkdirSync(eligible.target, { recursive: true });
+const liveReview = reviewCache("review-live");
+liveReview.target = path.join(liveReview.target, "target");
+lease(liveReview);
+const unknownReview = reviewCache("review-unknown", { producer: { ...terminal, outcome: "unknown", exit_code: null } });
+fs.mkdirSync(unknownReview.target, { recursive: true });
+const all = lifecycle.catalog(root);
+const items = all.flatMap(group => group.members.map((member, index) => ({ id: `${group.id}:${index}`, lifecycle_group_id: group.id,
+  path: member.path, logical_bytes: 10, measured_at_ms: now.getTime(), presence: fs.existsSync(member.path) ? "present" : "absent",
+  remaining: fs.existsSync(member.path) })));
+const measuredEligible = items.find(item => item.lifecycle_group_id === eligible.value.id);
+const inventoryPage = entries => ({ project_root: root, items: entries, pagination: { offset: 0, limit: Math.max(1, entries.length), total: entries.length } });
+const capacityAudit = (inventoryPages = inventoryPage(items), capacityBudgetBytes = 1) => auditCargoOwners({ projectRoot: root, olderThanHours: 24, now, inventoryPages, capacityBudgetBytes });
+const capacity = capacityAudit();
+assert.equal(capacity.capacity.status, "complete");
+assert.equal(capacity.capacity.budget_assessment, "over-cached-logical-budget");
+assert.equal(capacity.capacity.physical_bytes, null);
+assert.equal(capacity.capacity.reclaimable_bytes, null);
+assert.deepEqual(capacity.capacity.retirement_review_candidates.map(value => value.id), [eligible.value.id]);
+assert.ok(capacity.records.find(value => value.id === liveReview.value.id).capacity.retirement_review.blockers.includes("lease-or-target-uncertain"));
+assert.ok(capacity.records.find(value => value.id === unknownReview.value.id).capacity.retirement_review.blockers.includes("producer-not-known-stopped"));
+assert.ok(capacity.records.every(value => !value.deletion_authorized && !value.capacity.retirement_review.deletion_authorized));
+assert.equal(capacity.records.find(value => value.id === cache.value.id).cache_identities[0].status, "missing");
+const within = capacityAudit(inventoryPage(items), Number.MAX_SAFE_INTEGER);
+assert.equal(within.capacity.budget_assessment, "within-cached-logical-budget");
+assert.deepEqual(within.capacity.retirement_review_candidates.map(value => value.id), [eligible.value.id]);
+assert.deepEqual(within.capacity.retirement_review_candidates[0].review_reasons, ["older-than-requested-threshold"]);
+const freshUnderBudget = auditCargoOwners({ projectRoot: root, olderThanHours: 240, now, inventoryPages: inventoryPage(items), capacityBudgetBytes: Number.MAX_SAFE_INTEGER });
+assert.deepEqual(freshUnderBudget.capacity.retirement_review_candidates, []);
+const partial = inventoryPage(items.slice(1)); partial.pagination.total = items.length;
+const invalidInputs = [partial, [inventoryPage(items), inventoryPage(items)],
+  inventoryPage([...items, { ...measuredEligible, id: "duplicate-member" }]),
+  { ...inventoryPage(items), project_root: path.dirname(root) },
+  inventoryPage(items.map(item => item.lifecycle_group_id === eligible.value.id ? { ...item, logical_bytes: null } : item)),
+  inventoryPage(items.filter(item => item.lifecycle_group_id !== eligible.value.id))];
+for (const input of invalidInputs) {
+  const uncertain = capacityAudit(input, Number.MAX_SAFE_INTEGER);
+  assert.equal(uncertain.capacity.status, "uncertain");
+  assert.equal(uncertain.capacity.budget_assessment, "uncertain");
+  assert.ok(uncertain.errors.includes("capacity-uncertain"));
+}
+const duplicated = capacityAudit(inventoryPage([...items, { ...measuredEligible, id: "duplicate-member" }]));
+assert.equal(duplicated.capacity.cached_logical_bytes, capacity.capacity.cached_logical_bytes, "Duplicate measurements cannot inflate totals");
+const split = Math.floor(items.length / 2);
+const pages = [{ ...inventoryPage(items.slice(0, split)), pagination: { offset: 0, limit: split, total: items.length } },
+  { ...inventoryPage(items.slice(split)), pagination: { offset: split, limit: items.length, total: items.length } }];
+assert.equal(capacityAudit(pages).capacity.cached_logical_bytes, capacity.capacity.cached_logical_bytes);
+assert.equal(capacityAudit(pages).capacity.status, "complete");
+for (const capacityBudgetBytes of [0, -1, Infinity, NaN, 1.5]) assert.throws(() => capacityAudit(inventoryPage(items), capacityBudgetBytes), /positive/);
+assert.throws(() => auditCargoOwners({ projectRoot: root, olderThanHours: 24, inventoryPages: inventoryPage(items) }), /together/);
+const marker = path.join(cachePath, "identity.json");
+fs.writeFileSync(marker, JSON.stringify(cacheMetadata));
+const cacheStatus = () => auditCargoOwners({ projectRoot: root, olderThanHours: 24, now }).records.find(value => value.id === cache.value.id).cache_identities[0];
+assert.equal(cacheStatus().status, "legacy");
+fs.writeFileSync(marker, JSON.stringify({ ...cacheMetadata, scope: "verification" }));
+assert.equal(cacheStatus().status, "scoped");
+assert.equal(cacheStatus().scope, "verification");
+fs.writeFileSync(marker, "{broken");
+assert.equal(cacheStatus().status, "invalid");
+const nativeUnrelated = { id: "native-ungrouped", lifecycle_group_id: null, path: path.join(root, "artifacts/unrelated-native"), logical_bytes: null };
+const withUnrelated = capacityAudit(inventoryPage([...items, nativeUnrelated]));
+assert.equal(withUnrelated.capacity.status, "complete");
+assert.equal(withUnrelated.capacity.cached_logical_bytes, capacity.capacity.cached_logical_bytes);
+const childPath = path.join(eligible.target, "target");
+record("overlapping-child", { members: [{ path: childPath, role: "cargo-target", generated: true, protection_known: true }] });
+const childMeasurement = { id: "native-overlapping-child", lifecycle_group_id: "cargo:overlapping-child", path: childPath,
+  logical_bytes: 9999, measured_at_ms: now.getTime(), presence: "present", remaining: true };
+const withChild = capacityAudit(inventoryPage([...items, childMeasurement]));
+assert.equal(withChild.capacity.status, "complete");
+assert.equal(withChild.capacity.cached_logical_bytes, capacity.capacity.cached_logical_bytes);
+assert.equal(withChild.records.find(value => value.id === "cargo:overlapping-child").capacity.status, "not-accounted");
+fs.writeFileSync(path.join(eligible.target, "identity.json"), "{broken");
+const invalidIdentity = capacityAudit(inventoryPage(items));
+assert.ok(invalidIdentity.records.find(value => value.id === eligible.value.id).capacity.retirement_review.blockers.includes("cache-identity-missing-or-invalid"));
+assert.equal(invalidIdentity.capacity.retirement_review_candidates.some(value => value.id === eligible.value.id), false);
+record("overlapping-cache", { owner: "cargo-shared-cache", members: [{ path: childPath, role: "cargo-cache", generated: true, protection_known: true }] });
+const overlap = capacityAudit(inventoryPage([...items, { ...childMeasurement, id: "native-overlapping-cache", lifecycle_group_id: "cargo:overlapping-cache" }]));
+assert.equal(overlap.capacity.status, "uncertain");
+assert.ok(overlap.capacity.errors.includes("cache-entry-roots-overlap"));

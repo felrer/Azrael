@@ -137,7 +137,7 @@ test("preparation failure launches no Cargo; post-Cargo mutation preserves actua
   for (const name of ["cargo-target-owner.cjs", "build-resource-admission.cjs", "cargo-stable-source.cjs", "cargo-shared-cache.cjs", "artifact-lifecycle.cjs", "artifact-observations.cjs", "maintenance-lock-owner.cjs", "maintenance-preferences.cjs", "maintenance-lock-worker.cjs", "maintenance-owner-config.cjs", "engine-provenance.py", "import-engine-source.py", "engine-native-materialization.py", "azrael-platforms.json"]) fs.copyFileSync(path.join(__dirname, name), path.join(scripts, name));
   bootstrapFixtureMaintenance(f.root);
   const managedOwner = require(path.join(scripts, "cargo-target-owner.cjs"));
-  const env = { ...f.env, AZRAEL_CARGO_CACHE_PROJECT_ROOT: f.root, AZRAEL_CARGO_STABLE_SOURCE: "1" };
+  const env = { ...f.env, AZRAEL_CARGO_CACHE_PROJECT_ROOT: f.root, AZRAEL_CARGO_CACHE_SCOPE: "stable-source-verification", AZRAEL_CARGO_STABLE_SOURCE: "1" };
   const selection = cache.selectCache({ projectRoot: f.root, sourceRoot: f.sourceRoot, env }); env.CARGO_TARGET_DIR = selection.targetDirectory;
   assertLinkerPath(selection.targetDirectory);
   const targetIdentity = process.platform === "win32" ? selection.targetDirectory.toLowerCase() : selection.targetDirectory;
@@ -170,7 +170,7 @@ test("preparation failure launches no Cargo; post-Cargo mutation preserves actua
 });
 test("real offline managed Cargo preserves locked path dependencies and reports Fresh on second build", () => {
   const f = fixture({ pathDependency: true }); f.close();
-  const env = { ...f.env, AZRAEL_CARGO_CACHE_PROJECT_ROOT: f.root, AZRAEL_CARGO_STABLE_SOURCE: "1" };
+  const env = { ...f.env, AZRAEL_CARGO_CACHE_PROJECT_ROOT: f.root, AZRAEL_CARGO_CACHE_SCOPE: "stable-source-verification", AZRAEL_CARGO_STABLE_SOURCE: "1" };
   const selection = require("./cargo-shared-cache.cjs").selectCache({ projectRoot: f.root, sourceRoot: f.sourceRoot, env });
   env.CARGO_TARGET_DIR = selection.targetDirectory;
   assertLinkerPath(selection.targetDirectory);

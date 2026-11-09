@@ -6,6 +6,7 @@ param(
     [string]$RetainedSourceRoot,
     [string]$EngineTargetDirectory,
     [string]$CargoCacheProjectRoot,
+    [string]$CargoCacheScope = $(if ($null -ne $env:AZRAEL_CARGO_CACHE_SCOPE) { $env:AZRAEL_CARGO_CACHE_SCOPE } else { 'product-release' }),
     [string]$ModuleCacheProjectRoot,
     [string]$DeploymentWorkspaceManifest,
     [string]$DeploymentWorkspaceSha256,
@@ -594,16 +595,18 @@ try {
     if ($RetainedSourceRoot) { $buildArgs += @('-RetainedSourceRoot', $RetainedSourceRoot) }
     if ((-not $SkipEngineBuild -and -not $EngineTargetDirectory) -or $CargoCacheProjectRoot) {
         $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } elseif ($ModuleCacheProjectRoot) { $ModuleCacheProjectRoot } else { $project }
-        $selection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $SourceRoot --target x86_64-pc-windows-msvc
+        $selection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $SourceRoot --target x86_64-pc-windows-msvc --scope $CargoCacheScope
         if ($LASTEXITCODE -ne 0) { throw 'Shared Cargo cache selection failed.' }
         $sharedCargoCache = $selection | ConvertFrom-Json
         if ($EngineTargetDirectory -and [IO.Path]::GetFullPath($EngineTargetDirectory) -ine $sharedCargoCache.targetDirectory) { throw 'Explicit engine target conflicts with shared Cargo cache.' }
         $EngineTargetDirectory = $sharedCargoCache.targetDirectory
         $CargoCacheProjectRoot = $sharedCargoCache.projectRoot
+        $CargoCacheScope = $sharedCargoCache.identity.scope
         $metrics.cargoCache = $sharedCargoCache
     }
     if ($EngineTargetDirectory -and -not $SkipEngineBuild) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($CargoCacheProjectRoot -and -not $SkipEngineBuild) { $buildArgs += @('-CargoCacheProjectRoot', $CargoCacheProjectRoot) }
+    if ($CargoCacheProjectRoot -and -not $SkipEngineBuild) { $buildArgs += @('-CargoCacheScope', $CargoCacheScope) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
     if ($ForceNativeVerification) { $buildArgs += '-ForceEngineCompatibility' }
     if ($WindowControlTargetDirectory) { $buildArgs += @('-WindowControlTargetDirectory', $WindowControlTargetDirectory) }
@@ -673,6 +676,7 @@ try {
     if ($EstimatedCompilerGrowthBytes) { $sourceConfig.estimatedGrowthBytes = $EstimatedCompilerGrowthBytes }
     if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoCacheProjectRoot) { $sourceConfig.cargoCacheProjectRoot = $CargoCacheProjectRoot }
+    if ($CargoCacheProjectRoot) { $sourceConfig.cargoCacheScope = $CargoCacheScope }
     if ($CargoVerificationCacheProjectRoot) { $sourceConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if ($EngineVerificationProfile) {
         $sourceConfig.engineVerificationProfile = $EngineVerificationProfile
@@ -762,6 +766,7 @@ try {
     }
     if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoCacheProjectRoot) { $enginePreservationConfig.cargoCacheProjectRoot = $CargoCacheProjectRoot }
+    if ($CargoCacheProjectRoot) { $enginePreservationConfig.cargoCacheScope = $CargoCacheScope }
     if ($CargoVerificationCacheProjectRoot) { $enginePreservationConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if ($EngineVerificationProfile) {
         $enginePreservationConfig.engineVerificationProfile = $EngineVerificationProfile

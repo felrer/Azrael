@@ -428,7 +428,8 @@ test("shared lifecycle closes after prelaunch faults and independently of target
     const sourceRoot = path.join(spec.cwd, "source");
     fs.mkdirSync(path.join(sourceRoot, "codex-rs"), { recursive: true });
     fs.writeFileSync(path.join(sourceRoot, "codex-rs", "Cargo.toml"), "[workspace]\n");
-    const selection = select({ projectRoot: spec.cwd, sourceRoot, target: "fixture-target", env: {}, tools: { rustc: "fixture", cargo: "fixture" } });
+    spec.env.AZRAEL_CARGO_CACHE_SCOPE = "owner-verification";
+    const selection = select({ projectRoot: spec.cwd, sourceRoot, target: "fixture-target", env: { AZRAEL_CARGO_CACHE_SCOPE: spec.env.AZRAEL_CARGO_CACHE_SCOPE }, tools: { rustc: "fixture", cargo: "fixture" } });
     spec.env.CARGO_TARGET_DIR = selection.targetDirectory;
     spec.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT = spec.cwd;
     spec.selectedSourceRoot = sourceRoot;
@@ -504,7 +505,8 @@ test("terminal cache publication waits for real catalog contention without repea
     const sourceRoot = path.join(spec.cwd, "source");
     fs.mkdirSync(path.join(sourceRoot, "codex-rs"), { recursive: true });
     fs.writeFileSync(path.join(sourceRoot, "codex-rs/Cargo.toml"), "[workspace]\n");
-    const selection = select({ projectRoot: spec.cwd, sourceRoot, target: "fixture-target", env: {}, tools: { rustc: "fixture", cargo: "fixture" } });
+    spec.env.AZRAEL_CARGO_CACHE_SCOPE = "owner-verification";
+    const selection = select({ projectRoot: spec.cwd, sourceRoot, target: "fixture-target", env: { AZRAEL_CARGO_CACHE_SCOPE: spec.env.AZRAEL_CARGO_CACHE_SCOPE }, tools: { rustc: "fixture", cargo: "fixture" } });
     selectMock.mock.mockImplementation(() => selection);
     spec.env.CARGO_TARGET_DIR = selection.targetDirectory;
     spec.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT = spec.cwd;

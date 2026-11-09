@@ -44,6 +44,7 @@ function cargoManagementEnvironment(env, pathImpl = path) {
     if (name === "AZRAEL_CARGO_STABLE_SOURCE" && !["0", "1"].includes(value)) throw new Error("Cargo stable source option must be 0 or 1");
     selected[name] = value;
   }
+  if (selected.AZRAEL_CARGO_CACHE_PROJECT_ROOT && !selected.AZRAEL_CARGO_CACHE_SCOPE) throw new Error("Shared Cargo cache requires explicit AZRAEL_CARGO_CACHE_SCOPE");
   return selected;
 }
 

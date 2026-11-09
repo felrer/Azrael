@@ -9,6 +9,7 @@ param(
     [string]$RetainedSourceRoot,
     [string]$EngineTargetDirectory,
     [string]$CargoCacheProjectRoot,
+    [string]$CargoCacheScope = $(if ($null -ne $env:AZRAEL_CARGO_CACHE_SCOPE) { $env:AZRAEL_CARGO_CACHE_SCOPE } else { 'product-release' }),
     [string]$ModuleCacheProjectRoot,
     [string]$WindowControlTargetDirectory,
     [string]$VirtualInputRuntimeDirectory,
@@ -67,7 +68,7 @@ if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTarg
 $sharedCargoCache = $null
 if (-not $SkipEngineBuild -and (-not $EngineTargetDirectory -or $CargoCacheProjectRoot)) {
     $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } elseif ($ModuleCacheProjectRoot) { $ModuleCacheProjectRoot } else { $projectRoot }
-    $cacheSelection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $sourceRoot --target x86_64-pc-windows-msvc
+    $cacheSelection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $sourceRoot --target x86_64-pc-windows-msvc --scope $CargoCacheScope
     if ($LASTEXITCODE -ne 0) { throw 'Shared Cargo cache selection failed.' }
     $sharedCargoCache = $cacheSelection | ConvertFrom-Json
     if ($EngineTargetDirectory -and [IO.Path]::GetFullPath($EngineTargetDirectory) -ine $sharedCargoCache.targetDirectory) { throw 'Explicit engine target conflicts with selected shared Cargo cache.' }
@@ -237,12 +238,16 @@ if (-not $SkipEngineBuild) {
     Push-Location $rustRoot
     $previousTarget = $env:CARGO_TARGET_DIR
     $previousCacheOwner = $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT
+    $previousCacheScope = $env:AZRAEL_CARGO_CACHE_SCOPE
     $previousStableSource = $env:AZRAEL_CARGO_STABLE_SOURCE
     try {
         # The explicit cache may be reused across selected source snapshots.
         # Cargo must successfully build all selected binaries before provenance is recorded.
         $env:CARGO_TARGET_DIR = $engineTarget
-        if ($sharedCargoCache) { $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $sharedCargoCache.projectRoot }
+        if ($sharedCargoCache) {
+            $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $sharedCargoCache.projectRoot
+            $env:AZRAEL_CARGO_CACHE_SCOPE = $sharedCargoCache.identity.scope
+        }
         $env:AZRAEL_CARGO_STABLE_SOURCE = '1'
         Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') + $(if (-not $CodeModeHostPath) { @('-p', 'codex-code-mode-host', '--bin', 'codex-code-mode-host') } else { @() })) 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
@@ -257,6 +262,7 @@ if (-not $SkipEngineBuild) {
     } finally {
         $env:CARGO_TARGET_DIR = $previousTarget
         $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $previousCacheOwner
+        $env:AZRAEL_CARGO_CACHE_SCOPE = $previousCacheScope
         $env:AZRAEL_CARGO_STABLE_SOURCE = $previousStableSource
         Pop-Location
     }

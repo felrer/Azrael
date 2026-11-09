@@ -264,7 +264,7 @@ test("host isolation retains selected compilation settings and scrubs runtime so
   const result = buildCargoTestCommand("/frozen", args, {
     pathImpl: path.posix, isolateHostEnvironment: true,
     env: { AZRAEL_CARGO_TARGET: "aarch64-apple-darwin", AZRAEL_CARGO_PROFILE: "test", AZRAEL_SOCKET: "secret", CODEX_HOME: "secret", RUSTUP_TOOLCHAIN: "pinned",
-      AZRAEL_CARGO_CACHE_PROJECT_ROOT: "/owner", AZRAEL_CARGO_RUN_ID: "verification-r1", AZRAEL_CARGO_STABLE_SOURCE: "1", AZRAEL_CARGO_UNKNOWN: "not-an-option",
+      AZRAEL_CARGO_CACHE_PROJECT_ROOT: "/owner", AZRAEL_CARGO_CACHE_SCOPE: "verification", AZRAEL_CARGO_RUN_ID: "verification-r1", AZRAEL_CARGO_STABLE_SOURCE: "1", AZRAEL_CARGO_UNKNOWN: "not-an-option",
       AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH: "/owner/reuse-decisions.json" },
   });
   assert.ok(result.args.includes("aarch64-apple-darwin"));
@@ -274,11 +274,13 @@ test("host isolation retains selected compilation settings and scrubs runtime so
   assert.equal(result.env.AZRAEL_CARGO_PROFILE, undefined);
   assert.equal(result.env.RUSTUP_TOOLCHAIN, "pinned");
   assert.equal(result.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT, "/owner");
+  assert.equal(result.env.AZRAEL_CARGO_CACHE_SCOPE, "verification");
   assert.equal(result.env.AZRAEL_CARGO_RUN_ID, "verification-r1");
   assert.equal(result.env.AZRAEL_CARGO_STABLE_SOURCE, "1");
   assert.equal(result.env.AZRAEL_CARGO_UNKNOWN, undefined);
   assert.equal(result.env.AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, "/owner/reuse-decisions.json");
   for (const invalid of [
+    { AZRAEL_CARGO_CACHE_PROJECT_ROOT: "/owner" },
     { AZRAEL_CARGO_CACHE_PROJECT_ROOT: "relative" }, { AZRAEL_CARGO_CACHE_PROJECT_ROOT: "/owner/../elsewhere" },
     { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH: "relative" }, { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH: "/owner/../decision.json" },
     { AZRAEL_CARGO_RUN_ID: "bad\nrun" }, { AZRAEL_CARGO_STABLE_SOURCE: "yes" },
