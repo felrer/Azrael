@@ -18,7 +18,7 @@ const logs=artifactRun.logs,profile=join(fixture,'chrome-profile');
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {ASSET,HELPER,injectSessionFlags}=require('./inject-session-flags.cjs');
-const {SEARCH_HELPER,injectRecentChatFilter}=require('./inject-recent-chat-filter.cjs');
+const {SEARCH_HELPER,ROWS_HELPER,injectRecentChatFilter}=require('./inject-recent-chat-filter.cjs');
 const {injectDeferredPresentation,injectDeferredHeader,injectDeferredTurn,DEFERRED_REDUCER_ASSET}=require('./inject-deferred-turn.cjs');
 const {createDeferredListStateFixture}=require('./deferred-list-state-fixture.cjs');
 const reducer=injectDeferredTurn(await readFile(join(assets,DEFERRED_REDUCER_ASSET.split('/').at(-1)),'utf8')).text;
@@ -85,6 +85,9 @@ window.fixtureHistoryPublish=()=>{const conversation={id:'late-history',hostId:'
 window.fixtureHistoryResolve=()=>{window.fixtureHistoryPublish();fixtureHistoryRequest.resolve(window.fixtureSearchConversations)};
 window.fixtureHistoryCapRecent=()=>{fixtureHistoryRows=fixtureConversations;window.fixtureRerender()};
 window.fixtureHistoryReject=()=>fixtureHistoryRequest.reject(Error('Fixture history unavailable'));
+const fixtureProgressiveRows=Array.from({length:200},(_,index)=>({id:'progressive-'+index,hostId:'local',title:'Progressive history '+String(index).padStart(3,'0'),createdAt:1700000000000-index*60000,updatedAt:1700000000000-index*60000,turns:[]}));
+window.fixtureProgressiveData=()=>{fixtureHistoryRows=fixtureProgressiveRows;window.fixtureTitles=Object.fromEntries(fixtureProgressiveRows.map(row=>[row.id,row.title]));window.fixtureRerender()};
+window.fixtureProgressiveResolve=()=>{window.fixtureProgressiveData();fixtureHistoryRequest.resolve(fixtureProgressiveRows)};
 const fixtureMerged=fixtureConversations.map(conversation=>({kind:'local',key:conversation.id,conversation}));
 const fixture_menu_st=()=>()=>{},fixture_menu_se=()=>({authMethod:'chatgpt'}),fixture_menu_y=()=>window.fixtureCurrentId?{params:{conversationId:window.fixtureCurrentId}}:null,fixture_menu_ce=()=>({data:[]}),fixture_menu_mt=()=>false,fixture_menu_un=()=>true,fixture_menu_fn=(_tasks,conversations)=>conversations.map(conversation=>({kind:'local',key:conversation.id,conversation})),fixture_menu_p=()=>({pathname:'/new'}),fixture_menu_Je=()=>({cancelPendingWorktree(){}}),fixture_menu_qt=()=>null;
 ${menuRender}
@@ -101,8 +104,18 @@ export {Fixture};
 const servedHeader=header.replace('e4t as Ke,eL as qe','e4t as Ke,eL as originalQe').replace('Bbt as i,','Bbt as originalIntl,').replace('bc as z,','bc as originalHistoryQuery,')+'\nconst z=()=>fixtureHistoryQuery(),qe=fixtureGjr,i=()=>({formatMessage:({defaultMessage})=>defaultMessage});\n'+headerAdapter;
 assert(servedHeader.includes(HELPER));
 assert(servedHeader.includes(SEARCH_HELPER));
+assert(servedHeader.includes(ROWS_HELPER));
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-xl flex-col p-8"><h1 class="mb-4 text-xl font-semibold text-default">Recent chats</h1><div id="root" class="[--task-row-trailing-inset:calc(var(--spacing)*1.5)]"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${headerName}';window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($At().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
+// Control only the browser scheduling boundary. Production row-budget hooks,
+// effects, components and event handlers remain unchanged.
+const frameFixture=`(()=>{const request=window.requestAnimationFrame.bind(window),cancel=window.cancelAnimationFrame.bind(window),queue=new Map();let held=false,id=0;
+window.requestAnimationFrame=callback=>{if(!held)return request(callback);const token=--id;queue.set(token,callback);return token};
+window.cancelAnimationFrame=token=>{if(token<0)queue.delete(token);else cancel(token)};
+window.fixtureHoldFrames=()=>{held=true};
+window.fixtureStepFrame=()=>new Promise(resolve=>request(time=>{const callbacks=[...queue.values()];queue.clear();for(const callback of callbacks)callback(time);request(()=>request(resolve))}));
+window.fixtureReleaseFrames=()=>{held=false;const callbacks=[...queue.values()];queue.clear();for(const callback of callbacks)request(callback)};
+})()`;
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-xl flex-col p-8"><h1 class="mb-4 text-xl font-semibold text-default">Recent chats</h1><div id="root" class="[--task-row-trailing-inset:calc(var(--spacing)*1.5)]"></div></main><script>${frameFixture};globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${headerName}';window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($At().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=pathname===join(assets,headerName)?servedHeader:pathname===join(assets,rowsName)?rows+rowAdapter:await readFile(pathname);if(pathname===join(assets,'app-initial-97d3534ad35f.js'))source=source.toString()+'\nexport {kRt as fixtureInitScope};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}res.statusCode=404;res.end()}catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
@@ -286,6 +299,57 @@ try{
   check(theme+' clearing pending search immediately restores recent rows',!(await searchSpins()));
   await evaluate('fixtureHistoryResolve()');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===3');
   check(theme+' late completion after clear keeps query empty and recent rows visible',await evaluate('document.querySelector('+JSON.stringify(searchInput)+').value===""&&!document.querySelector("[data-fixture-menu]").textContent.includes("Failed to load chats.")')&&!(await searchSpins()));
+ }
+ // Hold browser animation frames to observe the actual native DOM before each
+ // production scheduling step; do not reimplement the row-budget state machine.
+ const progressiveCount=()=>evaluate('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length');
+ const openProgressive=async()=>{await evaluate('fixtureMenu=false;fixturePreview=false;fixtureRerender()');await wait('!document.querySelector("[data-fixture-menu]")');await evaluate('fixtureHoldFrames();fixtureProgressiveData();fixtureMenu=true;fixtureRerender()');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===50')};
+ const advanceProgressive=async()=>{const counts=[await progressiveCount()];for(let frame=0;frame<8&&counts.at(-1)<200;frame++){await evaluate('fixtureStepFrame()');const count=await progressiveCount();if(count!==counts.at(-1))counts.push(count)}return counts};
+ summary.progressive=[];
+ for(const theme of ['light','dark']){
+  await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));
+  await openProgressive();
+  check(theme+' warm 200 history initially mounts only 50 native rows',await progressiveCount()===50);
+  await shot(theme+'-history-first-50');
+  const counts=await advanceProgressive();
+  check(theme+' history automatically composes 50,100,150,200 without scrolling',JSON.stringify(counts)==='[50,100,150,200]');
+  await shot(theme+'-history-all-200');
+  await openProgressive();check(theme+' reopening history resets initial native rows to 50',await progressiveCount()===50);
+  const keys=[];
+  for(const key of ['End','ArrowDown','Tab']){
+   await openProgressive();
+   await evaluate('(()=>{const row=document.querySelector("[data-fixture-menu] [role=button]");row.focus();window.fixtureKeyObservation=null;document.addEventListener("keydown",event=>{window.fixtureKeyObservation={key:event.key,rows:document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length,prevented:event.defaultPrevented}},{once:true})})()');
+   const keyCode={End:35,ArrowDown:40,Tab:9}[key];
+   await send('Input.dispatchKeyEvent',{type:'keyDown',key,code:key,windowsVirtualKeyCode:keyCode});await send('Input.dispatchKeyEvent',{type:'keyUp',key,code:key,windowsVirtualKeyCode:keyCode});
+   const observation=await evaluate('fixtureKeyObservation');
+   check(theme+' '+key+' exposes all 200 rows before native bubbling handler',observation?.rows===200&&!observation.prevented);
+   const focus=await evaluate('({inside:!!document.activeElement.closest("[data-fixture-menu]"),flag:document.activeElement.hasAttribute("data-azrael-session-flag"),label:document.activeElement.getAttribute("aria-label")})');
+   check(theme+' '+key+' preserves native focus target',focus.inside&&(key!=='Tab'||focus.flag));
+   keys.push({key,...observation,focus});
+  }
+  await openProgressive();
+  await click(searchInput);await send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowDown',code:'ArrowDown',windowsVirtualKeyCode:40});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowDown',code:'ArrowDown',windowsVirtualKeyCode:40});
+  check(theme+' input navigation does not force all history rows',await progressiveCount()===50);
+  await evaluate('(()=>{let node=document.querySelector("[data-fixture-menu] [role=button]").parentElement;while(node&&!/auto|scroll/.test(getComputedStyle(node).overflowY))node=node.parentElement;window.fixtureProgressiveScroll=node;node.scrollTop=node.scrollHeight})()');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===100');
+  check(theme+' fast bottom scroll immediately composes next 50 rows',await progressiveCount()===100);
+  await evaluate('fixtureReleaseFrames()');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===200');
+  await evaluate('(()=>{const row=[...document.querySelectorAll("[data-fixture-menu] [role=button]")].at(-1);row.focus()})()');
+  const last=await evaluate('(()=>{const row=[...document.querySelectorAll("[data-fixture-menu] [role=button]")].at(-1),r=row.getBoundingClientRect(),s=fixtureProgressiveScroll.getBoundingClientRect();return {focused:document.activeElement===row,visible:r.top<s.bottom&&r.bottom>s.top,title:row.querySelector("[data-thread-title]").textContent}})()');
+  check(theme+' final native row remains focusable and scrolls into view',last.focused&&last.visible&&last.title==='Progressive history 199');
+  await freshHistoryMenu();await typeSearch('Progressive');await wait('fixtureHistoryCalls===1');
+  await evaluate('fixtureHoldFrames();fixtureProgressiveData()');
+  check(theme+' search continues hiding partial data before exhaustive completion',await progressiveCount()===0);
+  await evaluate('fixtureProgressiveResolve()');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===50');
+  const searchCounts=await advanceProgressive();
+  check(theme+' completed exhaustive search composes 50,100,150,200 native results',JSON.stringify(searchCounts)==='[50,100,150,200]');
+  const replaceProgressiveQuery=async text=>{await click(searchInput);await send('Input.dispatchKeyEvent',{type:'keyDown',key:'a',code:'KeyA',windowsVirtualKeyCode:65,modifiers:2});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'a',code:'KeyA',windowsVirtualKeyCode:65,modifiers:2});await send('Input.insertText',{text})};
+  await replaceProgressiveQuery('Progressive history 19');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===10');
+  check(theme+' short search filter shows its 10 native matches',await progressiveCount()===10);
+  await replaceProgressiveQuery('Progressive');await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===50');
+  check(theme+' returning immediately to previous full search resets its budget to 50',await progressiveCount()===50&&await evaluate('fixtureHistoryCalls===1'));
+  await evaluate('fixtureReleaseFrames()');
+  summary.progressive.push({theme,counts,keys,last,searchCounts});
  }
  check('no browser errors',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);
  summary.events=await evaluate('fixtureEvents');

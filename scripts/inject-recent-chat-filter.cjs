@@ -43,6 +43,27 @@ const FEED_REPLACEMENTS = [
   ["cloudtasksQuery:S,localConversations:ue,onClose:b", "cloudtasksQuery:S,localConversations:ue,historyQuery:azraelHistoryFeed,onClose:b"],
   ["t[58]=ue,t[59]=q):q=t[59]", "t[58]=ue,t[59]=q,t[64]=azraelHistoryFeed.loadAll):q=t[59]"],
 ];
+// Separate cached metadata availability from mounting expensive native rows.
+// Two animation frames leave a paint opportunity before each following batch.
+const ROWS_HELPER = `function azraelHistoryRows(key,total){
+ const [state,setState]=(0,wn.useState)(()=>({key,limit:50}));
+ if(state.key!==key)setState({key,limit:50});
+ const limit=Math.min(total,state.key===key?state.limit:50);
+ (0,wn.useEffect)(()=>{if(limit>=total)return;let first=0,next=0,disposed=false;
+ first=requestAnimationFrame(()=>{next=requestAnimationFrame(()=>{if(!disposed)setState({key,limit:Math.min(total,limit+50)})})});
+ return()=>{disposed=true;cancelAnimationFrame(first);cancelAnimationFrame(next)}},[key,total,limit]);
+ const reveal=count=>{if(count>limit)(0,azraelHistoryReactDOM)().flushSync(()=>setState({key,limit:Math.min(total,count)}))};
+ return {limit,onKeyDownCapture:event=>{const target=event.target;if(target?.closest?.('input,textarea,[contenteditable="true"]'))return;if(['ArrowDown','ArrowUp','Home','End','PageDown','PageUp','Tab'].includes(event.key))reveal(total)},
+ onScrollCapture:event=>{const node=event.target;if(node.scrollHeight-node.scrollTop-node.clientHeight<160)reveal(limit+50)}}
+}`;
+const ROW_REPLACEMENTS = [
+  ["import{$At as n,", "import{ZAt as azraelHistoryReactDOM,$At as n,"],
+  ["e.conversation);return _t(t,j)}):O,L;", "e.conversation);return _t(t,j)}):O;let azraelRows=azraelHistoryRows(JSON.stringify([b,v,j,azraelSearch.active?azraelSearch.status:`recent`]),azraelSearch.active&&azraelSearch.status!==`ready`?0:b===`cloud`?P.length:b===`local`?F.length:I.length);P=P.slice(0,azraelRows.limit);F=F.slice(0,azraelRows.limit);I=I.slice(0,azraelRows.limit);let L;"],
+  ["t[21]!==b||t[22]!==h?", "t[21]!==b||t[22]!==h||t[34]!==azraelRows.limit?"],
+  ["t[22]=h,t[23]=ie):ie=t[23]", "t[22]=h,t[23]=ie,t[34]=azraelRows.limit):ie=t[23]"],
+  ["function vn(e){let t=(0,Cn.c)(34)", "function vn(e){let t=(0,Cn.c)(35)"],
+  ["className:`flex max-h-[300px] w-[calc(var(--radix-popper-available-width)_-_var(--padding-panel))] flex-col gap-1`,children:[L,R,z,V]", "className:`flex max-h-[300px] w-[calc(var(--radix-popper-available-width)_-_var(--padding-panel))] flex-col gap-1`,onKeyDownCapture:azraelRows.onKeyDownCapture,onScrollCapture:azraelRows.onScrollCapture,children:[L,R,z,V]"],
+];
 const QUERY_BEFORE = "function Uva(){let e=(0,Yva.c)(12),t=Vva(),n=Kva(`recent-conversations`,Wva),r;";
 const QUERY_AFTER = "function Uva(){let azraelScope=Ou($),{enabledRemoteHostIdSet:azraelHosts}=gGe(),e=(0,Yva.c)(12),t=Vva(),azraelLoadAll=(0,Xva.useCallback)(()=>Promise.all(jva(azraelScope,t).map(manager=>Px(azraelScope,manager.getHostId()).refreshRecentConversations({mode:`azrael-search`,sortKey:R3e(Qg)}))).then(()=>Fva({appServerRegistry:t,enabledRemoteHostIds:azraelHosts,sortKey:Qg})),[azraelScope,t,azraelHosts]),n=Kva(`recent-conversations`,Wva),r;";
 // The native memo cache does not include the new callback; attach it outside it.
@@ -123,10 +144,11 @@ function injectRecentChatFilter(text, asset) {
   }
   if (asset !== ASSET) return { text, count: 0 };
   const count = value => text.split(value).length - 1;
-  if (count(MARKER) === 1 && count(PATCHED) === 1 && count(HELPER) === 1 && count(SEARCH_HELPER) === 1 && count(MENU_SECTION_AFTER) === 1 && count(ORIGINAL) === 0 && FEED_REPLACEMENTS.every(([before,after])=>count(before)===0&&count(after)===1)) return { text, count: 0 };
+  if (count(MARKER) === 1 && count(PATCHED) === 1 && count(HELPER) === 1 && count(SEARCH_HELPER) === 1 && count(ROWS_HELPER) === 1 && count(MENU_SECTION_AFTER) === 1 && count(ORIGINAL) === 0 && [...FEED_REPLACEMENTS,...ROW_REPLACEMENTS].every(([before,after])=>count(before)===0&&count(after)===1)) return { text, count: 0 };
   if (count(MARKER) || count(ORIGINAL) !== 1 || count(PATCHED) || count(HELPER)) throw new Error("Recent chat filter anchor changed or damaged");
   text = replaceOnce(text, ORIGINAL, PATCHED);
   for (const [before,after] of FEED_REPLACEMENTS) text = replaceOnce(text,before,after);
+  for (const [before,after] of ROW_REPLACEMENTS) text = replaceOnce(text,before,after);
   text = replaceOnce(text, "let T=w,E;t[4]===C", "let [azraelQuery,azraelSetQuery]=(0,wn.useState)(``),azraelSearch=azraelHistorySearch(azraelQuery,e.historyQuery);if(azraelSearch.active&&azraelSearch.status===`ready`)r=azraelSearch.rows;let T=w,E;t[4]===C");
   text = replaceOnce(text, "[k,A]=(0,wn.useState)(``)", "[k,A]=[azraelQuery,azraelSetQuery]");
   // Recompute the section when async search status changes, independently of
@@ -134,7 +156,7 @@ function injectRecentChatFilter(text, asset) {
   const sectionStart = "let V;t[24]!==B.Section||t[25]!==te||t[26]!==re||t[27]!==ie?(";
   const sectionEnd = ",t[24]=B.Section,t[25]=te,t[26]=re,t[27]=ie,t[28]=V):V=t[28];";
   text = replaceOnce(text, sectionStart + MENU_SECTION + sectionEnd, "let " + MENU_SECTION_AFTER + ";");
-  return { text: text + `\n${HELPER}\n${SEARCH_HELPER}\n${MARKER}\n`, count: 1 };
+  return { text: text + `\n${HELPER}\n${SEARCH_HELPER}\n${ROWS_HELPER}\n${MARKER}\n`, count: 1 };
 }
 
-module.exports = { ASSET, DISCOVERY_ASSET, QUERY_ASSET, DISCOVERY_MARKER, MARKER, HELPER, SEARCH_HELPER, injectRecentChatFilter };
+module.exports = { ASSET, DISCOVERY_ASSET, QUERY_ASSET, DISCOVERY_MARKER, MARKER, HELPER, SEARCH_HELPER, ROWS_HELPER, injectRecentChatFilter };

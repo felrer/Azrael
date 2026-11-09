@@ -119,6 +119,34 @@ test("native history trigger shares its feed and forwards host changes without a
   assert.equal(search("",feed).active,false);effects.pop()();
   assert.equal(search("match",feed).active,true);
 });
+
+test("history row batches yield between 50-row mounts, reset views and cancel stale frames",()=>{
+  const {ROWS_HELPER}=require('./inject-recent-chat-filter.cjs');
+  let state,dependencies,cleanup,effect,frameId=0,flushes=0;
+  const frames=new Map();
+  const context={wn:{useState:initial=>{state??=initial();return[state,value=>{state=value}]},useEffect:(fn,deps)=>{
+    if(!dependencies||deps.some((v,i)=>v!==dependencies[i])){cleanup?.();dependencies=deps;effect=fn}
+  }},requestAnimationFrame:fn=>{frames.set(++frameId,fn);return frameId},cancelAnimationFrame:id=>frames.delete(id),
+    azraelHistoryReactDOM:()=>({flushSync:fn=>{flushes++;fn()}})};
+  const hook=vm.runInNewContext(`(${ROWS_HELPER})`,context);
+  const render=(key='recent',total=200)=>{const value=hook(key,total);if(effect){const run=effect;effect=null;cleanup=run()}return value};
+  const frame=()=>{const ready=[...frames.values()];frames.clear();ready.forEach(fn=>fn())};
+  let rows=render();assert.equal(rows.limit,50);
+  frame();rows=render();assert.equal(rows.limit,50);
+  frame();rows=render();assert.equal(rows.limit,100);
+  frame();frame();rows=render();assert.equal(rows.limit,150);
+  frame();frame();rows=render();assert.equal(rows.limit,200);assert.equal(frames.size,0);
+  rows=render('search-loading',0);assert.equal(rows.limit,0);assert.equal(frames.size,0);
+  rows=render('search-ready',617);assert.equal(rows.limit,50);
+  rows.onKeyDownCapture({key:'End',target:{closest:()=>true}});assert.equal(flushes,0);
+  rows.onKeyDownCapture({key:'End',target:{closest:()=>false}});rows=render('search-ready',617);assert.equal(rows.limit,617);assert.equal(flushes,1);
+  rows=render('other-view',200);assert.equal(rows.limit,50);
+  rows.onScrollCapture({target:{scrollHeight:1500,scrollTop:1200,clientHeight:224}});rows=render('other-view',200);assert.equal(rows.limit,100);
+  rows=render('short-view',3);assert.equal(rows.limit,3);assert.equal(frames.size,0);
+  frame();frame();rows=render('short-view',3);assert.equal(rows.limit,3);
+  rows=render('search-ready',617);assert.equal(rows.limit,50);
+  cleanup?.();assert.equal(frames.size,0);
+});
 test("latest native recent menu callback preserves merged order and persisted environment",()=>{
   const result=injectRecentChatFilter(original,ASSET);
   assert.equal(ts.createSourceFile(ASSET,result.text,99,true,1).parseDiagnostics.length,0);
