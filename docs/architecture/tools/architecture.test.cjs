@@ -110,6 +110,43 @@ test('alias expansion excludes related and legacy words; exact IDs/code keys rem
   assert.ok(legacy.items.every(item => item.featureMatches.length === 0));
 });
 
+// Future score/alias tuning must not let many weak matches displace a whole
+// query, nor turn inherited headings or token-only aliases into full matches.
+test('complete phrases precede all-token and parent/substring matches regardless of score', () => {
+  const root = fixture({
+    'docs/architecture/a.md': '# Window policy and use rules\npartial\n',
+    'docs/architecture/b.md': '# Exact\nWINDOW   USE is documented here.\n',
+    'docs/architecture/c.md': '# Window Use\n## Child\nIndirect only.\n',
+    'docs/architecture/d.md': '# Window useful\nsubstring only\n'
+  }, { schema: 1, concepts: [{ id: 'window-token', label: 'Window', features: ['one', 'two', 'three', 'four'] }] },
+  ['one', 'two', 'three', 'four'].map(id => ({ id, contract: 'docs/architecture/a.md', owners: [], checks: [] })));
+  const index = tool.createIndex(root), results = detailedSearch(index, 'window use', { limit: 100 }).items;
+  const exact = results.findIndex(item => item.title === 'Exact');
+  const partial = results.findIndex(item => item.title === 'Window policy and use rules');
+  assert.ok(results[partial].score > results[exact].score);
+  assert.ok(exact < partial);
+  assert.ok(partial < results.findIndex(item => item.title === 'Child'));
+  assert.ok(exact < results.findIndex(item => item.title === 'Window useful'));
+  assert.deepEqual(tool.search(index, 'window use', { limit: 100 }).items.map(item => item.id), results.map(item => item.id));
+  assert.equal(tool.search(index, 'window use', { limit: 1 }).items[0].id, results[0].id);
+  assert.equal(tool.search(index, 'window use', { offset: 1, limit: 1 }).items[0].id, results[1].id);
+});
+
+test('whole-query aliases and exact feature owners rank ahead of partial candidates', () => {
+  const root = fixture({
+    'docs/architecture/a.md': '# Desk policy\nControl happens elsewhere.\n',
+    'docs/architecture/b.md': '# Window Use\n## Unrelated detail\nother\n',
+    'docs/architecture/c.md': '# Extra\n<!-- architecture: {"id":"arch.extra","feature":"desk-control","layers":["tooling"]} -->\n## Subsection\nother\n'
+  }, { schema: 1, concepts: [{ id: 'desk', label: 'Window Use', aliases: ['Desk Control', '데스크 제어'], features: ['tool.desk'] }] },
+  [{ id: 'tool.desk', contract: 'docs/architecture/b.md', owners: [], checks: [] }]);
+  const index = tool.createIndex(root);
+  for (const query of ['Desk Control', '데스크 제어', 'tool.desk']) {
+    assert.equal(tool.search(index, query).items[0].title, 'Window Use');
+  }
+  assert.equal(tool.search(index, 'desk-control').items[0].id, 'arch.extra');
+  assert.ok(tool.search(index, 'Desk Control').items.some(item => item.title === 'Desk policy'));
+});
+
 test('search/read pagination, source bounds and stale expected hashes', () => {
   const file = 'docs/architecture/a.md';
   const root = fixture({ [file]: '# First\nabcdefghij\n## Second\nabcdefghij\n## Third\nabc' });

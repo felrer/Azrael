@@ -377,9 +377,21 @@ function search(index, query, options = {}) {
     matchKind: [concept.id, concept.label, ...concept.aliases].some(matches) ? 'equivalent'
       : concept.legacy.some(matches) ? 'legacy' : null })).filter(concept => concept.matchKind);
   const equivalents = concepts.filter(concept => concept.matchKind === 'equivalent');
+  // Only an equivalent of the entire query can supply a full-match phrase.
+  // Token-level expansion still contributes candidates and the existing score.
+  const fullEquivalents = equivalents.filter(concept =>
+    [concept.id, concept.label, ...concept.aliases].some(term => normalize(term) === needle));
+  const phrases = [...new Set([needle, ...fullEquivalents.flatMap(concept =>
+    [concept.id, concept.label, ...concept.aliases]).map(normalize)])];
+  const phraseMatch = (value, phrase) => {
+    const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+    return new RegExp(`(?:^|[^\\p{L}\\p{N}_])${escaped}(?=$|[^\\p{L}\\p{N}_])`, 'u').test(value);
+  };
   const expanded = [...new Set(equivalents.flatMap(concept => [concept.id, concept.label, ...concept.aliases]).map(normalize))];
   const exactFeatures = index.features.filter(feature => normalize(feature.id) === needle || equivalents.some(concept => concept.features.includes(feature.id)));
   const hits = [];
+  const priorities = new Map();
+  const entries = new Set(index.documents.map(document => document.entry));
   for (const section of index.sections) {
     if (section.redirect) continue;
     if (!matchesFacets(section, options)) continue;
@@ -387,7 +399,16 @@ function search(index, query, options = {}) {
     const text = normalize(section.visible), identity = normalize(section.id);
     const matchedTerms = [...new Set([...tokens, ...expanded].filter(term => `${identity}\n${title}\n${context}\n${text}`.includes(term)))];
     const featureMatches = exactFeatures.filter(feature => feature.contract === section.file).map(feature => feature.id);
-    if (!matchedTerms.length && !featureMatches.length) continue;
+    const exactFeatureName = entries.has(section) && typeof section.feature === 'string' && normalize(section.feature) === needle;
+    if (!matchedTerms.length && !featureMatches.length && !exactFeatureName) continue;
+    const directFields = [identity, title, text];
+    const exactOwner = entries.has(section) &&
+      (exactFeatureName || featureMatches.some(id => normalize(id) === needle) ||
+        fullEquivalents.some(concept => concept.features.some(id => featureMatches.includes(id))));
+    // A group precedes score: unrelated synonym/token boosts cannot outrank a
+    // complete direct phrase. Parent-only matches remain fallback candidates.
+    priorities.set(section.id, exactOwner || phrases.some(phrase => directFields.some(value => phraseMatch(value, phrase))) ? 0
+      : tokens.every(token => directFields.some(value => phraseMatch(value, token))) ? 1 : 2);
     let score = matchedTerms.reduce((sum, term) => sum + (title.includes(term) ? 12 : text.includes(term) ? 4 : 1), 0);
     if (`${title}\n${text}`.includes(needle)) score += 15;
     if (tokens.every(token => `${title}\n${context}\n${text}`.includes(token))) score += 8;
@@ -400,7 +421,7 @@ function search(index, query, options = {}) {
       excerpt: excerpt.slice(0, 320), excerptStartLine: section.startLine + line,
       excerptTruncated: excerpt.length > 320 || line > 0 || line + 3 < lines.length });
   }
-  hits.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+  hits.sort((a, b) => priorities.get(a.id) - priorities.get(b.id) || b.score - a.score || a.id.localeCompare(b.id));
   return { command: 'search', query, ...(options.detail ? { expansion: concepts.map(({ id, label, aliases, legacy, related, matchKind }) => ({ id, label, aliases, legacy, related, matchKind })) } : {}),
     ...page(options.detail ? hits : hits.map(hit => candidate(index.ids.get(hit.id))), options) };
 }
