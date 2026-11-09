@@ -138,9 +138,8 @@ impl ReqwestTransport {
             RouteAwareRequestError::Route(error) => TransportError::Build(error.to_string()),
             RouteAwareRequestError::Build(error) => TransportError::Build(error),
             error @ (RouteAwareRequestError::UnsupportedRedirectScheme(_)
-            | RouteAwareRequestError::TooManyRedirects) => {
-                TransportError::Network(error.to_string())
-            }
+            | RouteAwareRequestError::TooManyRedirects
+            | RouteAwareRequestError::Remote { .. }) => TransportError::Network(error.to_string()),
         }
     }
 

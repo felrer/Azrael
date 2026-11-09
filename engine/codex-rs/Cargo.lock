@@ -3018,6 +3018,7 @@ dependencies = [
  "codex-prompts",
  "codex-protocol",
  "codex-response-debug-context",
+ "codex-responses-worker-client",
  "codex-rmcp-client",
  "codex-rollout",
  "codex-rollout-trace",
@@ -4458,6 +4459,62 @@ dependencies = [
  "serde_json",
  "tiny_http",
  "zeroize",
+]
+
+[[package]]
+name = "codex-responses-worker"
+version = "0.162.0"
+dependencies = [
+ "codex-api",
+ "codex-client",
+ "codex-http-client",
+ "codex-login",
+ "codex-responses-worker-client",
+ "codex-responses-worker-protocol",
+ "futures",
+ "http 1.4.0",
+ "serde_json",
+ "tokio",
+ "tokio-tungstenite",
+ "url",
+]
+
+[[package]]
+name = "codex-responses-worker-client"
+version = "0.162.0"
+dependencies = [
+ "codex-api",
+ "codex-client",
+ "codex-http-client",
+ "codex-login",
+ "codex-protocol",
+ "codex-responses-worker-protocol",
+ "eventsource-stream",
+ "futures",
+ "http 1.4.0",
+ "libc",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tokio",
+ "tokio-tungstenite",
+ "url",
+]
+
+[[package]]
+name = "codex-responses-worker-protocol"
+version = "0.162.0"
+dependencies = [
+ "bytes",
+ "codex-api",
+ "codex-http-client",
+ "codex-protocol",
+ "http 1.4.0",
+ "libc",
+ "serde",
+ "serde_json",
+ "tokio",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

@@ -9,6 +9,7 @@ const { createHash } = require('node:crypto');
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
+  'check-responses-worker-native': 'ac1a092b5b59694c9ec24a76d2dd566903b4181f1da9be4160788c7f6578a639',
   'check-agent-image-attachments': 'cd163c4a4b7b8f45539549aa3d3193e966632ad2a58d1ca1e5b0252db29e1e2b',
   'check-find-names': 'ca76c4c96c8240322096bd9d271ea00e2bb7a6153527d557ce63d527405bbf9a',
   'check-devin-compaction': 'e5e9113405e0ec7875ab871975c4598e17b20a60e9485ec54f83742235be5c4a',
@@ -52,6 +53,11 @@ function reviewedRecipes(wrapper, tail, platform) {
     return Object.hasOwn(choices, name) ? choices[name] : undefined;
   };
   switch (wrapper) {
+    case 'check-responses-worker-native': {
+      if (tail.length) break;
+      args = [[...finish(['-p', 'codex-responses-worker-protocol', '-p', 'codex-responses-worker-client', '-p', 'codex-responses-worker']), '--nocapture']];
+      break;
+    }
     case 'check-agent-image-attachments': {
       const groups = { protocol: [['codex-protocol', 'inter_agent']], storage: [['codex-thread-store', 'image_snapshot']],
         core: ['image_attachments', 'agent_image_label', 'tool_message_transport', 'devin_recipient_requires_plaintext'].map(filter => ['codex-core', filter]) };

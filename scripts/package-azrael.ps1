@@ -19,6 +19,7 @@ if (Test-Path -LiteralPath $destination) { throw 'OutputDirectory must be new.' 
 $engine = (Resolve-Path -LiteralPath $EnginePath).Path
 $bridge = (Resolve-Path -LiteralPath $BridgePath).Path
 $codeModeHost = (Resolve-Path -LiteralPath (Join-Path (Split-Path $engine -Parent) 'azrael-code-mode-host.exe')).Path
+$responsesWorker = (Resolve-Path -LiteralPath (Join-Path (Split-Path $engine -Parent) 'azrael-responses-worker.exe')).Path
 $vsix = (Resolve-Path -LiteralPath $CompanionVsixPath).Path
 $archive = [IO.Compression.ZipFile]::OpenRead($vsix)
 try {
@@ -58,6 +59,7 @@ New-Item -ItemType Directory -Path (Join-Path $destination 'engine') | Out-Null
 Copy-Item -LiteralPath $engine -Destination (Join-Path $destination 'engine/azrael.exe')
 Copy-Item -LiteralPath $bridge -Destination (Join-Path $destination 'engine/azrael-bridge.exe')
 Copy-Item -LiteralPath $codeModeHost -Destination (Join-Path $destination 'engine/azrael-code-mode-host.exe')
+Copy-Item -LiteralPath $responsesWorker -Destination (Join-Path $destination 'engine/azrael-responses-worker.exe')
 Copy-Item -LiteralPath (Join-Path (Split-Path $engine -Parent) 'azrael-engine-build.json') -Destination (Join-Path $destination 'engine/azrael-engine-build.json')
 Copy-Item -LiteralPath $vsix -Destination (Join-Path $destination 'azrael-ex.vsix')
 foreach ($name in @('LICENSE', 'NOTICE')) {
@@ -69,7 +71,7 @@ if ($nativeHost) {
 } else {
     "Install this release using the project scripts/install-azrael.ps1 -ReleaseDirectory `"$destination`". azrael-ex.vsix is an internal build input embedded in the independent azrael host, not a separately installed extension." | Set-Content -LiteralPath (Join-Path $destination 'INSTALL.txt') -Encoding utf8NoBOM
 }
-$files = @('engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe', 'azrael-ex.vsix')
+$files = @('engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe', 'engine/azrael-responses-worker.exe', 'azrael-ex.vsix')
 & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Join-Path $destination 'engine') @sourceStateArguments | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Packaged engine/source changed during copying. Release is not accepted.' }
 if ($RetainedSourceRoot) {

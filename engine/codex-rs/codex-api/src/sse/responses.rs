@@ -71,7 +71,7 @@ pub fn spawn_response_stream(
         let _ = turn_state.set(header_value.to_string());
     }
     let (tx_event, rx_event) = mpsc::channel::<Result<ResponseEvent, ApiError>>(1600);
-    tokio::spawn(async move {
+    let pump_task = tokio::spawn(async move {
         if let Some(model) = server_model {
             let _ = tx_event.send(Ok(ResponseEvent::ServerModel(model))).await;
         }
@@ -100,6 +100,7 @@ pub fn spawn_response_stream(
         rx_event,
         upstream_request_id,
         interrupt: None,
+        pump_task: Some(pump_task),
     }
 }
 

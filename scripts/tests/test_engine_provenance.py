@@ -52,6 +52,7 @@ class EngineProvenanceTests(unittest.TestCase):
         (self.engine / "azrael.exe").write_bytes(b"codex fixture\x00")
         (self.engine / "azrael-bridge.exe").write_bytes(b"bridge fixture\x00")
         (self.engine / "azrael-code-mode-host.exe").write_bytes(b"code mode fixture\x00")
+        (self.engine / "azrael-responses-worker.exe").write_bytes(b"responses worker fixture\x00")
 
         self.snapshot_file = self.fixture / "source-before.json"
         self.clean_environment = os.environ.copy()
@@ -129,7 +130,7 @@ class EngineProvenanceTests(unittest.TestCase):
         self.assertEqual(json.loads(recorded.stdout)["buildProfile"], "release")
         accepted = self.provenance("verify", profile="release")
         self.assertEqual(accepted.returncode, 0, accepted.stderr)
-        for filename in ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe"):
+        for filename in ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe", "azrael-responses-worker.exe"):
             original = (self.engine / filename).read_bytes()
             (self.engine / filename).write_bytes(original + b"changed")
             self.assertNotEqual(self.provenance("verify", profile="release").returncode, 0)
@@ -149,12 +150,45 @@ class EngineProvenanceTests(unittest.TestCase):
         self.assertEqual(receipt["source"]["fileCount"], 3)
         self.assertEqual(
             set(receipt["binaries"]),
-            {"azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe"},
+            {"azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe", "azrael-responses-worker.exe"},
         )
         self.assertEqual(
             receipt["externalRuntimes"]["codeModeHost"]["sha256"],
             receipt["binaries"]["azrael-code-mode-host.exe"],
         )
+        self.assertEqual(receipt["components"]["responsesWorker"], {
+            "protocolVersion": 1, "binary": "azrael-responses-worker.exe",
+            "sha256": receipt["binaries"]["azrael-responses-worker.exe"],
+        })
+
+    def test_worker_bundle_binding_cannot_be_omitted_or_mixed(self) -> None:
+        # Repeated package/receipt edits can omit a newly required binary or
+        # retain another worker's protocol/hash while updating the binary map.
+        self.snapshot_and_record()
+        receipt_path = self.engine / "azrael-engine-build.json"
+        original = receipt_path.read_text(encoding="utf-8")
+        mutations = (
+            ("missing component", lambda r: r.pop("components")),
+            ("wrong protocol", lambda r: r["components"]["responsesWorker"].update(protocolVersion=2)),
+            ("boolean protocol", lambda r: r["components"]["responsesWorker"].update(protocolVersion=True)),
+            ("mixed hash", lambda r: r["components"]["responsesWorker"].update(sha256="0" * 64)),
+            ("wrong binary", lambda r: r["components"]["responsesWorker"].update(binary="other-worker.exe")),
+        )
+        for label, mutate in mutations:
+            with self.subTest(label=label):
+                record = json.loads(original)
+                mutate(record)
+                receipt_path.write_text(json.dumps(record), encoding="utf-8")
+                self.assert_verify_rejected("Responses worker component mismatch")
+        receipt_path.write_text(original, encoding="utf-8")
+        worker_path = self.engine / "azrael-responses-worker.exe"
+        worker_path.unlink()
+        self.assertNotEqual(self.provenance("verify").returncode, 0)
+        self.assertNotEqual(self.provenance("record").returncode, 0)
+        record = json.loads(original)
+        record["binaries"].pop("azrael-responses-worker.exe")
+        receipt_path.write_text(json.dumps(record), encoding="utf-8")
+        self.assert_verify_rejected("binary identities differ")
 
     def test_tracked_edit_is_rejected(self) -> None:
         self.snapshot_and_record()
@@ -251,10 +285,10 @@ class NativeTargetProvenanceTests(EngineProvenanceTests):
             args += ["--code-mode-host-built"] if built else ["--code-mode-host-source", str(self.engine / "azrael-code-mode-host")]
         return subprocess.run(args, capture_output=True, text=True, env=self.clean_environment)
 
-    def test_unix_source_build_binds_target_three_hashes_and_source(self):
+    def test_unix_source_build_binds_target_four_hashes_and_source(self):
         for target in ("x86_64-unknown-linux-gnu", "aarch64-apple-darwin"):
             with self.subTest(target=target):
-                for name in ("azrael", "azrael-bridge", "azrael-code-mode-host"):
+                for name in ("azrael", "azrael-bridge", "azrael-code-mode-host", "azrael-responses-worker"):
                     (self.engine / name).write_bytes(name.encode())
                 for action in ("snapshot", "record", "verify"):
                     result = self.native_provenance(action, target, built=True)
@@ -262,7 +296,11 @@ class NativeTargetProvenanceTests(EngineProvenanceTests):
                 receipt = json.loads(result.stdout)
                 self.assertEqual(receipt["buildProfile"], "release")
                 self.assertEqual(receipt["source"]["target"], target)
-                self.assertEqual(set(receipt["binaries"]), {"azrael", "azrael-bridge", "azrael-code-mode-host"})
+                self.assertEqual(set(receipt["binaries"]), {"azrael", "azrael-bridge", "azrael-code-mode-host", "azrael-responses-worker"})
+                self.assertEqual(receipt["components"]["responsesWorker"], {
+                    "protocolVersion": 1, "binary": "azrael-responses-worker",
+                    "sha256": receipt["binaries"]["azrael-responses-worker"],
+                })
                 host = receipt["externalRuntimes"]["codeModeHost"]
                 self.assertEqual(host["kind"], "source-built")
                 self.assertEqual(host["sourceSha256"], receipt["source"]["sourceSha256"])

@@ -111,8 +111,8 @@ test("native target plans never reuse cross-platform executables", () => {
     for (const [osName, arch, target, suffix] of [["win32", "x64", "x86_64-pc-windows-msvc", ".exe"], ["linux", "x64", "x86_64-unknown-linux-gnu", ""], ["darwin", "arm64", "aarch64-apple-darwin", ""]]) {
       const plan = buildPlan({ ...options, target }, osName, arch, {});
       assert.equal(plan.engineReuse, false);
-      assert.deepEqual(plan.binaries, ["azrael", "azrael-bridge", "azrael-code-mode-host"].map(name => name + suffix));
-      assert.deepEqual(plan.sourceBinaries, ["azrael", "azrael-bridge", "codex-code-mode-host"].map(name => name + suffix));
+      assert.deepEqual(plan.binaries, ["azrael", "azrael-bridge", "azrael-code-mode-host", "azrael-responses-worker"].map(name => name + suffix));
+      assert.deepEqual(plan.sourceBinaries, ["azrael", "azrael-bridge", "codex-code-mode-host", "azrael-responses-worker"].map(name => name + suffix));
       assert.throws(() => buildPlan({ ...options, target: "foreign-target" }, osName, arch, {}), /Native-only/);
     }
     assert.throws(() => buildPlan(options, "linux", "arm64", {}), /Unsupported/);

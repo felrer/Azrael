@@ -51,10 +51,16 @@ pub enum NetworkPolicyDenied {
     UnsupportedTransport,
 }
 
+/// Live destination authority supplied by the application owner, including across processes.
+pub trait NetworkPolicyAuthority: Send + Sync {
+    fn acquire(&self, url: &Url) -> Result<NetworkPermit, NetworkPolicyDenied>;
+}
+
 /// Read access to application policy. Clones observe the same updates.
 #[derive(Clone, Default)]
 pub struct NetworkPolicy {
     state: Option<Arc<Mutex<State>>>,
+    authority: Option<Arc<dyn NetworkPolicyAuthority>>,
     endpoints: Option<Arc<BTreeSet<Url>>>,
     account: Option<u64>,
 }
@@ -62,7 +68,7 @@ pub struct NetworkPolicy {
 impl fmt::Debug for NetworkPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NetworkPolicy")
-            .field("managed", &self.state.is_some())
+            .field("managed", &self.is_managed())
             .finish_non_exhaustive()
     }
 }
@@ -71,6 +77,11 @@ impl PartialEq for NetworkPolicy {
     fn eq(&self, other: &Self) -> bool {
         self.endpoints == other.endpoints
             && self.account == other.account
+            && match (&self.authority, &other.authority) {
+                (Some(left), Some(right)) => Arc::ptr_eq(left, right),
+                (None, None) => true,
+                _ => false,
+            }
             && match (&self.state, &other.state) {
                 (Some(left), Some(right)) => Arc::ptr_eq(left, right),
                 (None, None) => true,
@@ -142,6 +153,7 @@ impl NetworkPolicyController {
     pub fn policy(&self) -> NetworkPolicy {
         NetworkPolicy {
             state: Some(self.state.clone()),
+            authority: None,
             endpoints: None,
             account: None,
         }
@@ -192,8 +204,17 @@ impl NetworkPolicy {
     pub const fn unmanaged() -> Self {
         Self {
             state: None,
+            authority: None,
             endpoints: None,
             account: None,
+        }
+    }
+
+    /// Uses a live owner for every acquisition instead of reconstructing its policy.
+    pub fn from_authority(authority: Arc<dyn NetworkPolicyAuthority>) -> Self {
+        Self {
+            authority: Some(authority),
+            ..Self::unmanaged()
         }
     }
 
@@ -214,9 +235,9 @@ impl NetworkPolicy {
         self
     }
 
-    /// Whether this transport participates in the application policy lifecycle.
+    /// Whether destination-aware transport is required by a live or static policy.
     pub fn is_managed(&self) -> bool {
-        self.state.is_some()
+        self.state.is_some() || self.authority.is_some()
     }
 
     /// Watches effective changes; unmanaged callers have no application policy owner.
@@ -262,13 +283,16 @@ impl NetworkPolicy {
         {
             return Err(NetworkPolicyDenied::Destination);
         }
+        if let Some(authority) = &self.authority {
+            return authority.acquire(url);
+        }
         self.acquire_destination(PermitDestination::Url(url.clone()))
     }
 
     /// Disables SDKs without destination enforcement whenever restrictions apply.
     /// The returned permit also cancels work if an unrestricted policy changes.
     pub fn acquire_for_unsupported_sdk(&self) -> Result<NetworkPermit, NetworkPolicyDenied> {
-        if self.endpoints.is_some() {
+        if self.authority.is_some() || self.endpoints.is_some() {
             return Err(NetworkPolicyDenied::UnsupportedTransport);
         }
         self.acquire_destination(PermitDestination::UnrestrictedSdk)
@@ -279,7 +303,10 @@ impl NetworkPolicy {
         destination: PermitDestination,
     ) -> Result<NetworkPermit, NetworkPolicyDenied> {
         let Some(state) = &self.state else {
-            return Ok(NetworkPermit { inner: None });
+            return Ok(NetworkPermit {
+                inner: None,
+                revocation: None,
+            });
         };
         let mut state = lock_state(state);
         if self.account.is_some_and(|account| account != state.account) {
@@ -304,6 +331,7 @@ impl NetworkPolicy {
         state.permits.push(Arc::downgrade(&permit));
         Ok(NetworkPermit {
             inner: Some(permit),
+            revocation: None,
         })
     }
 }
@@ -312,6 +340,7 @@ impl NetworkPolicy {
 #[derive(Clone)]
 pub struct NetworkPermit {
     inner: Option<Arc<Permit>>,
+    revocation: Option<watch::Receiver<bool>>,
 }
 
 impl fmt::Debug for NetworkPermit {
@@ -321,11 +350,23 @@ impl fmt::Debug for NetworkPermit {
 }
 
 impl NetworkPermit {
+    /// Retains a remote owner's live permission. Loss of the sender fails closed.
+    pub fn from_revocation(revocation: watch::Receiver<bool>) -> Self {
+        Self {
+            inner: None,
+            revocation: Some(revocation),
+        }
+    }
+
     pub fn check(&self) -> Result<(), NetworkPolicyDenied> {
         if self
-            .inner
+            .revocation
             .as_ref()
-            .is_some_and(|permit| *permit.revoked.borrow())
+            .is_some_and(|receiver| *receiver.borrow() || receiver.has_changed().is_err())
+            || self
+                .inner
+                .as_ref()
+                .is_some_and(|permit| *permit.revoked.borrow())
         {
             Err(NetworkPolicyDenied::Revoked)
         } else {
@@ -334,6 +375,11 @@ impl NetworkPermit {
     }
 
     pub async fn revoked(&self) {
+        if let Some(receiver) = &self.revocation {
+            let mut receiver = receiver.clone();
+            let _ = receiver.wait_for(|revoked| *revoked).await;
+            return;
+        }
         match &self.inner {
             Some(permit) => {
                 let _ = permit
@@ -361,3 +407,52 @@ impl NetworkPermit {
 #[cfg(test)]
 #[path = "network_policy_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod external_authority_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn external_permit_revokes_when_owner_disconnects() {
+        let (sender, receiver) = watch::channel(false);
+        let permit = NetworkPermit::from_revocation(receiver);
+        let cloned = permit.clone();
+        assert!(permit.check().is_ok());
+        drop(sender);
+        assert_eq!(permit.check(), Err(NetworkPolicyDenied::Revoked));
+        assert_eq!(
+            cloned.run(async { 42 }).await,
+            Err(NetworkPolicyDenied::Revoked)
+        );
+    }
+
+    #[test]
+    fn external_authority_keeps_local_restrictions_and_live_denials() {
+        struct Authority;
+        impl NetworkPolicyAuthority for Authority {
+            fn acquire(&self, _: &Url) -> Result<NetworkPermit, NetworkPolicyDenied> {
+                Err(NetworkPolicyDenied::Unavailable)
+            }
+        }
+        let exact = Url::parse("https://b.example/allowed").unwrap();
+        let policy = NetworkPolicy::from_authority(Arc::new(Authority))
+            .restrict_to_endpoints(BTreeSet::from([exact.clone()]));
+        assert!(policy.is_managed());
+        assert_eq!(policy.clone(), policy);
+        assert_ne!(NetworkPolicy::from_authority(Arc::new(Authority)), policy);
+        assert_eq!(
+            policy.acquire(&exact).unwrap_err(),
+            NetworkPolicyDenied::Unavailable
+        );
+        assert_eq!(
+            policy
+                .acquire(&Url::parse("https://b.example/other").unwrap())
+                .unwrap_err(),
+            NetworkPolicyDenied::Destination
+        );
+        assert_eq!(
+            policy.acquire_for_unsupported_sdk().unwrap_err(),
+            NetworkPolicyDenied::UnsupportedTransport
+        );
+    }
+}

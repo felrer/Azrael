@@ -52,7 +52,8 @@ function packageFixture(options) {
 const release=path.join(root,"release");fs.mkdirSync(release);
 const selected=p.resolvePlatform(), binaries={};for(const name of p.engineBinaryNames()) binaries[name]=s.sha(fs.readFileSync(put(release,"engine/"+name,process.platform==="darwin" ? Buffer.from("cffaedfe01020304","hex") : "frozen fixture "+name)));
 if(process.platform!=="win32") for(const name of p.engineBinaryNames()) fs.chmodSync(path.join(release,"engine",name),0o755);
-const provenance={schema:1,platform:p.platformIdentity(),source:{sourceSha256:"a".repeat(64)},binaries};
+const workerName=p.executableName("azrael-responses-worker");
+const provenance={schema:1,platform:p.platformIdentity(),source:{sourceSha256:"a".repeat(64)},binaries,components:{responsesWorker:{protocolVersion:1,binary:workerName,sha256:binaries[workerName]}}};
 put(release,"engine/azrael-engine-build.json",s.encode(provenance));
 const build={platform:p.platformIdentity(),engineVersion:"0.160.0",engineProvenance:provenance,sha256:Object.fromEntries(Object.entries(binaries).map(([name,hash])=>["engine/"+name,hash]))};put(release,"build-info.json",s.encode(build));
 const nodePath=put(release,"node/"+p.executableName("node"),process.platform==="darwin" ? Buffer.from("cffaedfe01020305","hex") : "bundled node fixture");
@@ -63,6 +64,21 @@ put(release,"devin-native-build.json",s.encode(nativeManifest));build.sha256["no
 const config={schema:1,platform:p.platformIdentity(),engine:path.join(release,"engine",p.executableName("azrael")),bridge:path.join(release,"engine",p.executableName("azrael-bridge")),codexHome:path.join(root,"unused-state"),engineVersion:build.engineVersion,devinNative:{helper:path.join(release,"providers/devin/helper.mjs"),node:path.join(release,"node",p.executableName("node"))}};
 const host=put(root,"template.vsix",s.writeZip(new Map([["extension/out/azrael-runtime.json",{data:s.encode(config)}],["extension.vsixmanifest",{data:Buffer.from('<PackageManifest><Metadata><Identity Id="azrael" /></Metadata></PackageManifest>')}]])));
 const output=path.join(root,"package");
+check("worker component admission rejects missing or mixed protocol, name and hash",()=>{
+  try {
+    for(const mutation of [null,{protocolVersion:2},{binary:p.executableName("azrael")},{sha256:"0".repeat(64)}]) {
+      const changed=structuredClone(provenance);
+      if(mutation===null) delete changed.components.responsesWorker;
+      else Object.assign(changed.components.responsesWorker,mutation);
+      put(release,"engine/azrael-engine-build.json",s.encode(changed));
+      put(release,"build-info.json",s.encode({...build,engineProvenance:changed}));
+      assert.throws(()=>s.verifyBuild(release),/Responses worker component provenance mismatch/);
+    }
+  } finally {
+    put(release,"engine/azrael-engine-build.json",s.encode(provenance));
+    put(release,"build-info.json",s.encode(build));
+  }
+});
 check("package frozen runtime and schema2 inventory",()=>{packageFixture({release,"host-vsix":host,output,version:"1.2.3"});assert.equal(s.verifyPackage(output).schema,2);});
 const packageRecord=destination=>lifecycle.catalog(fixtureProject).find(record=>record.id===`platform-package:${destination}`);
 check("standalone package references a protected real imported input owner",()=>{

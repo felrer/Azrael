@@ -9,7 +9,8 @@ import subprocess
 
 RECEIPT = "azrael-engine-build.json"
 TARGET = "x86_64-pc-windows-msvc"
-BINARY_NAMES = ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe")
+BINARY_NAMES = ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe", "azrael-responses-worker.exe")
+RESPONSES_WORKER_PROTOCOL_VERSION = 1
 BUILD_ENVIRONMENT_KEYS = (
     "RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS", "RUSTC_WRAPPER", "RUSTUP_TOOLCHAIN",
     "V8_FROM_SOURCE", "V8_FORCE_DEBUG", "RUSTY_V8_ARCHIVE", "RUSTY_V8_MIRROR",
@@ -19,8 +20,11 @@ BUILD_ENVIRONMENT_KEYS = (
 
 
 def sha(path):
+    digest = hashlib.sha256()
     with path.open("rb") as stream:
-        return hashlib.file_digest(stream, "sha256").hexdigest()
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def binary_names(target=TARGET):
@@ -28,7 +32,13 @@ def binary_names(target=TARGET):
     entry = next((item for item in policy["platforms"] if item["target"] == target), None)
     if entry is None:
         raise ValueError(f"Unsupported engine target: {target}")
-    return tuple(name + entry["executableSuffix"] for name in ("azrael", "azrael-bridge", "azrael-code-mode-host"))
+    return tuple(name + entry["executableSuffix"] for name in ("azrael", "azrael-bridge", "azrael-code-mode-host", "azrael-responses-worker"))
+
+
+def responses_worker_identity(name, digest):
+    # Bundle/runtime binding only: this is not a component input closure or a
+    # skip-build key. Cargo's dependency fingerprints own compilation reuse.
+    return {"protocolVersion": RESPONSES_WORKER_PROTOCOL_VERSION, "binary": name, "sha256": digest}
 
 
 def snapshot(root, target=TARGET):
@@ -124,6 +134,11 @@ def verify(root, directory, target=TARGET, profile=None, *, source_state=None, s
     for name in names:
         if record.get("binaries", {}).get(name) != sha(directory / name):
             raise ValueError(f"Engine provenance binary mismatch: {name}")
+    components = record.get("components", {})
+    worker = components.get("responsesWorker") if isinstance(components, dict) else None
+    if (not isinstance(worker, dict) or type(worker.get("protocolVersion")) is not int or
+            worker != responses_worker_identity(names[3], record["binaries"][names[3]])):
+        raise ValueError("Engine provenance Responses worker component mismatch")
     host = record.get("externalRuntimes", {}).get("codeModeHost", {})
     if host.get("sha256") != record.get("binaries", {}).get(names[2]):
         raise ValueError("Engine provenance external code-mode host mismatch")
@@ -174,10 +189,12 @@ def main():
             if original_hash != host_hash:
                 raise ValueError("Original code-mode host differs from frozen import")
             host = {"kind": "external-import", "sourcePath": str(original.resolve()), "sha256": host_hash}
+        binaries = {name: sha(args.engine_dir / name) for name in names}
         value = {
             "source": before,
-            "binaries": {name: sha(args.engine_dir / name) for name in names},
+            "binaries": binaries,
             "externalRuntimes": {"codeModeHost": host},
+            "components": {"responsesWorker": responses_worker_identity(names[3], binaries[names[3]])},
         }
         if args.profile is not None:
             value["buildProfile"] = args.profile

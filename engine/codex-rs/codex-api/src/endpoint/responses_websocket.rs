@@ -231,6 +231,16 @@ impl ResponsesWebsocketConnection {
         })
     }
 
+    /// Discards a cancelled connection and observes actual socket-pump termination.
+    pub async fn close_and_wait(&self) {
+        let stream = self.stream.lock().await.take();
+        if let Some(mut stream) = stream {
+            stream.pump_task.abort();
+            let _ = (&mut stream.pump_task).await;
+            drop(stream);
+        }
+    }
+
     #[instrument(
         name = "responses_websocket.stream_request",
         level = "info",
@@ -243,14 +253,6 @@ impl ResponsesWebsocketConnection {
         connection_reused: bool,
         turn_state: Option<Arc<OnceLock<String>>>,
     ) -> Result<ResponseStream, ApiError> {
-        let (tx_event, rx_event) =
-            mpsc::channel::<std::result::Result<ResponseEvent, ApiError>>(1600);
-        let (tx_interrupt, rx_interrupt) = oneshot::channel();
-        let stream = Arc::clone(&self.stream);
-        let idle_timeout = self.idle_timeout;
-        let server_reasoning_included = self.server_reasoning_included;
-        let server_model = self.server_model.clone();
-        let telemetry = self.telemetry.clone();
         let ResponsesWsRequest::ResponseCreate(ws_request) = &request;
         let client_metadata = ws_request.client_metadata.as_ref();
         let timing_log_context = ResponsesWebsocketTimingLogContext {
@@ -277,9 +279,76 @@ impl ResponsesWebsocketConnection {
             connection_reused,
         };
         let request_text = serialize_websocket_request(&request)?;
+        self.stream_request_text(request_text, timing_log_context, turn_state)
+            .await
+    }
 
+    /// Executes privately transported JSON through the existing WebSocket response pump.
+    pub async fn stream_serialized_request(
+        &self,
+        request: &serde_json::value::RawValue,
+        connection_reused: bool,
+        turn_state: Option<Arc<OnceLock<String>>>,
+    ) -> Result<ResponseStream, ApiError> {
+        #[derive(Deserialize)]
+        struct TimingFields {
+            #[serde(rename = "type")]
+            kind: String,
+            model: String,
+            previous_response_id: Option<String>,
+            generate: Option<bool>,
+            client_metadata: Option<std::collections::HashMap<String, String>>,
+        }
+        // Invalid timing metadata is rejected instead of silently replaced with defaults.
+        let fields: TimingFields = serde_json::from_str(request.get())
+            .map_err(|err| ApiError::Stream(format!("invalid websocket request: {err}")))?;
+        if fields.kind != "response.create" {
+            return Err(ApiError::Stream(
+                "invalid websocket request type".to_string(),
+            ));
+        }
+        let metadata = fields.client_metadata.as_ref();
+        let context = ResponsesWebsocketTimingLogContext {
+            model: fields.model,
+            session_id: metadata
+                .and_then(|m| m.get(SESSION_ID_CLIENT_METADATA_KEY))
+                .cloned(),
+            thread_id: metadata
+                .and_then(|m| m.get(THREAD_ID_CLIENT_METADATA_KEY))
+                .cloned(),
+            turn_id: metadata
+                .and_then(|m| m.get(TURN_ID_CLIENT_METADATA_KEY))
+                .cloned(),
+            traceparent: metadata
+                .and_then(|m| m.get(WS_REQUEST_HEADER_TRACEPARENT_CLIENT_METADATA_KEY))
+                .cloned(),
+            previous_response_id: fields.previous_response_id,
+            request_start_ms: metadata
+                .and_then(|m| m.get(WS_STREAM_REQUEST_START_MS_CLIENT_METADATA_KEY))
+                .cloned(),
+            warmup: fields.generate == Some(false),
+            connection_reused,
+        };
+        self.stream_request_text(request.get().to_owned(), context, turn_state)
+            .await
+    }
+
+    async fn stream_request_text(
+        &self,
+        request_text: String,
+        timing_log_context: ResponsesWebsocketTimingLogContext,
+        turn_state: Option<Arc<OnceLock<String>>>,
+    ) -> Result<ResponseStream, ApiError> {
+        let (tx_event, rx_event) =
+            mpsc::channel::<std::result::Result<ResponseEvent, ApiError>>(1600);
+        let (tx_interrupt, rx_interrupt) = oneshot::channel();
+        let stream = Arc::clone(&self.stream);
+        let idle_timeout = self.idle_timeout;
+        let server_reasoning_included = self.server_reasoning_included;
+        let server_model = self.server_model.clone();
+        let telemetry = self.telemetry.clone();
         let current_span = Span::current();
-        tokio::spawn(
+        let pump_task = tokio::spawn(
             #[expect(
                 clippy::await_holding_invalid_type,
                 reason = "the guard serializes exclusive use of the websocket stream for the lifetime of the response stream"
@@ -334,7 +403,13 @@ impl ResponsesWebsocketConnection {
                     // graceful close handshake here can stall indefinitely and mask the error.
                     let failed_stream = guard.take();
                     drop(guard);
-                    drop(failed_stream);
+                    if let Some(mut failed_stream) = failed_stream {
+                        failed_stream.pump_task.abort();
+                        // Cancellation must observe the socket task's real exit before
+                        // the response task's completion is acknowledged over IPC.
+                        let _ = (&mut failed_stream.pump_task).await;
+                        drop(failed_stream);
+                    }
                     let _ = tx_event.send(Err(err)).await;
                 }
             }
@@ -345,6 +420,7 @@ impl ResponsesWebsocketConnection {
             rx_event,
             upstream_request_id: None,
             interrupt: Some(tx_interrupt),
+            pump_task: Some(pump_task),
         })
     }
 }

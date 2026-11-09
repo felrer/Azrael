@@ -37,6 +37,7 @@ pub struct HttpClientBuilder {
     http2_prior_knowledge: bool,
     pub(crate) default_headers: Option<HeaderMap>,
     follow_redirects: bool,
+    native_redirect_authority: Option<Arc<dyn crate::NetworkPolicyAuthority>>,
     pub(crate) redirect_observed: Option<Arc<AtomicBool>>,
     connect_timeout: Option<Duration>,
     chatgpt_cloudflare_cookie_store: bool,
@@ -125,6 +126,28 @@ impl HttpClientBuilder {
     /// Use a fresh flag for each operation whose retry safety depends on its redirect history.
     pub fn with_redirect_tracking(mut self, redirect_observed: Arc<AtomicBool>) -> Self {
         self.redirect_observed = Some(redirect_observed);
+        self
+    }
+
+    /// Adds destination checks to the existing native redirect policy. The caller
+    /// retains the original request permit through the body. This hook is for an
+    /// originally unmanaged (immutable unrestricted) factory, whose redirect permits
+    /// cannot be revoked independently of owner/operation loss.
+    pub fn with_native_redirect_authority(
+        mut self,
+        authority: Arc<dyn crate::NetworkPolicyAuthority>,
+    ) -> Self {
+        self.native_redirect_authority = Some(authority);
+        self
+    }
+
+    /// Shares the owning process's infrastructure jar without adding configured cookies.
+    pub fn with_shared_cookie_authority(
+        mut self,
+        authority: Arc<dyn crate::SharedCookieAuthority>,
+    ) -> Self {
+        self.chatgpt_cloudflare_cookie_store = true;
+        self.chatgpt_cookie_store = Some(Arc::new(ChatGptCookieStore::from_authority(authority)));
         self
     }
 
@@ -375,9 +398,21 @@ impl HttpClientBuilder {
         }
         if !self.follow_redirects {
             builder = builder.redirect(reqwest::redirect::Policy::none());
-        } else if let Some(redirect_observed) = self.redirect_observed {
+        } else if self.redirect_observed.is_some() || self.native_redirect_authority.is_some() {
+            let observed = self.redirect_observed;
+            let authority = self.native_redirect_authority;
             builder = builder.redirect(reqwest::redirect::Policy::custom(move |attempt| {
-                redirect_observed.store(/*val*/ true, Ordering::Relaxed);
+                if let Some(observed) = &observed {
+                    observed.store(/*val*/ true, Ordering::Relaxed);
+                }
+                if let Some(authority) = &authority {
+                    if let Err(error) = authority
+                        .acquire(attempt.url())
+                        .and_then(|permit| permit.check())
+                    {
+                        return attempt.error(error);
+                    }
+                }
                 reqwest::redirect::Policy::default().redirect(attempt)
             }));
         }
@@ -400,6 +435,7 @@ impl Default for HttpClientBuilder {
             http2_prior_knowledge: false,
             default_headers: None,
             follow_redirects: true,
+            native_redirect_authority: None,
             redirect_observed: None,
             connect_timeout: None,
             chatgpt_cloudflare_cookie_store: false,

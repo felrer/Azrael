@@ -10,6 +10,7 @@ const { physicalPath, runManagedCargoSync } = require("./cargo-target-owner.cjs"
 const PREFLIGHT = Object.freeze({ schema: 2, compilation: "cargo-test", testExecution: "nonzero-passed" });
 const PREFLIGHT_ID = "selected-tests-v2";
 const guardedCargoWrappers = new Set([
+  "check-responses-worker-native",
   "check-selected-upstream-native",
   "check-mcp-oauth-store",
   "check-mcp-lazy-startup",

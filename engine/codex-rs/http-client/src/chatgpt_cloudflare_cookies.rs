@@ -21,6 +21,13 @@ use crate::chatgpt_hosts::is_allowed_chatgpt_host;
 static SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE: LazyLock<Arc<ChatGptCloudflareCookieStore>> =
     LazyLock::new(|| Arc::new(ChatGptCloudflareCookieStore::default()));
 
+/// Synchronous access to the owning process's shared cookie state.
+/// Implementations must preserve all Set-Cookie values and fail closed on loss of the owner.
+pub trait SharedCookieAuthority: Send + Sync {
+    fn cookies(&self, url: &reqwest::Url) -> Option<HeaderValue>;
+    fn set_cookies(&self, url: &reqwest::Url, headers: &HeaderMap);
+}
+
 #[derive(Debug, Default)]
 struct ChatGptCloudflareCookieStore {
     jar: Jar,
@@ -29,6 +36,7 @@ struct ChatGptCloudflareCookieStore {
 pub(crate) struct ChatGptCookieStore {
     cloudflare: Arc<ChatGptCloudflareCookieStore>,
     cookies: Vec<HeaderValue>,
+    authority: Option<Arc<dyn SharedCookieAuthority>>,
 }
 
 impl ChatGptCookieStore {
@@ -36,11 +44,27 @@ impl ChatGptCookieStore {
         Self {
             cloudflare: Arc::clone(&SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE),
             cookies,
+            authority: None,
         }
     }
 
     pub(crate) fn configured_cookies(&self) -> &[HeaderValue] {
         &self.cookies
+    }
+
+    pub(crate) fn from_authority(authority: Arc<dyn SharedCookieAuthority>) -> Self {
+        Self {
+            authority: Some(authority),
+            ..Self::new(Vec::new())
+        }
+    }
+
+    pub(crate) fn same_authority(&self, other: &Self) -> bool {
+        match (&self.authority, &other.authority) {
+            (Some(left), Some(right)) => Arc::ptr_eq(left, right),
+            (None, None) => true,
+            _ => false,
+        }
     }
 }
 
@@ -74,10 +98,25 @@ impl CookieStore for ChatGptCookieStore {
         cookie_headers: &mut dyn Iterator<Item = &HeaderValue>,
         url: &reqwest::Url,
     ) {
-        self.cloudflare.set_cookies(cookie_headers, url);
+        if let Some(authority) = &self.authority {
+            if is_chatgpt_cookie_url(url) {
+                let mut headers = HeaderMap::new();
+                for header in cookie_headers {
+                    headers.append(SET_COOKIE, header.clone());
+                }
+                authority.set_cookies(url, &headers);
+            }
+        } else {
+            self.cloudflare.set_cookies(cookie_headers, url);
+        }
     }
 
     fn cookies(&self, url: &reqwest::Url) -> Option<HeaderValue> {
+        if let Some(authority) = &self.authority {
+            return is_chatgpt_cookie_url(url)
+                .then(|| authority.cookies(url))
+                .flatten();
+        }
         if !is_chatgpt_cookie_url(url) {
             return self.cloudflare.cookies(url);
         }
@@ -108,9 +147,14 @@ impl HttpClientFactory {
     /// Explicit request Cookie headers should take precedence over this value.
     pub fn chatgpt_cookie_header(&self, uri: &Uri) -> Option<HeaderValue> {
         let url = chatgpt_cookie_url(uri)?;
+        self.shared_cookies(&url)
+    }
+
+    /// Reads the factory's complete cookies for an HTTPS ChatGPT destination.
+    pub fn shared_cookies(&self, url: &reqwest::Url) -> Option<HeaderValue> {
         let mut cookies = match self.chatgpt_cookie_store() {
-            Some(store) => store.cookies(&url),
-            None => SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE.cookies(&url),
+            Some(store) => store.cookies(url),
+            None => SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE.cookies(url),
         }?;
         cookies.set_sensitive(true);
         Some(cookies)
@@ -120,8 +164,27 @@ impl HttpClientFactory {
     /// Account and session cookies are never added to the shared store.
     pub fn store_chatgpt_response_cookies(&self, uri: &Uri, headers: &HeaderMap) {
         if let Some(url) = chatgpt_cookie_url(uri) {
-            SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE
-                .set_cookies(&mut headers.get_all(SET_COOKIE).iter(), &url);
+            self.set_shared_cookies(&url, headers);
+        }
+    }
+
+    /// Reads only the original process-global infrastructure jar.
+    pub fn global_infrastructure_cookies(&self, url: &reqwest::Url) -> Option<HeaderValue> {
+        SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE.cookies(url)
+    }
+
+    /// Updates only the process-global infrastructure jar using its existing allowlist.
+    pub fn set_global_infrastructure_cookies(&self, url: &reqwest::Url, headers: &HeaderMap) {
+        SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE
+            .set_cookies(&mut headers.get_all(SET_COOKIE).iter(), url);
+    }
+
+    /// Updates the owning cookie store, preserving duplicate Set-Cookie headers.
+    pub fn set_shared_cookies(&self, url: &reqwest::Url, headers: &HeaderMap) {
+        match self.chatgpt_cookie_store() {
+            Some(store) => store.set_cookies(&mut headers.get_all(SET_COOKIE).iter(), url),
+            None => SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE
+                .set_cookies(&mut headers.get_all(SET_COOKIE).iter(), url),
         }
     }
 }
@@ -221,6 +284,50 @@ mod tests {
     use reqwest::cookie::CookieStore;
 
     #[test]
+    fn external_cookie_authority_is_shared_and_preserves_duplicate_headers() {
+        #[derive(Default)]
+        struct Authority(std::sync::Mutex<HeaderMap>);
+        impl SharedCookieAuthority for Authority {
+            fn cookies(&self, _: &reqwest::Url) -> Option<HeaderValue> {
+                Some(HeaderValue::from_static("configured=parent"))
+            }
+            fn set_cookies(&self, _: &reqwest::Url, headers: &HeaderMap) {
+                *self.0.lock().unwrap() = headers.clone();
+            }
+        }
+        let authority = Arc::new(Authority::default());
+        let factory = HttpClientFactory::new(crate::OutboundProxyPolicy::ReqwestDefault)
+            .with_shared_cookie_authority(authority.clone());
+        let store = factory.chatgpt_cookie_store().unwrap();
+        let url = reqwest::Url::parse("https://chatgpt.com/api").unwrap();
+        let uri = "wss://chatgpt.com/api".parse().unwrap();
+        assert_eq!(store.cookies(&url), factory.chatgpt_cookie_header(&uri));
+        let mut headers = HeaderMap::new();
+        headers.append(
+            SET_COOKIE,
+            HeaderValue::from_static("__oailb=first; Secure"),
+        );
+        headers.append(
+            SET_COOKIE,
+            HeaderValue::from_static("__oailb=; Max-Age=0; Secure"),
+        );
+        store.set_cookies(&mut headers.get_all(SET_COOKIE).iter(), &url);
+        assert_eq!(*authority.0.lock().unwrap(), headers);
+        factory.store_chatgpt_response_cookies(&uri, &headers);
+        assert_eq!(*authority.0.lock().unwrap(), headers);
+        assert_eq!(
+            store.cookies(&reqwest::Url::parse("https://api.openai.com/").unwrap()),
+            None
+        );
+        assert_eq!(factory, factory.clone());
+        assert_ne!(
+            factory,
+            HttpClientFactory::new(crate::OutboundProxyPolicy::ReqwestDefault)
+                .with_shared_cookie_authority(Arc::new(Authority::default()))
+        );
+    }
+
+    #[test]
     fn http_and_websocket_cookies_share_the_factory_store() {
         let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault)
             .with_chatgpt_cookies([HeaderValue::from_static("configured=owner")]);
@@ -268,6 +375,7 @@ mod tests {
         let mut sensitive_cookie = HeaderValue::from_static("additional=true");
         sensitive_cookie.set_sensitive(true);
         let store = ChatGptCookieStore {
+            authority: None,
             cloudflare: Arc::clone(&cloudflare),
             cookies: vec![
                 sensitive_cookie,
@@ -302,6 +410,7 @@ mod tests {
     #[test]
     fn additional_cookies_are_restricted_to_https_chatgpt_hosts() {
         let store = ChatGptCookieStore {
+            authority: None,
             cloudflare: Arc::new(ChatGptCloudflareCookieStore::default()),
             cookies: vec![HeaderValue::from_static("additional=true")],
         };
@@ -487,5 +596,38 @@ mod tests {
         ] {
             assert!(!is_allowed_cloudflare_cookie_name(name));
         }
+    }
+}
+
+#[cfg(test)]
+mod worker_cookie_scope_tests {
+    use super::*;
+    #[test]
+    fn native_legacy_global_scope_excludes_factory_configured_cookies() {
+        let factory = HttpClientFactory::new(crate::OutboundProxyPolicy::ReqwestDefault)
+            .with_chatgpt_cookies([HeaderValue::from_static("fixture_account=worker-scope")]);
+        let url =
+            reqwest::Url::parse("https://chatgpt.com/azrael-worker-cookie-scope-fixture").unwrap();
+        let mut headers = HeaderMap::new();
+        headers.append(
+            SET_COOKIE,
+            HeaderValue::from_static(
+                "__oailb=fixture-route; Path=/azrael-worker-cookie-scope-fixture; Secure",
+            ),
+        );
+        headers.append(SET_COOKIE,HeaderValue::from_static("forbidden_account=must-not-enter-global; Path=/azrael-worker-cookie-scope-fixture; Secure"));
+        factory.set_global_infrastructure_cookies(&url, &headers);
+        let global = factory.global_infrastructure_cookies(&url).unwrap();
+        assert!(global.to_str().unwrap().contains("__oailb=fixture-route"));
+        assert!(!global.to_str().unwrap().contains("fixture_account"));
+        assert!(!global.to_str().unwrap().contains("forbidden_account"));
+        assert!(
+            factory
+                .shared_cookies(&url)
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .contains("fixture_account=worker-scope")
+        );
     }
 }

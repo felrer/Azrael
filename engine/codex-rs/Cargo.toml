@@ -54,6 +54,9 @@ members = [
     "hooks",
     "history",
     "http-client",
+    "responses-worker",
+    "responses-worker-client",
+    "responses-worker-protocol",
     "secrets",
     "exec",
     "file-system",
@@ -208,6 +211,8 @@ codex-code-mode-protocol = { path = "code-mode-protocol" }
 codex-code-mode-runtime = { path = "code-mode-runtime" }
 codex-home = { path = "codex-home" }
 codex-http-client = { path = "http-client" }
+codex-responses-worker-client = { path = "responses-worker-client" }
+codex-responses-worker-protocol = { path = "responses-worker-protocol" }
 codex-websocket-auth = { path = "websocket-auth" }
 codex-websocket-client = { path = "websocket-client" }
 codex-config = { path = "config" }

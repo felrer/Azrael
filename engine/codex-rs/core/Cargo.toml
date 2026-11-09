@@ -84,6 +84,7 @@ codex-guardian-reviewer = { workspace = true }
 codex-history = { workspace = true }
 codex-hooks = { workspace = true }
 codex-http-client = { workspace = true }
+codex-responses-worker-client = { workspace = true }
 codex-install-context = { workspace = true }
 codex-network-proxy = { workspace = true }
 codex-otel = { workspace = true }

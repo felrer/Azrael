@@ -72,6 +72,28 @@ impl<T: HttpTransport> ResponsesClient<T> {
         request: ResponsesApiRequest,
         options: ResponsesOptions,
     ) -> Result<ResponseStream, ApiError> {
+        let body = EncodedJsonBody::encode(&request)
+            .map_err(|e| ApiError::Stream(format!("failed to encode responses request: {e}")))?;
+        self.stream_request_encoded(body, options).await
+    }
+
+    /// Uses the normal Responses request path for JSON transported over private IPC.
+    /// Raw JSON preserves routing-field order and borrowed request serialization.
+    pub async fn stream_serialized_request(
+        &self,
+        request: &serde_json::value::RawValue,
+        options: ResponsesOptions,
+    ) -> Result<ResponseStream, ApiError> {
+        let body = EncodedJsonBody::encode(request)
+            .map_err(|e| ApiError::Stream(format!("failed to encode responses request: {e}")))?;
+        self.stream_request_encoded(body, options).await
+    }
+
+    async fn stream_request_encoded(
+        &self,
+        body: EncodedJsonBody,
+        options: ResponsesOptions,
+    ) -> Result<ResponseStream, ApiError> {
         let ResponsesOptions {
             session_id,
             thread_id,
@@ -80,9 +102,6 @@ impl<T: HttpTransport> ResponsesClient<T> {
             compression,
             turn_state,
         } = options;
-        let body = EncodedJsonBody::encode(&request)
-            .map_err(|e| ApiError::Stream(format!("failed to encode responses request: {e}")))?;
-
         let mut headers = extra_headers;
         if let Some(ref thread_id) = thread_id {
             insert_header(&mut headers, "x-client-request-id", thread_id);

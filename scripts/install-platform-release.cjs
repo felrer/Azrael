@@ -75,6 +75,11 @@ function verifyBuild(release) {
     verifyHash(release, "engine/" + name, provenance.binaries?.[name]);
     if (selected.os !== "win32" && !(fs.statSync(fileAt(release, "engine/" + name)).mode & 0o111)) throw new Error("Engine executable mode missing.");
   }
+  const workerName = platform.executableName("azrael-responses-worker", selected);
+  const worker = provenance.components?.responsesWorker;
+  if (worker?.protocolVersion !== 1 || worker.binary !== workerName || worker.sha256 !== provenance.binaries[workerName]) {
+    throw new Error("Responses worker component provenance mismatch.");
+  }
   return { build, selected };
 }
 

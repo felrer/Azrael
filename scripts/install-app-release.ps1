@@ -82,11 +82,13 @@ try {
             if ($name -ne 'package-manifest.json' -and -not $known.ContainsKey($name)) { throw "Unlisted package file: $name" }
         }
     }
-    foreach ($required in @('host-template.vsix', 'runtime/devin-native-build.json', 'runtime/opencodex-accounts-build.json', 'runtime/node/node.exe', 'runtime/engine/azrael.exe', 'runtime/engine/azrael-bridge.exe', 'runtime/engine/azrael-code-mode-host.exe')) {
+    foreach ($required in @('host-template.vsix', 'runtime/devin-native-build.json', 'runtime/opencodex-accounts-build.json', 'runtime/node/node.exe', 'runtime/engine/azrael.exe', 'runtime/engine/azrael-bridge.exe', 'runtime/engine/azrael-code-mode-host.exe', 'runtime/engine/azrael-responses-worker.exe')) {
         if (-not $known.ContainsKey($required)) { throw "Missing package dependency: $required" }
     }
     if (-not $known.ContainsKey('runtime/build-info.json')) { throw 'Missing package dependency: runtime/build-info.json' }
     $build = Get-Content -LiteralPath (Join-Path $packageRoot 'runtime/build-info.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    $workerHash = $known['runtime/engine/azrael-responses-worker.exe']
+    if ($build.engineProvenance.binaries.'azrael-responses-worker.exe' -isnot [string] -or $build.engineProvenance.binaries.'azrael-responses-worker.exe'.ToLowerInvariant() -cne $workerHash) { throw 'Responses worker build provenance mismatch.' }
     $engineHash = $known['runtime/engine/azrael.exe']
     if ($build.engineProvenance.binaries.'azrael.exe' -isnot [string] -or $build.engineProvenance.binaries.'azrael.exe'.ToLowerInvariant() -cne $engineHash) { throw 'Shared engine build provenance mismatch.' }
     $template = [IO.Compression.ZipFile]::OpenRead((Join-Path $packageRoot 'host-template.vsix'))

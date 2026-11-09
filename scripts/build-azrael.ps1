@@ -198,6 +198,8 @@ if ($engineCheckpoint) {
     $SkipEngineBuild=[bool]$engineCheckpoint.data.engineReused
     $engine=Join-Path $EngineDirectory 'azrael.exe'
     $bridge=Join-Path $EngineDirectory 'azrael-bridge.exe'
+    $codeModeHost=Join-Path $EngineDirectory 'azrael-code-mode-host.exe'
+    $responsesWorker=Join-Path $EngineDirectory 'azrael-responses-worker.exe'
 } else {
     $null=Invoke-BuildCheckpoint 'start' 'build.engine' @{inputs=$engineInputs}
     $script:buildPipelineActive='build.engine'
@@ -249,7 +251,7 @@ if (-not $SkipEngineBuild) {
             $env:AZRAEL_CARGO_CACHE_SCOPE = $sharedCargoCache.identity.scope
         }
         $env:AZRAEL_CARGO_STABLE_SOURCE = '1'
-        Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--jobs', '6', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') + $(if (-not $CodeModeHostPath) { @('-p', 'codex-code-mode-host', '--bin', 'codex-code-mode-host') } else { @() })) 'engine.log'
+        Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--jobs', '6', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge', '-p', 'codex-responses-worker', '--bin', 'azrael-responses-worker') + $(if (-not $CodeModeHostPath) { @('-p', 'codex-code-mode-host', '--bin', 'codex-code-mode-host') } else { @() })) 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
         if ($externalCodeModeHost -and (Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
         $selectedCodeModeHost = if ($externalCodeModeHost) { $externalCodeModeHost } else { Join-Path $EngineDirectory 'codex-code-mode-host.exe' }
@@ -276,12 +278,16 @@ if ($RetainedSourceRoot) {
 $engine = Join-Path $EngineDirectory 'azrael.exe'
 $bridge = Join-Path $EngineDirectory 'azrael-bridge.exe'
 $codeModeHost = Join-Path $EngineDirectory 'azrael-code-mode-host.exe'
-foreach ($file in @($engine, $bridge, $codeModeHost)) {
-    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing engine pair member: $file" }
+$responsesWorker = Join-Path $EngineDirectory 'azrael-responses-worker.exe'
+foreach ($file in @($engine, $bridge, $codeModeHost, $responsesWorker)) {
+    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing engine bundle member: $file" }
 }
 Complete-BuildStage $buildMetrics $phase
-    $null=Invoke-BuildCheckpoint 'finish' 'build.engine' @{exitCode=0; outputs=@($engine,$bridge,$codeModeHost,(Join-Path $EngineDirectory 'azrael-engine-build.json')); data=@{engineDirectory=$EngineDirectory;engineReused=[bool]$SkipEngineBuild}}
+    $null=Invoke-BuildCheckpoint 'finish' 'build.engine' @{exitCode=0; outputs=@($engine,$bridge,$codeModeHost,$responsesWorker,(Join-Path $EngineDirectory 'azrael-engine-build.json')); data=@{engineDirectory=$EngineDirectory;engineReused=[bool]$SkipEngineBuild}}
     $script:buildPipelineActive=$null
+}
+foreach ($file in @($engine, $bridge, $codeModeHost, $responsesWorker)) {
+    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing engine bundle member: $file" }
 }
 Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'check-build-engine-compatibility.mjs'), $EngineDirectory, (Join-Path $logDirectory 'code-mode-host-compatibility'), '--cache-project-root', $moduleCache.Owner) + $(if ($ForceEngineCompatibility -or -not $SkipEngineBuild) { @('--full') } else { @() })) 'code-mode-host-compatibility.log'
 $null=Invoke-BuildCheckpoint 'start' 'build.engine-ready' @{inputs=@{processId=$PID};dependencies=@('build.engine')}
@@ -307,7 +313,7 @@ if (-not $CompanionVsixPath) {
 
 # Package attempts write fresh owned staging paths; a partial package is never
 # selected or overwritten by the next attempt.
-$packageInputs=@{engine=$engine;bridge=$bridge;companion=$CompanionVsixPath;source=$sourceRoot;retained=$RetainedSourceRoot}
+$packageInputs=@{engine=$engine;bridge=$bridge;responsesWorker=$responsesWorker;companion=$CompanionVsixPath;source=$sourceRoot;retained=$RetainedSourceRoot}
 $packageCheckpoint=Invoke-BuildCheckpoint 'lookup' 'build.package' @{inputs=$packageInputs;dependencies=@('build.engine')}
 if (-not $packageCheckpoint) {
 if (Test-Path -LiteralPath $release) { throw 'Release output changed or lacks a successful package checkpoint; reconcile it through its owner before retrying.' }
@@ -323,7 +329,7 @@ Invoke-BuildScript (Join-Path $PSScriptRoot 'package-azrael.ps1') @{
 $releaseParent = Split-Path $release -Parent
 if (-not (Test-Path -LiteralPath $releaseParent -PathType Container)) { New-Item -ItemType Directory -Path $releaseParent | Out-Null }
 Move-Item -LiteralPath $packageStaging -Destination $release
-$null=Invoke-BuildCheckpoint 'finish' 'build.package' @{exitCode=0;outputs=@((Join-Path $release 'engine/azrael.exe'),(Join-Path $release 'engine/azrael-bridge.exe'),(Join-Path $release 'engine/azrael-code-mode-host.exe'),(Join-Path $release 'engine/azrael-engine-build.json'),(Join-Path $release 'azrael-ex.vsix'))}
+$null=Invoke-BuildCheckpoint 'finish' 'build.package' @{exitCode=0;outputs=@((Join-Path $release 'engine/azrael.exe'),(Join-Path $release 'engine/azrael-bridge.exe'),(Join-Path $release 'engine/azrael-code-mode-host.exe'),(Join-Path $release 'engine/azrael-responses-worker.exe'),(Join-Path $release 'engine/azrael-engine-build.json'),(Join-Path $release 'azrael-ex.vsix'))}
 $script:buildPipelineActive=$null
 Complete-BuildStage $buildMetrics $phase
 }

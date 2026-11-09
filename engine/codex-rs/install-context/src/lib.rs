@@ -196,6 +196,39 @@ impl InstallContext {
         )
     }
 
+    /// Resolves the Responses worker only inside the selected runtime bundle.
+    /// A missing worker is an installation error, never a PATH lookup.
+    pub fn responses_worker_program(&self) -> std::io::Result<PathBuf> {
+        let current_exe = std::env::current_exe()?;
+        self.responses_worker_program_from_exe(&current_exe)
+    }
+
+    fn responses_worker_program_from_exe(&self, current_exe: &Path) -> std::io::Result<PathBuf> {
+        let name = if cfg!(windows) {
+            "azrael-responses-worker.exe"
+        } else {
+            "azrael-responses-worker"
+        };
+        let directory = if let Some(layout) = &self.package_layout {
+            layout.bin_dir.as_path()
+        } else if let InstallMethod::Standalone { release_dir, .. } = &self.method {
+            release_dir.as_path()
+        } else {
+            current_exe
+                .parent()
+                .ok_or_else(|| std::io::Error::other("engine executable has no bundle directory"))?
+        };
+        let directory = std::fs::canonicalize(directory)?;
+        let candidate = directory.join(name);
+        let physical = std::fs::canonicalize(&candidate)?;
+        if physical.parent() != Some(directory.as_path()) || !physical.is_file() {
+            return Err(std::io::Error::other(
+                "Responses worker is outside the selected bundle",
+            ));
+        }
+        Ok(physical)
+    }
+
     fn code_mode_host_program_from_exe(&self, current_exe: Option<&Path>) -> PathBuf {
         let host_name = code_mode_host_executable_name(current_exe);
         let executable_dir = if let Some(package_layout) = &self.package_layout {
@@ -429,6 +462,29 @@ mod tests {
     }
     use pretty_assertions::assert_eq;
     use std::fs;
+
+    #[test]
+    fn responses_worker_requires_a_selected_bundle_sibling() -> std::io::Result<()> {
+        let directory = tempfile::tempdir()?;
+        let executable = directory.path().join("azrael");
+        let context = InstallContext::from_exe(false, Some(&executable), None);
+        assert!(
+            context
+                .responses_worker_program_from_exe(&executable)
+                .is_err()
+        );
+        let worker = directory.path().join(if cfg!(windows) {
+            "azrael-responses-worker.exe"
+        } else {
+            "azrael-responses-worker"
+        });
+        fs::write(&worker, "worker fixture")?;
+        assert_eq!(
+            context.responses_worker_program_from_exe(&executable)?,
+            fs::canonicalize(worker)?
+        );
+        Ok(())
+    }
 
     const TEST_RESOURCE_NAME: &str = "codex-test-helper";
 

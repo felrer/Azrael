@@ -261,14 +261,35 @@ pub fn create_client_for_route(
     route_class: ClientRouteClass,
     redirect_policy: ClientRedirectPolicy,
 ) -> Result<HttpClient, BuildRouteAwareHttpClientError> {
+    create_client_for_route_with_default_headers(
+        http_client_factory,
+        request_url,
+        route_class,
+        redirect_policy,
+        default_headers(),
+    )
+}
+
+/// Preserves the owning process's resolved identity headers across private worker IPC.
+pub fn create_client_for_route_with_default_headers(
+    http_client_factory: &HttpClientFactory,
+    request_url: &str,
+    route_class: ClientRouteClass,
+    redirect_policy: ClientRedirectPolicy,
+    headers: HeaderMap,
+) -> Result<HttpClient, BuildRouteAwareHttpClientError> {
+    let base = HttpClientBuilder::new()
+        .default_headers(headers)
+        .with_chatgpt_cloudflare_cookie_store();
     let builder = match redirect_policy {
-        ClientRedirectPolicy::Default => default_http_client_builder(),
-        ClientRedirectPolicy::Reject => default_http_client_builder().without_redirects(),
+        ClientRedirectPolicy::Default => base,
+        ClientRedirectPolicy::Reject => base.without_redirects(),
     };
     create_client_for_route_with_builder(http_client_factory, request_url, route_class, builder)
 }
 
-fn create_client_for_route_with_builder(
+/// Reuses the established eager/native or managed route construction with caller-owned hooks.
+pub fn create_client_for_route_with_builder(
     http_client_factory: &HttpClientFactory,
     request_url: &str,
     route_class: ClientRouteClass,

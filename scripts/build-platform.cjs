@@ -74,7 +74,7 @@ function buildPlan(options, platform = process.platform, arch = process.arch, en
   for (const key of ["cache-project-root", "account-ui-root", "npm-cli", "code-mode-host", "rg"]) if (settings[key] && !path.isAbsolute(settings[key])) throw new Error(`--${key} must be absolute`);
   if (fs.existsSync(settings.output) && !settings.resume) throw new Error("--output must be a new path; existing releases cannot be overwritten");
   if (!fs.statSync(settings["target-directory"]).isDirectory()) throw new Error("--target-directory must be an existing selected native Cargo cache");
-  const sourceBinaries = ["azrael", "azrael-bridge", "codex-code-mode-host"].map(name => executableName(name, descriptor));
+  const sourceBinaries = ["azrael", "azrael-bridge", "codex-code-mode-host", "azrael-responses-worker"].map(name => executableName(name, descriptor));
   return { settings, platform: platformIdentity(descriptor), binaries: engineBinaryNames(descriptor), sourceBinaries, descriptor, engineReuse: false };
 }
 function write(file, value) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(value, null, 2) + "\n"); }
@@ -154,7 +154,10 @@ async function build(options) {
     if(result.status===0) {
     if (["validate-original-engine","verify-frozen-engine","verify-compiled-source"].includes(label)) produced.push(args[args.indexOf("--file")+1]);
     if (label === "record-engine") produced.push(path.join(s.output,"engine/azrael-engine-build.json"));
-    if (label === "cargo-engine") for (const name of plan.sourceBinaries.slice(0, s["code-mode-host"] ? 2 : 3)) produced.push(path.join(s["target-directory"], identity.target, "release", name));
+    if (label === "cargo-engine") for (const [index, name] of plan.sourceBinaries.entries()) {
+      if (index === 2 && s["code-mode-host"]) continue;
+      produced.push(path.join(s["target-directory"], identity.target, "release", name));
+    }
     if (label === "companion-npm-ci") produced.push(path.join(cwd, "node_modules/typescript/bin/tsc"));
     if (label === "companion-linux-node-pty") produced.push(path.join(cwd,"build/Release/pty.node"));
     if (label === "opencodex-install") produced.push(...inventoryTree(path.join(cwd,"node_modules/@napi-rs")).files.filter(file=>file.kind==="file").map(file=>path.join(cwd,"node_modules/@napi-rs",file.path)));
@@ -232,7 +235,7 @@ async function build(options) {
   validateToolIdentity(run(bun, ["--eval", `console.log(${identityExpression})`], work, "bun-platform"), identity, "Selected Bun");
   if (s["code-mode-host"]) validateExecutableHeader(path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix), identity);
   const rust = path.join(work, "engine/codex-rs");
-  const cargoArgs = ["build", "--release", "--locked", "--no-default-features", "--target", identity.target, "--target-dir", s["target-directory"], "-p", "codex-app-server", "--bin", "azrael", "-p", "codex-app-server-client", "--bin", "azrael-bridge"];
+  const cargoArgs = ["build", "--release", "--locked", "--no-default-features", "--target", identity.target, "--target-dir", s["target-directory"], "-p", "codex-app-server", "--bin", "azrael", "-p", "codex-app-server-client", "--bin", "azrael-bridge", "-p", "codex-responses-worker", "--bin", "azrael-responses-worker"];
   if (!s["code-mode-host"]) cargoArgs.push("-p", "codex-code-mode-host", "--bin", "codex-code-mode-host");
   const ownedCargo = managedCargoInvocation(node, frozenProject, s["target-directory"], cargoArgs);
   run(ownedCargo.executable, ownedCargo.args, rust, "cargo-engine", ownedCargo.env);

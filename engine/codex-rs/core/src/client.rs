@@ -55,10 +55,7 @@ use codex_api::RequestTelemetry;
 use codex_api::ReqwestTransport;
 use codex_api::ResponseCreateWsRequest;
 use codex_api::ResponsesApiRequest;
-use codex_api::ResponsesClient as ApiResponsesClient;
 use codex_api::ResponsesOptions as ApiResponsesOptions;
-use codex_api::ResponsesWebsocketClient as ApiWebSocketResponsesClient;
-use codex_api::ResponsesWebsocketConnection as ApiWebSocketConnection;
 use codex_api::ResponsesWsRequest;
 use codex_api::SharedAuthProvider;
 use codex_api::SseTelemetry;
@@ -83,6 +80,9 @@ use codex_otel::WEBSOCKET_CONTINUATION_COUNT_METRIC;
 use codex_otel::current_span_w3c_trace_context;
 use codex_protocol::ResponseItemId;
 use codex_protocol::auth::AuthMode;
+use codex_responses_worker_client::HttpStreamError;
+use codex_responses_worker_client::RemoteWebsocketConnection as ApiWebSocketConnection;
+use codex_responses_worker_client::ResponsesWorker;
 
 use codex_protocol::ThreadId;
 use codex_protocol::config_types::ReasoningSummary as ReasoningSummaryConfig;
@@ -271,6 +271,7 @@ pub struct ModelClient {
     codex_responses_headers: Option<Arc<CodexResponsesHeaders>>,
     event_sender: Option<Sender<ProtocolEvent>>,
     http_client_factory: HttpClientFactory,
+    responses_worker: Arc<tokio::sync::OnceCell<ResponsesWorker>>,
     restored_history: bool,
     request_contributors: Vec<Arc<dyn codex_extension_api::ModelRequestContributor>>,
     executed_tool_calls: Option<ExecutedToolCalls>,
@@ -543,6 +544,7 @@ impl ModelClient {
             codex_responses_headers: None,
             event_sender: None,
             http_client_factory,
+            responses_worker: Arc::new(tokio::sync::OnceCell::new()),
             restored_history: false,
             request_contributors,
             executed_tool_calls: None,
@@ -1258,6 +1260,22 @@ impl ModelClient {
             .map(|_| ())
     }
 
+    async fn responses_worker(&self) -> std::result::Result<&ResponsesWorker, ApiError> {
+        self.responses_worker
+            .get_or_try_init(|| async {
+                let program = codex_install_context::InstallContext::current()
+                    .responses_worker_program()
+                    .map_err(|error| ApiError::Transport(TransportError::Build(format!(
+                        "Responses worker is unavailable in the selected runtime bundle: {error}"
+                    ))))?;
+                Ok(ResponsesWorker::new(
+                    program,
+                    self.http_client_factory.clone(),
+                ))
+            })
+            .await
+    }
+
     /// Opens a websocket connection using the same header and telemetry wiring as normal turns.
     ///
     /// Both startup prewarm and in-turn `needs_new` reconnects call this path so handshake
@@ -1285,8 +1303,9 @@ impl ModelClient {
         let start = Instant::now();
         let result = match tokio::time::timeout(
             websocket_connect_timeout,
-            ApiWebSocketResponsesClient::new(api_provider, api_auth).connect(
-                &self.http_client_factory,
+            self.responses_worker().await?.connect_websocket(
+                api_provider,
+                api_auth,
                 headers,
                 codex_login::default_client::default_headers(),
                 /*turn_state*/ None,
@@ -1778,11 +1797,12 @@ impl ModelClientSession {
                 .client
                 .responses_headers(client_setup.auth.as_ref(), &model_info.slug);
             tracing::Span::current().record("api.path", "/responses");
-            let transport = self.client.build_api_transport(
-                &client_setup.api_provider,
-                "/responses",
-                client_setup.redirect_policy,
-            )?;
+            let reject_redirects =
+                matches!(client_setup.redirect_policy, ClientRedirectPolicy::Reject)
+                    || client_setup
+                        .api_provider
+                        .headers
+                        .contains_key(codex_model_provider::ACCOUNT_ROUTING_HEADER);
             let request_auth_context = AuthRequestTelemetryContext::new(
                 client_setup.auth.as_ref().map(CodexAuth::auth_mode),
                 client_setup.api_auth.as_ref(),
@@ -1861,16 +1881,31 @@ impl ModelClientSession {
                 request.input = input;
             }
             inference_trace_attempt.record_started(&request);
-            let client = ApiResponsesClient::new(
-                transport,
-                client_setup.api_provider,
-                client_setup.api_auth,
-            )
-            .with_telemetry(Some(request_telemetry), Some(sse_telemetry));
             if let Some(timing) = &self.root_resume_timing {
                 timing.model_request_submitted();
             }
-            let stream_result = client.stream_request(request, options).await;
+            let stream_result = match self.client.responses_worker().await {
+                Ok(worker) => {
+                    worker
+                        .stream_http(
+                            client_setup.api_provider,
+                            client_setup.api_auth,
+                            request,
+                            options,
+                            Some(request_telemetry),
+                            Some(sse_telemetry),
+                            reject_redirects,
+                        )
+                        .await
+                }
+                Err(error) => Err(HttpStreamError::Api(error)),
+            };
+
+            let stream_result = match stream_result {
+                Ok(stream) => Ok(stream),
+                Err(HttpStreamError::Api(error)) => Err(error),
+                Err(HttpStreamError::ClientBuild(error)) => return Err(error.into()),
+            };
 
             match stream_result {
                 Ok(stream) => {
@@ -3002,6 +3037,11 @@ impl RequestTelemetry for ApiTelemetry {
 }
 
 impl SseTelemetry for ApiTelemetry {
+    fn on_remote_sse_poll(&self, result: &codex_api::RemoteSsePoll, duration: Duration) {
+        self.session_telemetry
+            .log_remote_sse_event(result, duration);
+    }
+
     fn on_sse_poll(
         &self,
         result: &std::result::Result<
@@ -3015,6 +3055,11 @@ impl SseTelemetry for ApiTelemetry {
 }
 
 impl WebsocketTelemetry for ApiTelemetry {
+    fn on_remote_ws_event(&self, result: &codex_api::RemoteWebsocketEvent, duration: Duration) {
+        self.session_telemetry
+            .record_remote_websocket_event(result, duration);
+    }
+
     fn on_ws_request(&self, duration: Duration, error: Option<&ApiError>, connection_reused: bool) {
         let error_message = error.map(telemetry_api_error_message);
         let status = error.and_then(api_error_http_status);

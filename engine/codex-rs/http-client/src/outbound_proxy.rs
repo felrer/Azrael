@@ -176,6 +176,11 @@ impl PartialEq for HttpClientFactory {
         self.outbound_proxy_policy == other.outbound_proxy_policy
             && self.system_proxy_fallback == other.system_proxy_fallback
             && self.network_policy == other.network_policy
+            && match (&self.chatgpt_cookie_store, &other.chatgpt_cookie_store) {
+                (Some(left), Some(right)) => left.same_authority(right),
+                (None, None) => true,
+                _ => false,
+            }
             && self
                 .chatgpt_cookie_store
                 .as_ref()
@@ -243,6 +248,16 @@ impl HttpClientFactory {
         let cookies = cookies.into_iter().collect::<Vec<_>>();
         self.chatgpt_cookie_store =
             (!cookies.is_empty()).then(|| Arc::new(ChatGptCookieStore::new(cookies)));
+        self
+    }
+
+    /// Uses the owner's live shared cookie state for HTTP and WebSocket clients.
+    /// This replaces locally configured cookies; the authority supplies the complete header.
+    pub fn with_shared_cookie_authority(
+        mut self,
+        authority: Arc<dyn crate::SharedCookieAuthority>,
+    ) -> Self {
+        self.chatgpt_cookie_store = Some(Arc::new(ChatGptCookieStore::from_authority(authority)));
         self
     }
 

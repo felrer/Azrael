@@ -104,9 +104,16 @@ def main():
         raise ValueError("Missing engine source fingerprint")
     for name, expected in build["engineProvenance"]["binaries"].items():
         verified(release, "engine/" + name, expected)
-    for name in ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe"):
+    for name in ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe", "azrael-responses-worker.exe"):
         if name not in build["engineProvenance"]["binaries"]:
             raise ValueError(f"Missing engine provenance: {name}")
+    worker = build["engineProvenance"].get("components", {}).get("responsesWorker")
+    if (not isinstance(worker, dict)
+            or type(worker.get("protocolVersion")) is not int
+            or worker.get("protocolVersion") != 1
+            or worker.get("binary") != "azrael-responses-worker.exe"
+            or worker.get("sha256") != build["engineProvenance"]["binaries"]["azrael-responses-worker.exe"]):
+        raise ValueError("Responses worker component provenance mismatch")
     files = {}
     for owner in ("engine", "providers", "computer-use", "window-control", "host"):
         directory = release / owner

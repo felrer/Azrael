@@ -99,11 +99,38 @@ pub enum RouteAwareRequestError {
     TooManyRedirects,
     #[error("route-aware request timed out")]
     Timeout,
+    /// A transport failure returned by a bundled worker. Opaque native error
+    /// objects cannot cross IPC; preserve their observable classification.
+    #[error("{message}")]
+    Remote {
+        message: String,
+        status: Option<StatusCode>,
+        is_timeout: bool,
+        is_connect: bool,
+        is_builder: bool,
+        is_body: bool,
+        is_request: bool,
+        failure_class: Option<RouteFailureClass>,
+    },
 }
 
 impl RouteAwareRequestError {
+    /// Returns diagnostics suitable for IPC without including a request URL.
+    pub fn sanitized_message(&self) -> String {
+        let message = self.to_string();
+        match self {
+            Self::Request(error) => error.url().map_or(message.clone(), |url| {
+                message.replace(url.as_str(), "<redacted>")
+            }),
+            _ => message,
+        }
+    }
+
     /// Classifies transport, proxy, and certificate failures without exposing request details.
     pub fn failure_class(&self) -> Option<RouteFailureClass> {
+        if let Self::Remote { failure_class, .. } = self {
+            return *failure_class;
+        }
         if self.is_timeout() {
             return Some(RouteFailureClass::ConnectTimeout);
         }
@@ -147,6 +174,7 @@ impl RouteAwareRequestError {
             | Self::Build(_)
             | Self::UnsupportedRedirectScheme(_)
             | Self::TooManyRedirects
+            | Self::Remote { .. }
             | Self::Timeout => None,
         }
     }
@@ -154,6 +182,7 @@ impl RouteAwareRequestError {
     pub fn status(&self) -> Option<StatusCode> {
         match self {
             Self::Request(error) => error.status(),
+            Self::Remote { status, .. } => *status,
             Self::Route(_)
             | Self::Policy(_)
             | Self::Build(_)
@@ -164,23 +193,49 @@ impl RouteAwareRequestError {
     }
 
     pub fn is_timeout(&self) -> bool {
-        matches!(self, Self::Timeout) || matches!(self, Self::Request(error) if error.is_timeout())
+        matches!(
+            self,
+            Self::Timeout
+                | Self::Remote {
+                    is_timeout: true,
+                    ..
+                }
+        ) || matches!(self, Self::Request(error) if error.is_timeout())
     }
 
     pub fn is_connect(&self) -> bool {
-        matches!(self, Self::Request(error) if error.is_connect())
+        matches!(
+            self,
+            Self::Remote {
+                is_connect: true,
+                ..
+            }
+        ) || matches!(self, Self::Request(error) if error.is_connect())
     }
 
     pub fn is_builder(&self) -> bool {
-        matches!(self, Self::Request(error) if error.is_builder())
+        matches!(
+            self,
+            Self::Remote {
+                is_builder: true,
+                ..
+            }
+        ) || matches!(self, Self::Request(error) if error.is_builder())
     }
 
     pub fn is_body(&self) -> bool {
-        matches!(self, Self::Request(error) if error.is_body())
+        matches!(self, Self::Remote { is_body: true, .. })
+            || matches!(self, Self::Request(error) if error.is_body())
     }
 
     pub fn is_request(&self) -> bool {
-        matches!(self, Self::Request(error) if error.is_request())
+        matches!(
+            self,
+            Self::Remote {
+                is_request: true,
+                ..
+            }
+        ) || matches!(self, Self::Request(error) if error.is_request())
     }
 
     pub fn url_mut(&mut self) -> Option<&mut reqwest::Url> {

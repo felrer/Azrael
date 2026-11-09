@@ -68,7 +68,6 @@ use tracing::Span;
 
 const SSE_UNKNOWN_KIND: &str = "unknown";
 const WEBSOCKET_UNKNOWN_KIND: &str = "unknown";
-const RESPONSES_WEBSOCKET_TIMING_KIND: &str = "responsesapi.websocket_timing";
 const RESPONSES_WEBSOCKET_TIMING_METRICS_FIELD: &str = "timing_metrics";
 const RESPONSES_API_OVERHEAD_FIELD: &str = "responses_duration_excl_engine_and_client_tool_time_ms";
 const RESPONSES_API_INFERENCE_FIELD: &str = "engine_service_total_ms";
@@ -956,47 +955,32 @@ impl SessionTelemetry {
         >,
         duration: Duration,
     ) {
-        let mut kind = None;
-        let mut success = true;
+        self.record_remote_websocket_event(
+            &codex_api::RemoteWebsocketEvent::capture(result),
+            duration,
+        );
+    }
 
-        match result {
-            Ok(Some(Ok(message))) => match message {
-                tokio_tungstenite::tungstenite::Message::Text(text) => {
-                    match serde_json::from_str::<serde_json::Value>(text) {
-                        Ok(value) => {
-                            kind = value
-                                .get("type")
-                                .and_then(|value| value.as_str())
-                                .map(std::string::ToString::to_string);
-                            if kind.as_deref() == Some(RESPONSES_WEBSOCKET_TIMING_KIND) {
-                                self.record_responses_websocket_timing_metrics(&value);
-                            }
-                            if kind.as_deref() == Some("response.failed") {
-                                success = false;
-                            }
-                        }
-                        Err(_) => {
-                            kind = Some("parse_error".to_string());
-                            success = false;
-                        }
-                    }
+    pub fn record_remote_websocket_event(
+        &self,
+        result: &codex_api::RemoteWebsocketEvent,
+        duration: Duration,
+    ) {
+        let (kind, success) = match result {
+            codex_api::RemoteWebsocketEvent::Data {
+                kind,
+                success,
+                timing,
+            } => {
+                if let Some(value) = timing {
+                    self.record_responses_websocket_timing_metrics(value);
                 }
-                tokio_tungstenite::tungstenite::Message::Ping(_)
-                | tokio_tungstenite::tungstenite::Message::Pong(_) => {
-                    return;
-                }
-                tokio_tungstenite::tungstenite::Message::Binary(_)
-                | tokio_tungstenite::tungstenite::Message::Close(_)
-                | tokio_tungstenite::tungstenite::Message::Frame(_) => {
-                    success = false;
-                }
-            },
-            Ok(Some(Err(_))) | Ok(None) | Err(_) => {
-                success = false;
+                (kind.as_deref(), *success)
             }
-        }
-
-        let kind_str = kind.as_deref().unwrap_or(WEBSOCKET_UNKNOWN_KIND);
+            codex_api::RemoteWebsocketEvent::Ping | codex_api::RemoteWebsocketEvent::Pong => return,
+            _ => (None, false),
+        };
+        let kind_str = kind.unwrap_or(WEBSOCKET_UNKNOWN_KIND);
         let success_str = if success { "true" } else { "false" };
         let tags = [("kind", kind_str), ("success", success_str)];
         self.counter(WEBSOCKET_EVENT_COUNT_METRIC, /*inc*/ 1, &tags);
@@ -1010,41 +994,20 @@ impl SessionTelemetry {
     ) where
         E: std::fmt::Display,
     {
+        self.log_remote_sse_event(&codex_api::RemoteSsePoll::capture(response), duration);
+    }
+
+    pub fn log_remote_sse_event(&self, response: &codex_api::RemoteSsePoll, duration: Duration) {
         match response {
-            Ok(Some(Ok(sse))) => {
-                if sse.data.trim() == "[DONE]" {
-                    self.sse_event(&sse.event, duration);
-                } else {
-                    match serde_json::from_str::<serde_json::Value>(&sse.data) {
-                        Ok(error) if sse.event == "response.failed" => {
-                            self.sse_event_failed(Some(&sse.event), duration, &error);
-                        }
-                        Ok(content) if sse.event == "response.output_item.done" => {
-                            match serde_json::from_value::<ResponseItem>(content) {
-                                Ok(_) => self.sse_event(&sse.event, duration),
-                                Err(_) => {
-                                    self.sse_event_failed(
-                                        Some(&sse.event),
-                                        duration,
-                                        &"failed to parse response.output_item.done",
-                                    );
-                                }
-                            };
-                        }
-                        Ok(_) => {
-                            self.sse_event(&sse.event, duration);
-                        }
-                        Err(error) => {
-                            self.sse_event_failed(Some(&sse.event), duration, &error);
-                        }
-                    }
-                }
-            }
-            Ok(Some(Err(error))) => {
+            codex_api::RemoteSsePoll::Event { kind, error } => match error {
+                Some(error) => self.sse_event_failed(Some(kind), duration, error),
+                None => self.sse_event(kind, duration),
+            },
+            codex_api::RemoteSsePoll::Error { message: error, .. } => {
                 self.sse_event_failed(/*kind*/ None, duration, error);
             }
-            Ok(None) => {}
-            Err(_) => {
+            codex_api::RemoteSsePoll::End => {}
+            codex_api::RemoteSsePoll::Timeout => {
                 self.sse_event_failed(
                     /*kind*/ None,
                     duration,

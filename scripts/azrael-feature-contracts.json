@@ -12,6 +12,96 @@
   },
   "features": [
     {
+      "id": "engine.responses-worker",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/responses-worker/Cargo.toml",
+        "engine/codex-rs/responses-worker/src/main.rs",
+        "engine/codex-rs/responses-worker/tests/subprocess.rs",
+        "engine/codex-rs/responses-worker-client/Cargo.toml",
+        "engine/codex-rs/responses-worker-protocol/Cargo.toml",
+        "engine/codex-rs/core/src/client.rs",
+        "engine/codex-rs/http-client/src/network_policy.rs",
+        "engine/codex-rs/http-client/src/chatgpt_cloudflare_cookies.rs",
+        "engine/codex-rs/http-client/src/client_builder.rs",
+        "engine/codex-rs/http-client/src/client_builder_tests.rs",
+        "engine/codex-rs/http-client/src/lib.rs",
+        "engine/codex-rs/codex-api/src/lib.rs",
+        "engine/codex-rs/http-client/src/transport.rs",
+        "engine/codex-rs/install-context/src/lib.rs",
+        "scripts/platform-runtime.cjs",
+        "scripts/build-azrael.ps1",
+        "scripts/build-platform.cjs",
+        "scripts/package-azrael.ps1",
+        "scripts/package-app-release.py",
+        "scripts/install-platform-release.cjs",
+        "scripts/install-app-release.ps1",
+        "scripts/engine-provenance.py",
+        "scripts/check-responses-worker-native.cjs",
+        "engine/codex-rs/Cargo.toml",
+        "engine/codex-rs/core/Cargo.toml",
+        "engine/codex-rs/core/src/client_tests.rs",
+        "engine/codex-rs/exec-server/src/client/connection_failure.rs",
+        "engine/codex-rs/codex-api/src/common.rs",
+        "engine/codex-rs/codex-api/src/telemetry.rs",
+        "engine/codex-rs/codex-api/src/endpoint/responses.rs",
+        "engine/codex-rs/codex-api/src/endpoint/responses_websocket.rs",
+        "engine/codex-rs/codex-api/src/sse/responses.rs",
+        "engine/codex-rs/http-client/src/outbound_proxy.rs",
+        "engine/codex-rs/http-client/src/route_aware_client_pool.rs",
+        "engine/codex-rs/login/src/auth/default_client.rs",
+        "engine/codex-rs/otel/src/events/session_telemetry.rs",
+        "scripts/cargo-verification.cjs",
+        "scripts/cargo-preflight-recipes.cjs",
+        "engine/codex-rs/responses-worker-client/src/ipc.rs",
+        "engine/codex-rs/responses-worker-client/src/lib.rs",
+        "engine/codex-rs/responses-worker-client/src/protocol.rs",
+        "engine/codex-rs/responses-worker-client/src/telemetry.rs",
+        "engine/codex-rs/responses-worker-protocol/src/error.rs",
+        "engine/codex-rs/responses-worker-protocol/src/event.rs",
+        "engine/codex-rs/responses-worker-protocol/src/headers.rs",
+        "engine/codex-rs/responses-worker-protocol/src/lib.rs",
+        "engine/codex-rs/responses-worker-protocol/src/monotonic.rs",
+        "engine/codex-rs/responses-worker-protocol/src/request.rs"
+      ],
+      "contract": "docs/architecture/system/runtime-target.md",
+      "checks": [
+        {
+          "id": "engine.responses-worker.native",
+          "level": "native",
+          "executable": "node",
+          "args": [
+            "scripts/check-responses-worker-native.cjs",
+            "{engineSourceRoot}"
+          ],
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.responses-worker.bundle",
+          "level": "source",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-platform-runtime.cjs",
+            "scripts/test-build-platform.cjs",
+            "scripts/test-platform-packaging.cjs"
+          ]
+        },
+        {
+          "id": "engine.responses-worker.provenance",
+          "level": "source",
+          "executable": "python",
+          "args": [
+            "-B",
+            "scripts/tests/test_engine_provenance.py"
+          ]
+        }
+      ],
+      "reportFields": [
+        "checks"
+      ]
+    },
+    {
       "id": "tool.mcp-reload",
       "area": "engine",
       "owners": [

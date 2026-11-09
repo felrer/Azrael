@@ -8,6 +8,20 @@
 
 배포 엔진 번들의 자동 재사용은 선택한 소유 project의 이전 번들에 대해 release profile·전체 source provenance·바이너리와 선택한 code-mode host 일치를 검증한다. Windows 빌드는 같은 선택 소스에서 code-mode host도 컴파일하는 것을 기본으로 한다. 외부 host를 명시하면 원본 경로·해시를 고정하며, 해시 일치만으로 IPC 호환성을 주장하지 않는다. 새 빌드·자동 재사용·명시 재사용 모두 패키징 전 실제 엔진/host 조합의 문자열 및 하위 도구 완료 응답, 실행 중 셀과 종료 경로를 격리된 loopback 검사로 확인한다. source-built 기본 선택은 같은 소스 신원의 source-built host만 자동 재사용하고, 외부 host 선택은 지정한 바이너리 해시와 일치해야 한다. Cargo 컴파일 중간물 재사용은 완성 번들 수용과 별개다. 소유된 shared target은 제한된 imported source를 stable 작업 경로에 동기화할 수 있지만 원래 불변 입력의 검증과 실행 후 소스 동일성 검사는 유지한다. 세부 소유·fallback 계약은 [관리 캐시](../features/project-maintenance/README.md#기능-의존-캐시와-연결-정리)와 [빌드 playbook](../../playbooks/build.md#inputs-and-caches-for-repeated-builds-and-verification)이 소유한다. 필수 회귀는 feature inventory의 `engine.shared-engine.stable-source`에 연결한다.
 
+<a id="responses-worker"></a>
+
+### Responses 통신 worker
+
+상태: `partial`. Responses의 HTTP·SSE·WebSocket을 독립 실행파일 `azrael-responses-worker`로 이관했고 Windows x64에서 engine 연결까지 검증했다. Models·Realtime·Devin과 공통 thread/turn·도구·승인 orchestration은 기존 engine owner에 남는다. 필수 보존 항목은 `engine.responses-worker`다. 제품 빌드·설치 및 다른 플랫폼의 수용 상태는 현재 작업 기록을 따른다.
+
+worker는 ModelClient 수명 안에서 재사용하고 기존 Responses endpoint·파서·연결 pump를 사용한다. main은 시도별 최종 요청 인증, live destination permit 및 계정 변경 revoke, 공유 cookie의 소유자다. worker는 private child pipe를 통해 이 권한을 요청하며, 부모 연결 종료나 권한 불명 상태에서는 계속 송신하지 않는다. graceful interrupt 후 drain/reuse와 hard cancel 후 producer 종료·연결 폐기를 구분하고, 실제 pump 종료 전에는 capacity reset의 종료 근거를 내보내지 않는다. event backpressure가 취소·권한 폐기를 가로막아서는 안 된다. network-side telemetry duration과 구조화된 오류·sticky turn state도 유지한다.
+
+원래 정책 관리가 없는 연결은 기존 native 클라이언트의 생성 오류 순서·리디렉션·쿠키 선택을 유지하면서 요청과 응답 body 수명에 부모 permit을 적용한다. 관리형 연결은 기존 route pool을 유지한다. IPC는 중복 헤더의 원시 바이트와 민감 정보 표시를 함께 보존하며, 큰 메시지는 논리 요청 크기를 임의로 제한하지 않고 분할 전송한다.
+
+worker는 선택한 engine 번들 안의 정규 파일로만 resolve한다. PATH fallback이나 기존 in-process Responses 경로로의 우회는 제공하지 않는다. 번들 영수증은 worker protocol·파일명·실제 바이너리 hash를 고정하며, 빌드·배포·rollback은 engine/bridge/code-mode host/Responses worker를 한 묶음으로 수용한다. 독립 실행파일의 컴파일 중간물 재사용은 기존 toolchain·OS·CPU·설정·scope별 Cargo owner와 Cargo dependency fingerprint가 판단한다. 완성 번들은 여전히 전체 source provenance를 검증하며, 불완전한 전이 입력 key로 worker 컴파일을 건너뛰지 않는다.
+
+공통 설계 대상은 Windows x64/MSVC, glibc Linux x64, macOS ARM64다. 별도 프로세스라는 이유로 OS sandbox 격리가 추가됐다고 간주하지 않는다. Windows의 실제 process·권한·취소·오류·번들·engine 연결 검사를 수용했으며 macOS·Linux 실행은 미검증이다. 로컬 성능 측정의 수용 범위는 작업 기록에 남기고, 이를 앱 전체 성능이나 제품 빌드 단축 수치로 일반화하지 않는다.
+
 ### 빌드 검증 범위
 
 Windows 빌드 호환성 검사는 프로젝트의 `artifacts/bc-<8자리 hex>`에 새 격리 fixture를 지정한다. 임시 디렉터리 아래 중첩 경로로 인한 AF_UNIX 길이 초과를 줄이며, 실제 소켓의 108바이트 미만 검사와 기존 nonce 기반 프로세스 종료·fixture 정리 조건은 유지한다. 이 경로도 제한을 넘는 체크아웃에서는 더 짧은 작업 경로가 필요하다.

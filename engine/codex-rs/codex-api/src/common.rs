@@ -419,6 +419,9 @@ pub struct ResponseStream {
     pub upstream_request_id: Option<String>,
     /// Requests a graceful interrupt. Keep consuming events through completion.
     pub interrupt: Option<oneshot::Sender<()>>,
+    /// Actual response producer completion, observed before IPC capacity is released.
+    /// Close the event receiver to cancel; dropping the handle alone does not abort.
+    pub pump_task: Option<tokio::task::JoinHandle<()>>,
 }
 
 impl Stream for ResponseStream {

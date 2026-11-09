@@ -35,12 +35,13 @@ class AppReleaseTests(unittest.TestCase):
         self.write(self.node, b'fake node')
         self.write(self.node.parent / 'LICENSE', b'node fixture license')
         hashes = {}
-        for name in ('azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe'):
+        for name in ('azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe', 'azrael-responses-worker.exe'):
             data = ('fixture ' + name).encode()
             self.write(self.release / 'engine' / name, data)
             hashes[name] = sha(data)
         self.engine_sha256 = hashes['azrael.exe']
-        self.write_json(self.release / 'build-info.json', {'sha256': {}, 'engineProvenance': {'source': {'sourceSha256': 'b' * 64}, 'binaries': hashes}})
+        worker = {'protocolVersion': 1, 'binary': 'azrael-responses-worker.exe', 'sha256': hashes['azrael-responses-worker.exe']}
+        self.write_json(self.release / 'build-info.json', {'sha256': {}, 'engineProvenance': {'source': {'sourceSha256': 'b' * 64}, 'binaries': hashes, 'components': {'responsesWorker': worker}}})
         closure = {}
         for name in ('scripts/devin-catalog.json', 'scripts/prepare-devin.ps1', 'scripts/start-devin-native.ps1'):
             data = ('fixture ' + name).encode()
@@ -150,6 +151,20 @@ class AppReleaseTests(unittest.TestCase):
         self.assertEqual(result.returncode, expected, result.stderr)
         self.assertEqual((state / 'auth-sentinel').read_bytes(), b'preserve')
         return result
+
+    def test_package_rejects_missing_or_mixed_responses_worker_component(self):
+        file = self.release / 'build-info.json'
+        original = json.loads(file.read_bytes())
+        for component in (None, {'protocolVersion': 2}, {'binary': 'azrael.exe'}, {'sha256': '0' * 64}):
+            with self.subTest(component=component):
+                build = json.loads(json.dumps(original))
+                if component is None:
+                    del build['engineProvenance']['components']['responsesWorker']
+                else:
+                    build['engineProvenance']['components']['responsesWorker'].update(component)
+                self.write_json(file, build)
+                self.assertIn('Responses worker component provenance mismatch', self.package(expected=1).stderr)
+                self.assertFalse(self.output.exists())
 
     def test_package_portable_closure_and_checksum_contract(self):
         self.package()
