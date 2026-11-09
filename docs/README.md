@@ -35,6 +35,8 @@ Distinguish `draft` proposals, `target` intended behavior, `current` verified im
 
 When editing documents, update the current content in place. Integrate settled answers into their owning sections and remove resolved questions, obsolete content and duplication. Unless history is the document's purpose, do not append response records, dated confirmation notes, investigation records or detailed logs; retain only what is needed for current understanding, execution and verification.
 
+For design-document maintenance, apply [contract preservation and diff review](../instructions/skills/design-documentation/SKILL.md#preserve-contracts-during-maintenance), including conflict handling and the separation of evidence availability from recorded verification state.
+
 ## Work Artifacts
 
 - Work directory: work

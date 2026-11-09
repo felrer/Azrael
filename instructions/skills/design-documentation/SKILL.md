@@ -33,7 +33,7 @@ Choose a structure suited to the content and explain only what is needed. Do not
 
 ## Keep only the current design
 
-When incorporating a change, edit the owning sentences and sections directly, leaving only the design that is true after the change.
+When incorporating an agreed change, edit the owning sentences and sections directly, leaving the current agreed design in place.
 
 - Remove replaced behavior, discarded structures, and reversed decisions. Consult version control or necessary existing work records for history, and follow the project's retention system if one exists. Do not accumulate conversation history in another document when it has no retention purpose.
 - Avoid change-process wording such as "correction", "previously", "no longer", or "superseded", and paragraphs appended by date. If the relationship to existing behavior matters, express it as a condition or constraint of the current design.
@@ -60,6 +60,12 @@ Update the existing document that owns the content, and create new documents wit
 ## Check after updating
 
 Check that the document agrees with approved requirements and related documents, and follow the project's documentation validation guidance. Check that statements made false by this change do not remain in other sections or documents, and that no change-process narrative or sentence-level status or date annotations have been introduced.
+
+## Preserve contracts during maintenance
+
+- When implementation or another contract contradicts an applicable agreed design, preserve its requirements, prohibitions, exceptions and preservation guarantees. Mark the affected unit as `conflict` using the project's state convention, retaining its prior state and scope; record both claims, source references and the unresolved decision in the existing work record. Do not select the implementation as the intended behavior without an approved design change. Missing evidence or different target/platform/version scopes alone do not establish a conflict.
+- If evidence is unavailable in the current environment or repository copy, report that investigation limit in the work record and final answer. Do not infer that an existing verification result is invalid, change its recorded status, remove its reference, or insert copy-specific availability notes into durable design solely because the evidence could not be read.
+- Before finalizing, review the diff for deleted or replaced requirements, prohibitions, exceptions, preservation conditions and status labels. Connect each semantic change to an approved decision; otherwise retain the contract and report the unresolved difference. Report structural/link validation separately from semantic preservation review; a successful command or clean diagnostic does not prove preservation.
 
 <a id="새로운-결정이나-변경이-필요할-때"></a>
 
