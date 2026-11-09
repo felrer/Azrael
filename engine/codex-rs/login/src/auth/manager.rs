@@ -3077,6 +3077,12 @@ impl AuthManager {
         Ok(manager)
     }
 
+    /// Credential-free policy and route template for independently selected services.
+    /// Never loads root credentials, environment auth, or a profile usage lease.
+    pub fn azrael_service_template(config: &impl AuthManagerConfig) -> Self {
+        Self::new_from_auth_config_and_auth(auth_config_from(config), false, None)
+    }
+
     /// Project execution never borrows the host's root login. Each context keeps
     /// its own transport policy, while admission spans all work in the project.
     pub async fn shared_for_azrael_project(

@@ -1,7 +1,6 @@
 use codex_core::config::Config;
 use codex_http_client::HttpClient;
 use codex_http_client::HttpClientFactory;
-use codex_login::AuthManager;
 use codex_login::CodexAuth;
 use codex_login::default_client::RESIDENCY_HEADER_NAME;
 use codex_login::default_client::create_client_with_chatgpt_cookies;
@@ -70,8 +69,7 @@ pub(crate) async fn chatgpt_get_request_with_timeout<T: DeserializeOwned>(
         .for_current_account();
     let client = chatgpt_client(config.http_client_factory().with_network_policy(policy));
     let chatgpt_base_url = &config.chatgpt_base_url;
-    let auth_manager =
-        AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await?;
+    let auth_manager = codex_core::connectors::service_auth_manager(config).await?;
     let auth = auth_manager
         .auth()
         .await

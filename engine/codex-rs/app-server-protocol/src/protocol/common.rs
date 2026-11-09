@@ -1536,6 +1536,27 @@ client_request_definitions! {
         serialization: global("account-auth"),
         response: v1::GetAuthStatusResponse,
     },
+    /// Host-owned HTTP services use an independent, request-bound OpenAI identity.
+    AzraelServiceAuth => "azrael/service/auth" {
+        params: v2::AzraelServiceAuthParams,
+        serialization: None,
+        response: v2::AzraelServiceAuthResponse,
+    },
+    AzraelServiceHttp => "azrael/service/http" {
+        params: v2::AzraelServiceHttpParams,
+        serialization: None,
+        response: v2::AzraelServiceHttpResponse,
+    },
+    AzraelServiceHttpCancel => "azrael/service/http/cancel" {
+        params: v2::AzraelServiceRequestEndParams,
+        serialization: None,
+        response: v2::AzraelServiceHttpCancelResponse,
+    },
+    AzraelServiceRequestEnd => "azrael/service/request/end" {
+        params: v2::AzraelServiceRequestEndParams,
+        serialization: None,
+        response: v2::AzraelServiceRequestEndResponse,
+    },
     // Legacy fuzzy search cancellation is intentionally concurrent: clients reuse a
     // cancellation token so a newer request can cancel an older in-flight search.
     FuzzyFileSearch => "fuzzyFileSearch" {

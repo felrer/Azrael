@@ -18,6 +18,10 @@ Status: `reference` — link-only compatibility router.
 
 [authentication-independent-shell-and-provider-readiness](features/accounts/README.md#authentication-independent-shell-and-provider-readiness).
 
+<a id="independent-openai-service-account"></a>
+
+[independent-openai-service-account](features/accounts/README.md#independent-openai-service-account).
+
 <a id="provider-groups-and-account-summaries"></a>
 
 [provider-groups-and-account-summaries](features/accounts/README.md#provider-groups-and-account-summaries).

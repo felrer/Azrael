@@ -1,4 +1,6 @@
 use super::*;
+#[path = "connection_manager/network_policy_tests.rs"]
+mod network_policy_tests;
 use crate::McpBinding;
 use crate::client_tool_catalog::ClientToolCatalog;
 use crate::elicitation::ElicitationLifecycle;
@@ -103,6 +105,8 @@ impl McpConnectionSet {
         prefix_mcp_tool_names: bool,
     ) -> Self {
         Self {
+            config: None,
+            network_policy_metadata: None,
             servers: HashMap::new(),
             event_stream_connection: None,
             disabled_servers: Vec::new(),
@@ -253,6 +257,115 @@ fn create_test_server_info(title: &str) -> McpServerInfo {
 struct TestInProcessTransportFactory;
 
 struct PendingHttpClient;
+
+struct AuthRecordingHttpClient(tokio::sync::mpsc::UnboundedSender<HttpRequestParams>);
+
+impl HttpClient for AuthRecordingHttpClient {
+    fn http_request(
+        &self,
+        params: HttpRequestParams,
+    ) -> BoxFuture<'_, Result<HttpRequestResponse, ExecServerError>> {
+        self.0.send(params).expect("record transport request");
+        async {
+            Ok(HttpRequestResponse {
+                status: 401,
+                headers: Vec::new(),
+                body: codex_exec_server::ByteChunk::from(Vec::new()),
+            })
+        }
+        .boxed()
+    }
+
+    fn http_request_stream(
+        &self,
+        params: HttpRequestParams,
+    ) -> BoxFuture<'_, Result<(HttpRequestResponse, HttpResponseBodyStream), ExecServerError>> {
+        async move {
+            let response = self.http_request(params).await?;
+            Ok((
+                response,
+                HttpResponseBodyStream::from_chunks(Vec::<Vec<u8>>::new()),
+            ))
+        }
+        .boxed()
+    }
+}
+
+#[tokio::test]
+async fn hosted_apps_service_auth_reaches_transport_without_conversation_fallback()
+-> anyhow::Result<()> {
+    let service_auth =
+        CodexAuth::from_external_chatgpt_tokens("header.e30.service", "service-account", None)?;
+    let conversation_auth = CodexAuth::from_external_chatgpt_tokens(
+        "header.e30.conversation",
+        "conversation-account",
+        None,
+    )?;
+    let service = codex_model_provider::auth_provider_from_auth_manager(
+        AuthManager::from_auth_for_testing(service_auth.clone()),
+        &service_auth,
+    );
+    let conversation = codex_model_provider::auth_provider_from_auth(&conversation_auth);
+    assert!(hosted_apps_auth_provider(true, None, Some(conversation.clone())).is_none());
+    for (provider, token, account) in [
+        (
+            hosted_apps_auth_provider(true, Some(service), Some(conversation.clone())),
+            "header.e30.service",
+            "service-account",
+        ),
+        (
+            Some(conversation),
+            "header.e30.conversation",
+            "conversation-account",
+        ),
+    ] {
+        let (sent, mut requests) = tokio::sync::mpsc::unbounded_channel();
+        let client = RmcpClient::new_streamable_http_client(
+            "auth-routing-fixture",
+            "https://apps.example/mcp",
+            None,
+            None,
+            None,
+            OAuthCredentialsStoreMode::File,
+            AuthKeyringBackendKind::default(),
+            Arc::new(AuthRecordingHttpClient(sent)),
+            provider,
+        )
+        .await?;
+        let result = client
+            .initialize(
+                InitializeRequestParams::new(
+                    ClientCapabilities::default(),
+                    Implementation::new("fixture", "1"),
+                ),
+                Some(Duration::from_secs(2)),
+                Box::new(|_, _| async { anyhow::bail!("unexpected elicitation") }.boxed()),
+            )
+            .await;
+        assert!(result.is_err(), "fixture returns 401 after recording auth");
+        let request = requests
+            .try_recv()
+            .expect("initialization reached HTTP transport");
+        let header = |name: &str| {
+            request
+                .headers
+                .iter()
+                .find(|header| header.name.eq_ignore_ascii_case(name))
+                .map(|header| header.value.as_str())
+        };
+        assert_eq!(
+            header("authorization"),
+            Some(format!("Bearer {token}").as_str())
+        );
+        assert_eq!(header("chatgpt-account-id"), Some(account));
+        client.shutdown().await;
+        assert!(
+            requests.try_recv().is_err(),
+            "401 must not replay with another account"
+        );
+    }
+    Ok(())
+}
 
 impl HttpClient for PendingHttpClient {
     fn http_request(
@@ -470,6 +583,7 @@ async fn create_test_managed_client(tools: Vec<ToolInfo>) -> ManagedClient {
         tool_timeout: None,
         server_instructions: None,
         server_supports_sandbox_state_meta_capability: false,
+        client_supports_network_policy_meta_capability: false,
         codex_apps_tools_cache_context: None,
     }
 }
@@ -774,6 +888,7 @@ pub(crate) async fn create_test_manager_with_ready_apps_client(
         tool_timeout: Some(Duration::from_secs(5)),
         server_instructions: None,
         server_supports_sandbox_state_meta_capability: false,
+        client_supports_network_policy_meta_capability: false,
         codex_apps_tools_cache_context: Some(cache_context.clone()),
     };
     let approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
@@ -2031,6 +2146,7 @@ async fn read_only_apps_discovery_never_uses_a_shared_writable_catalog() -> anyh
             /*previous*/ None,
             McpPublicationGate::already_published(),
             McpRuntimeInput {
+                network_policy_metadata: None,
                 startup_policy: McpStartupPolicy::Eager,
                 config: Arc::new(config),
                 plugins_available: false,
@@ -2104,6 +2220,7 @@ async fn hosted_apps_protocol_mode_is_independent_of_generic_mode() -> anyhow::R
             /*previous*/ None,
             McpPublicationGate::already_published(),
             McpRuntimeInput {
+                network_policy_metadata: None,
                 startup_policy: McpStartupPolicy::Eager,
                 config: Arc::new(config),
                 plugins_available: false,
@@ -2210,6 +2327,7 @@ async fn codex_apps_extension_does_not_share_host_owned_tools_cache() -> anyhow:
             /*previous*/ None,
             McpPublicationGate::already_published(),
             McpRuntimeInput {
+                network_policy_metadata: None,
                 startup_policy: McpStartupPolicy::Eager,
                 config: Arc::new(config),
                 plugins_available: false,
@@ -4615,6 +4733,7 @@ async fn executor_owned_chatgpt_mcp_accepts_only_safe_explicit_authorization() -
             /*previous*/ None,
             McpPublicationGate::already_published(),
             McpRuntimeInput {
+                network_policy_metadata: None,
                 startup_policy: McpStartupPolicy::Eager,
                 config: Arc::new(runtime_config.clone()),
                 plugins_available: false,
@@ -4733,6 +4852,7 @@ async fn no_local_runtime_fails_local_stdio_but_keeps_local_http_server() {
         /*previous*/ None,
         McpPublicationGate::already_published(),
         McpRuntimeInput {
+            network_policy_metadata: None,
             startup_policy: McpStartupPolicy::Eager,
             config: Arc::new(crate::mcp::tests::test_mcp_config(
                 codex_home.path().to_path_buf(),
@@ -5179,6 +5299,7 @@ async fn reconcile_reusable_server_with_mcp_config(
         Some(previous),
         McpPublicationGate::already_published(),
         McpRuntimeInput {
+            network_policy_metadata: None,
             startup_policy: McpStartupPolicy::Eager,
             config: Arc::new(mcp_config),
             plugins_available: false,
@@ -5542,6 +5663,7 @@ async fn reconciliation_reuses_connection_without_relisting_regular_tools() -> a
         tool_timeout: None,
         server_instructions: initialize.instructions,
         server_supports_sandbox_state_meta_capability: false,
+        client_supports_network_policy_meta_capability: false,
         codex_apps_tools_cache_context: None,
     };
     let runtime_context = reusable_server_runtime_context();
@@ -6039,6 +6161,7 @@ async fn reconciliation_replaces_connection_when_protocol_mode_changes() {
         Some(&previous),
         McpPublicationGate::already_published(),
         McpRuntimeInput {
+            network_policy_metadata: None,
             startup_policy: McpStartupPolicy::Eager,
             config: Arc::new(mcp_config),
             plugins_available: false,
@@ -6097,6 +6220,7 @@ async fn reconciliation_reuses_legacy_stdio_server_when_modern_protocol_is_enabl
         Some(&previous),
         McpPublicationGate::already_published(),
         McpRuntimeInput {
+            network_policy_metadata: None,
             startup_policy: McpStartupPolicy::Eager,
             config: Arc::new(mcp_config),
             plugins_available: false,

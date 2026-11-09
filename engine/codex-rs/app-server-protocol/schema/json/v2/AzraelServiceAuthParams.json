@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "profileId": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "refreshToken": {
+      "default": false,
+      "type": "boolean"
+    },
+    "requestId": {
+      "type": "string"
+    },
+    "revision": {
+      "default": null,
+      "format": "uint64",
+      "minimum": 0.0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "requestId"
+  ],
+  "title": "AzraelServiceAuthParams",
+  "type": "object"
+}

@@ -82,9 +82,10 @@ pub struct McpEventNotification {
 
 /// Owns an MCP event subscription and cancels its request when dropped.
 pub struct McpEventStream {
+    pub(crate) service_scope: Option<Arc<McpRuntime>>,
     request: Option<CancellableEventStreamRequest>,
     runtime_handle: Handle,
-    client: Option<Arc<RmcpClient>>,
+    pub(crate) client: Option<Arc<RmcpClient>>,
     cancel_event_streams_on_server_removal: watch::Receiver<()>,
 }
 
@@ -105,6 +106,7 @@ impl McpEventStream {
             .await
             .context("events/stream request failed")?;
         Ok(Self {
+            service_scope: None,
             request: Some(request),
             runtime_handle: Handle::current(),
             client: Some(client),
@@ -139,6 +141,7 @@ impl McpEventStream {
             response = &mut request.handle.rx => {
                 self.request = None;
                 self.client = None;
+                self.service_scope = None;
 
                 match response {
                     Ok(Ok(_))
@@ -152,6 +155,7 @@ impl McpEventStream {
     }
 
     fn cancel(&mut self) {
+        self.service_scope = None;
         if let Some(CancellableEventStreamRequest {
             handle,
             notifications,
@@ -223,6 +227,7 @@ impl Eq for McpResourceServerCacheKey {}
 /// This is for fixed, host-owned sources; it does not fingerprint arbitrary server config.
 #[derive(Clone)]
 pub struct McpResourceClientAuthKey {
+    pub(crate) service_selection: Option<codex_login::AzraelServiceAccountSelection>,
     pub(crate) generation: Arc<()>,
     pub(crate) server: String,
     pub(crate) available: bool,
@@ -231,6 +236,7 @@ pub struct McpResourceClientAuthKey {
 impl PartialEq for McpResourceClientAuthKey {
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.generation, &other.generation)
+            && self.service_selection == other.service_selection
             && self.server == other.server
             && self.available == other.available
     }
@@ -247,6 +253,14 @@ impl std::fmt::Debug for McpResourceClient {
 }
 
 impl McpResourceClient {
+    async fn request_runtime(&self, server: &str) -> Result<Arc<McpRuntime>> {
+        if server == CODEX_APPS_MCP_SERVER_NAME {
+            if let Some(scope) = self.runtime.capture_service_request().await? {
+                return Ok(scope);
+            }
+        }
+        Ok(Arc::clone(&self.runtime))
+    }
     /// Creates a resource client that follows the thread's latest published runtime.
     pub fn new(runtime: Arc<McpRuntime>) -> Self {
         Self { runtime }
@@ -272,6 +286,9 @@ impl McpResourceClient {
     ///
     /// This does not wait for server startup.
     pub async fn has_server(&self, server: &str) -> bool {
+        if server == CODEX_APPS_MCP_SERVER_NAME && self.runtime.has_service_request_resolver() {
+            return self.runtime.service_is_available().await;
+        }
         self.runtime.latest_connections().contains_server(server)
     }
 
@@ -281,10 +298,10 @@ impl McpResourceClient {
         server: &str,
         cursor: Option<String>,
     ) -> Result<McpResourcePage> {
+        let runtime = self.request_runtime(server).await?;
         let params =
             cursor.map(|cursor| PaginatedRequestParams::default().with_cursor(Some(cursor)));
-        let result = self
-            .runtime
+        let result = runtime
             .latest_connections()
             .list_resources(server, params)
             .await?;
@@ -304,9 +321,10 @@ impl McpResourceClient {
         &self,
         params: CodexAppsResourceListParams,
     ) -> Result<McpResourcePage> {
+        let runtime = self.request_runtime(CODEX_APPS_MCP_SERVER_NAME).await?;
         let params = serde_json::to_value(params)
             .context("failed to serialize Codex Apps resource params")?;
-        let connections = self.runtime.latest_host_owned_codex_apps_connections()?;
+        let connections = runtime.latest_host_owned_codex_apps_connections()?;
         let (managed, timeout) = connections
             .client_by_name(CODEX_APPS_MCP_SERVER_NAME)
             .await?;
@@ -335,9 +353,9 @@ impl McpResourceClient {
 
     /// Reads one resource from the named server.
     pub async fn read_resource(&self, server: &str, uri: &str) -> Result<McpResourceReadResult> {
+        let runtime = self.request_runtime(server).await?;
         let params = ReadResourceRequestParams::new(uri.to_string());
-        let result = self
-            .runtime
+        let result = runtime
             .latest_connections()
             .read_resource(server, params)
             .await?;
@@ -351,9 +369,9 @@ impl McpResourceClient {
 
     /// Lists the events advertised by the MCP event server.
     pub async fn list_events(&self) -> Result<McpEventCatalogSnapshot> {
-        let (connections, _) = self
-            .runtime
-            .latest_connections_for_event_server(CODEX_APPS_MCP_SERVER_NAME)?;
+        let runtime = self.request_runtime(CODEX_APPS_MCP_SERVER_NAME).await?;
+        let (connections, _) =
+            runtime.latest_connections_for_event_server(CODEX_APPS_MCP_SERVER_NAME)?;
         let cache_key = McpResourceClientCacheKey(Arc::downgrade(&connections));
         let (managed, request_timeout) = connections
             .client_by_name(CODEX_APPS_MCP_SERVER_NAME)
@@ -383,6 +401,13 @@ impl McpResourceClient {
         arguments: &Value,
         request_meta: Option<&Map<String, Value>>,
     ) -> Result<McpEventStream> {
+        if self.runtime.has_service_request_resolver() {
+            return self
+                .runtime
+                .event_stream_opener()?
+                .open(event_name, arguments, request_meta)
+                .await;
+        }
         let (connections, cancel_event_streams_on_server_removal) = self
             .runtime
             .latest_connections_for_event_server(CODEX_APPS_MCP_SERVER_NAME)?;

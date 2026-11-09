@@ -295,6 +295,7 @@ async fn online_uncached_refresh_observes_account_catalog_changes_with_nonempty_
     };
     std::fs::write(&helper, script(added)).unwrap();
     let manager = ManagedModelsManager {
+        originator_managers: std::sync::Mutex::new(std::collections::HashMap::new()),
         inner: Arc::new(codex_models_manager::manager::StaticModelsManager::new(
             /*auth_manager*/ None,
             ModelsResponse { models: Vec::new() },
@@ -303,9 +304,9 @@ async fn online_uncached_refresh_observes_account_catalog_changes_with_nonempty_
         bun,
         codex_home: root.path().to_path_buf(),
         snapshot_path: root.path().join("models.json"),
-        managed_models: RwLock::new(models_from_catalog(initial).unwrap()),
-        provider_catalogs: RwLock::new(Vec::new()),
-        catalog_refresh: Semaphore::new(1),
+        managed_models: Arc::new(RwLock::new(models_from_catalog(initial).unwrap())),
+        provider_catalogs: Arc::new(RwLock::new(Vec::new())),
+        catalog_refresh: Arc::new(Semaphore::new(1)),
     };
     manager
         .refresh_managed(RefreshStrategy::OnlineIfUncached)
@@ -606,4 +607,44 @@ fn helper_normalized_catalog_fixture_maps_every_row() {
         ]
     );
     assert_eq!(all.default_reasoning_level, Some(ReasoningEffort::Medium));
+}
+
+// Keep wrapper routing and provider-owned state together when native catalogs evolve.
+#[tokio::test]
+async fn originator_catalogs_preserve_managed_state_and_reuse() {
+    let home = tempfile::tempdir().unwrap();
+    let native = codex_model_provider::create_model_provider(
+        codex_model_provider_info::ModelProviderInfo::create_openai_provider(None),
+        None,
+    )
+    .models_manager(home.path().to_path_buf(), None);
+    let manager = ManagedModelsManager {
+        inner: native,
+        originator_managers: std::sync::Mutex::new(std::collections::HashMap::new()),
+        helper: home.path().join("unused-helper"),
+        bun: home.path().join("unused-bun"),
+        codex_home: home.path().to_path_buf(),
+        snapshot_path: home.path().join("models.json"),
+        managed_models: Arc::new(RwLock::new(Vec::new())),
+        provider_catalogs: Arc::new(RwLock::new(Vec::new())),
+        catalog_refresh: Arc::new(Semaphore::new(1)),
+    };
+    let scoped = manager.for_originator("codex_work_cca").unwrap();
+    assert!(Arc::ptr_eq(
+        &scoped,
+        &manager.for_originator("codex_work_cca").unwrap()
+    ));
+    assert!(manager.for_originator("unknown").is_none());
+    let models = models_from_catalog(br#"{"models":[{"provider_id":"google","model_id":"shared","display_name":"Shared","context_window":8192}]}"#).unwrap();
+    *manager.managed_models.write().await = models.clone();
+    assert!(scoped.get_remote_models().await.contains(&models[0]));
+    let statuses = vec![ProviderCatalogStatus {
+        provider_id: "google".into(),
+        state: codex_models_manager::manager::ProviderCatalogState::Ready,
+        model_count: 1,
+        observed_at: 1,
+        error_code: None,
+    }];
+    *manager.provider_catalogs.write().await = statuses.clone();
+    assert_eq!(scoped.provider_catalogs().await, statuses);
 }

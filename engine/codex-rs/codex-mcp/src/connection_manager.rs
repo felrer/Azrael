@@ -7,8 +7,12 @@
 
 #[path = "connection_manager/catalog_telemetry.rs"]
 mod catalog_telemetry;
+#[path = "connection_manager/network_policy.rs"]
+mod network_policy;
 #[path = "connection_manager/required.rs"]
 mod required;
+pub use network_policy::NetworkPolicyMetadata;
+pub use network_policy::NetworkPolicyMetadataProvider;
 #[path = "connection_manager/resources.rs"]
 mod resources;
 #[path = "connection_manager/startup.rs"]
@@ -20,6 +24,7 @@ mod tool_catalog;
 
 use startup::chatgpt_auth_provider_for_server;
 use startup::emit_update;
+use startup::hosted_apps_auth_provider;
 use startup::mcp_init_error_display;
 use startup::mcp_startup_failure_reason;
 use startup::should_share_codex_apps_tools_cache;
@@ -213,6 +218,8 @@ impl McpServerView {
 /// A published view over a set of running MCP server connections.
 #[derive(Clone)]
 pub(crate) struct McpConnectionSet {
+    config: Option<Arc<crate::McpConfig>>,
+    network_policy_metadata: Option<Arc<dyn NetworkPolicyMetadataProvider>>,
     servers: HashMap<String, McpServerView>,
     pub(crate) event_stream_connection: Option<Arc<EventStreamConnectionSettings>>,
     disabled_servers: Vec<String>,
@@ -233,6 +240,25 @@ impl McpConnectionSet {
         previous
     }
 
+    pub(crate) fn without_hosted_service(&self) -> Self {
+        self.elicitation_requests.release_service_binding();
+        let mut view = self.clone();
+        view.servers.remove(CODEX_APPS_MCP_SERVER_NAME);
+        view.event_stream_connection = None;
+        view.required_servers
+            .retain(|name| name != CODEX_APPS_MCP_SERVER_NAME);
+        view
+    }
+
+    pub(crate) fn cancel_hosted_service(self: &Arc<Self>) {
+        if let Some(view) = self.servers.get(CODEX_APPS_MCP_SERVER_NAME) {
+            let connection = Arc::clone(&view.connection);
+            connection.client.cancel_token.cancel();
+            tokio::spawn(async move {
+                connection.shutdown().await;
+            });
+        }
+    }
     /// Creates an MCP connection manager. Threadless callers can pass no `tx_event`; startup
     /// notifications are then skipped and interactive elicitations are declined.
     pub async fn new(
@@ -245,6 +271,7 @@ impl McpConnectionSet {
         let McpRuntimeInput {
             startup_policy,
             config,
+            network_policy_metadata,
             plugins_available: _,
             ready_selected_capability_roots: _,
             mcp_servers,
@@ -313,13 +340,45 @@ impl McpConnectionSet {
         let static_chatgpt_auth_provider = auth
             .filter(|auth| auth.uses_codex_backend())
             .map(codex_model_provider::auth_provider_from_auth);
-        let codex_apps_auth_provider = auth_manager.as_ref().and_then(|auth_manager| {
-            auth.filter(|auth| auth.uses_codex_backend()).map(|auth| {
-                codex_model_provider::auth_provider_from_auth_manager(
-                    Arc::clone(auth_manager),
-                    auth,
-                )
-            })
+        let service_manager = config
+            .azrael_service_account
+            .as_ref()
+            .map(|binding| binding.manager());
+        let service_auth = config.azrael_service_auth.as_ref();
+        let azrael_service = std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some();
+        let apps_manager = if azrael_service {
+            service_manager.as_ref()
+        } else {
+            service_manager.as_ref().or(auth_manager.as_ref())
+        };
+        let apps_auth = if azrael_service {
+            service_auth
+        } else {
+            service_auth.or(auth)
+        };
+        let service_runtime_context = service_manager.as_ref().map(|manager| {
+            let factory = manager.http_client_factory();
+            let factory = match &config.azrael_service_network_policy {
+                Some(policy) => factory.with_network_policy(policy.clone()),
+                None => factory,
+            };
+            runtime_context.clone().with_local_http_client(Arc::new(
+                codex_exec_server::RouteAwareHttpClient::new(factory).with_tls_backend_fallback(),
+            ))
+        });
+        let codex_apps_auth_provider = apps_manager.and_then(|auth_manager| {
+            apps_auth
+                .filter(|auth| auth.uses_codex_backend())
+                .map(|auth| {
+                    if service_manager.is_some() {
+                        crate::service_lifecycle::service_auth_provider(auth_manager, auth)
+                    } else {
+                        codex_model_provider::auth_provider_from_auth_manager(
+                            Arc::clone(auth_manager),
+                            auth,
+                        )
+                    }
+                })
         });
         for (server_name, server) in mcp_servers
             .into_iter()
@@ -331,12 +390,32 @@ impl McpConnectionSet {
                 &client_mcp_extensions,
                 &server_name,
                 registration,
+                network_policy_metadata.is_some(),
+                &config.chatgpt_base_url,
             );
             let is_host_owned_codex_apps = registration.is_some_and(|server| {
                 server
                     .source()
                     .is_host_owned_apps(&server_name, server.config())
             });
+            let auth = if is_host_owned_codex_apps {
+                apps_auth
+            } else {
+                auth
+            };
+            let auth_manager = if is_host_owned_codex_apps {
+                apps_manager.cloned()
+            } else {
+                auth_manager.clone()
+            };
+            let runtime_context = if is_host_owned_codex_apps {
+                service_runtime_context
+                    .as_ref()
+                    .unwrap_or(&runtime_context)
+                    .clone()
+            } else {
+                runtime_context.clone()
+            };
             let host_plugin_root = registration.and_then(|server| match server.source() {
                 McpServerSource::Plugin(plugin) => plugin.host_root(),
                 McpServerSource::SelectedPlugin(_)
@@ -407,6 +486,10 @@ impl McpConnectionSet {
                     &configured_config.auth,
                     protocol_mode.preferred_protocol_version().as_str(),
                     catalog_item_limit,
+                    config
+                        .azrael_service_account
+                        .as_ref()
+                        .map(|binding| &binding.selection),
                 ]);
                 scope.sort_all_objects();
                 codex_apps_tools_cache
@@ -418,9 +501,11 @@ impl McpConnectionSet {
             // is the ChatGPT /ps/mcp connection. User-configured MCP
             // registrations keep their existing configured auth path.
             let chatgpt_auth_provider = if server_name == CODEX_APPS_MCP_SERVER_NAME {
-                codex_apps_auth_provider
-                    .clone()
-                    .or_else(|| static_chatgpt_auth_provider.clone())
+                hosted_apps_auth_provider(
+                    azrael_service,
+                    codex_apps_auth_provider.clone(),
+                    static_chatgpt_auth_provider.clone(),
+                )
             } else {
                 static_chatgpt_auth_provider.clone()
             };
@@ -447,7 +532,7 @@ impl McpConnectionSet {
                     client_mcp_extensions: client_mcp_extensions.clone(),
                 }));
             }
-            let connection_identity = McpServerConnectionIdentity::new(
+            let mut connection_identity = McpServerConnectionIdentity::new(
                 &server_name,
                 &server,
                 host_plugin_root,
@@ -466,6 +551,12 @@ impl McpConnectionSet {
                     .and_then(|previous| previous.servers.get(&server_name))
                     .and_then(|view| view.connection.identity.as_ref()),
             );
+            if is_host_owned_codex_apps {
+                connection_identity.service_selection = config
+                    .azrael_service_account
+                    .as_ref()
+                    .map(|binding| binding.selection.clone());
+            }
             let expected_protocol_mode = match &configured_config.transport {
                 McpServerTransportConfig::StreamableHttp { .. } => Some(protocol_mode),
                 McpServerTransportConfig::Stdio { .. }
@@ -793,6 +884,8 @@ impl McpConnectionSet {
             }
         }
         let manager = Self {
+            config: Some(config),
+            network_policy_metadata,
             servers,
             event_stream_connection,
             disabled_servers,
@@ -851,6 +944,8 @@ impl McpConnectionSet {
 
     pub fn empty(prefix_mcp_tool_names: bool) -> Self {
         Self {
+            config: None,
+            network_policy_metadata: None,
             servers: HashMap::new(),
             event_stream_connection: None,
             disabled_servers: Vec::new(),
@@ -1039,7 +1134,19 @@ impl McpConnectionSet {
         }
         let result: rmcp::model::CallToolResult = client
             .client
-            .call_tool(tool.to_string(), arguments, meta, effective_timeout)
+            .call_tool(
+                tool.to_string(),
+                arguments,
+                self.network_policy_meta_for_call(
+                    &client,
+                    self.config
+                        .as_ref()
+                        .and_then(|config| config.permission_profile_for_server(server)),
+                    &view.metadata.environment_id,
+                    meta,
+                ),
+                effective_timeout,
+            )
             .await
             .with_context(|| format!("tool call failed for `{server}/{tool}`"))?;
 

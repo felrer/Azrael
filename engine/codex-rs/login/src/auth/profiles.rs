@@ -112,8 +112,7 @@ impl AzraelProfileStore {
         }
     }
 
-    #[cfg(test)]
-    fn new_ephemeral(root: PathBuf) -> Self {
+    pub(crate) fn new_ephemeral(root: PathBuf) -> Self {
         Self::with_credentials_mode(root, AuthCredentialsStoreMode::Ephemeral)
     }
 

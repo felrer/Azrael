@@ -171,6 +171,25 @@ fn ad_hoc_tool_definition_includes_filename_contract() {
 }
 
 #[tokio::test]
+async fn prompt_contribution_is_empty_when_disabled() {
+    let extension = MemoriesExtension::default();
+    let thread_store = ExtensionData::new("thread");
+    thread_store.insert(MemoriesExtensionConfig {
+        version: codex_protocol::MemoryVersion::V1,
+        enabled: false,
+        dedicated_tools: true,
+        codex_home: test_path_buf("/tmp/codex-home").abs(),
+    });
+
+    assert!(
+        extension
+            .contribute_thread_context(&ExtensionData::new("session"), &thread_store)
+            .await
+            .is_empty()
+    );
+}
+
+#[tokio::test]
 async fn prompt_contribution_uses_memory_summary_when_enabled() {
     let tempdir = tempfile::tempdir().expect("tempdir");
     let memories_dir = tempdir.path().join("memories");

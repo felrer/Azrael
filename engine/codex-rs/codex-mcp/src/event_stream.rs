@@ -46,7 +46,8 @@ pub(crate) struct EventStreamConnectionSettings {
 /// Owners watch `wait_for_access_change` to cancel streams when access changes.
 #[derive(Clone)]
 pub struct McpEventStreamOpener {
-    pub(crate) connection: Arc<EventStreamConnectionSettings>,
+    pub(crate) connection: Option<Arc<EventStreamConnectionSettings>>,
+    pub(crate) service_requests: Option<Arc<crate::service_lifecycle::ServiceRequestState>>,
     pub(crate) cancellation_receiver: watch::Receiver<()>,
     pub(crate) cancel_event_streams_on_server_removal: watch::Sender<()>,
 }
@@ -64,11 +65,33 @@ impl McpEventStreamOpener {
         arguments: &Value,
         request_meta: Option<&Map<String, Value>>,
     ) -> Result<McpEventStream> {
+        if let Some(requests) = &self.service_requests {
+            let scope = requests.capture().await?;
+            let opener = scope.event_stream_opener()?;
+            let mut stream = opener
+                .open_captured(event_name, arguments, request_meta)
+                .await?;
+            if let Some(client) = &stream.client {
+                requests.track_event_client(&scope, client);
+            }
+            stream.service_scope = Some(scope);
+            return Ok(stream);
+        }
+        self.open_captured(event_name, arguments, request_meta)
+            .await
+    }
+
+    async fn open_captured(
+        &self,
+        event_name: &str,
+        arguments: &Value,
+        request_meta: Option<&Map<String, Value>>,
+    ) -> Result<McpEventStream> {
         tokio::select! {
             biased;
             () = self.wait_for_access_change() => bail!("event subscription access changed"),
             result = async {
-                let connection = &self.connection;
+                let connection = self.connection.as_ref().ok_or_else(|| anyhow::anyhow!("event connection is unavailable"))?;
                 if let Some(manager) = &connection.auth_manager {
                     let auth = manager.auth().await;
                     if !self.matches_auth(auth.as_ref()) {
@@ -116,9 +139,18 @@ impl McpEventStreamOpener {
 
     /// Waits for an account change or removal of the event server from the task.
     pub async fn wait_for_access_change(&self) {
+        // A retained service opener owns no account. Each open has its own
+        // profile-specific cancellation scope; changing selection does not revoke it.
+        if self.service_requests.is_some() {
+            return std::future::pending().await;
+        }
         let mut cancellation_receiver = self.cancellation_receiver.clone();
         let auth_change = async {
-            let Some(manager) = &self.connection.auth_manager else {
+            let Some(manager) = self
+                .connection
+                .as_ref()
+                .and_then(|connection| connection.auth_manager.as_ref())
+            else {
                 return std::future::pending().await;
             };
             let mut changes = manager.auth_change_receiver();
@@ -138,7 +170,12 @@ impl McpEventStreamOpener {
     }
 
     fn matches_auth(&self, current: Option<&CodexAuth>) -> bool {
-        match (self.connection.auth.as_ref(), current) {
+        match (
+            self.connection
+                .as_ref()
+                .and_then(|connection| connection.auth.as_ref()),
+            current,
+        ) {
             (Some(CodexAuth::AgentIdentity(expected)), Some(CodexAuth::AgentIdentity(current))) => {
                 expected.record() == current.record()
             }

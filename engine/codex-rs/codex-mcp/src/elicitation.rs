@@ -274,6 +274,19 @@ pub(crate) struct ElicitationRequestManager {
 }
 
 impl ElicitationRequestManager {
+    pub(crate) fn release_service_binding(&self) {
+        let mut authority = self
+            .authority
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if let Some(authority) = authority.as_mut() {
+            let mut config = (*authority.config).clone();
+            config.azrael_service_account = None;
+            config.azrael_service_auth = None;
+            config.azrael_service_network_policy = None;
+            authority.config = Arc::new(config);
+        }
+    }
     pub(crate) fn new(
         config: Arc<McpConfig>,
         reviewer: Option<ElicitationReviewerHandle>,

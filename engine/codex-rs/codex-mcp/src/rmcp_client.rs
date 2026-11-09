@@ -97,6 +97,8 @@ use tracing::warn;
 pub const MCP_SANDBOX_STATE_META_CAPABILITY: &str = "codex/sandbox-state-meta";
 /// Experimental MCP server capability for development and testing only; production servers should
 /// not use it. Its `cacheable: false` property disables sharing tool definitions across connections.
+/// Experimental client/server capability for call-scoped network policy metadata.
+pub const MCP_NETWORK_POLICY_META_CAPABILITY: &str = "codex/network-policy-meta";
 const MCP_TOOL_CATALOG_CACHE_CAPABILITY: &str = "codex/tool-catalog-cache";
 const MCP_TOOL_CATALOG_CACHEABLE_PROPERTY: &str = "cacheable";
 pub(crate) const MCP_TOOLS_LIST_DURATION_METRIC: &str = "codex.mcp.tools.list.duration_ms";
@@ -126,6 +128,7 @@ pub(crate) struct ManagedClient {
     pub(crate) tool_timeout: Option<Duration>,
     pub(crate) server_instructions: Option<String>,
     pub(crate) server_supports_sandbox_state_meta_capability: bool,
+    pub(crate) client_supports_network_policy_meta_capability: bool,
     pub(crate) codex_apps_tools_cache_context: Option<ConnectorRuntimeContext<ToolInfo>>,
 }
 
@@ -937,6 +940,8 @@ async fn start_server_task(
     } = params;
     let send_elicitation =
         elicitation_requests.make_sender(server_name.clone(), tx_event, &client_mcp_extensions);
+    let client_supports_network_policy_meta =
+        client_mcp_extensions.contains(MCP_NETWORK_POLICY_META_CAPABILITY);
     let mut params =
         mcp_initialize_request_params(client_elicitation_capability, client_mcp_extensions);
     if auth_changes.is_some() {
@@ -1066,6 +1071,7 @@ async fn start_server_task(
         tool_timeout: None,
         server_instructions: initialize_result.instructions,
         server_supports_sandbox_state_meta_capability,
+        client_supports_network_policy_meta_capability: client_supports_network_policy_meta,
         codex_apps_tools_cache_context,
     };
 
@@ -1109,8 +1115,15 @@ pub(crate) fn mcp_initialize_request_params(
 ) -> InitializeRequestParams {
     let mut capabilities = ClientCapabilities::default();
     capabilities.elicitation = Some(client_elicitation_capability);
+    if client_mcp_extensions.contains(MCP_NETWORK_POLICY_META_CAPABILITY) {
+        capabilities.experimental = Some(BTreeMap::from([(
+            MCP_NETWORK_POLICY_META_CAPABILITY.to_string(),
+            serde_json::Map::new(),
+        )]));
+    }
     let extensions = client_mcp_extensions
         .iter()
+        .filter(|(id, _)| *id != MCP_NETWORK_POLICY_META_CAPABILITY)
         .filter_map(|(id, settings)| {
             settings
                 .as_object()
@@ -1398,6 +1411,7 @@ mod tests {
             ClientMcpExtensions::default(),
         );
         assert_eq!(unsupported.capabilities.extensions, None);
+        assert_eq!(unsupported.capabilities.experimental, None);
 
         let app_ui = serde_json::json!({
             "mimeTypes": ["text/html;profile=mcp-app"],
@@ -1406,9 +1420,20 @@ mod tests {
         let supported = mcp_initialize_request_params(
             ElicitationCapability::default(),
             ClientMcpExtensions::new([
+                (
+                    MCP_NETWORK_POLICY_META_CAPABILITY.to_string(),
+                    serde_json::json!({}),
+                ),
                 (OPENAI_FORM_EXTENSION_ID.to_string(), serde_json::json!({})),
                 (MCP_APP_UI_EXTENSION_ID.to_string(), app_ui.clone()),
             ]),
+        );
+        assert_eq!(
+            supported.capabilities.experimental,
+            Some(BTreeMap::from([(
+                MCP_NETWORK_POLICY_META_CAPABILITY.to_string(),
+                JsonObject::new()
+            )])),
         );
         assert_eq!(
             supported.capabilities.extensions,

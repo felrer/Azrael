@@ -27,9 +27,17 @@ impl AppsRequestProcessor {
             .filter(|app_id| seen_app_ids.insert(app_id.clone()))
             .collect::<Vec<_>>();
         let mut config = self.load_apps_config(thread_id.as_deref()).await?;
-        let auth = match self.auth_manager.auth_with_http_client_factory().await {
+        config = codex_core::connectors::service_request_config(&config, &self.auth_manager)
+            .await
+            .map_err(|err| internal_error(format!("Apps service unavailable: {err}")))?;
+        let auth_manager = codex_core::connectors::service_auth_manager(&config)
+            .await
+            .map_err(|err| internal_error(format!("Apps service unavailable: {err}")))?;
+        let auth = match auth_manager.auth_with_http_client_factory().await {
             Some((auth, factory)) => {
-                config.application_network_policy = factory.network_policy().clone();
+                if config.azrael_service_account.is_none() {
+                    config.application_network_policy = factory.network_policy().clone();
+                }
                 Some(auth)
             }
             None => None,

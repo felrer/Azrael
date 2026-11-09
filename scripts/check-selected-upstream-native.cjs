@@ -7,6 +7,42 @@ const { runCargoTest, buildCargoTestCommand, runManagedCargoSync } = require("./
 // Each filter executes product behavior. Platform-only cases remain explicit;
 // a Windows result does not accept Seatbelt, native macOS aliases or bubblewrap.
 const suites = {
+  "third-small": [
+    ["codex-cloud-config", "--lib", "each_loader_owns_refresh_until_its_last_clone_is_dropped"],
+    ["codex-core-plugins", "--lib", "marketplace_"],
+    ["codex-voice-host", "--lib", "real_encoder_produces_twenty_millisecond_opus_packets"],
+  ],
+  "third-mcp": [
+    ["codex-mcp", "--lib", ""],
+    ["codex-config", "--lib", "requirements"],
+    ["codex-rmcp-client", "--lib", "recovered_tool_calls_use_current_session_capabilities"],
+    ["codex-mcp-extension", "--test", "hosted_apps_mcp", ""],
+  ],
+  "third-models": [
+    ["codex-models-manager", "--lib", ""],
+    ["codex-model-provider", "--lib", "originator_tests"],
+    ["codex-core", "--lib", "originator_catalogs_preserve_"],
+    ["codex-core", "--lib", "new_uses_active_provider_for_model_refresh"],
+  ],
+  "third-core": [
+    ["codex-core", "--test", "all", "suite::hooks::user_prompt_submit"],
+    ["codex-core", "--test", "all", "guardian_denial_rejects_tool_call_with_rationale"],
+    ["codex-core", "--test", "all", "code_mode_can_yield_and_resume_with_wait"],
+    ["codex-core", "--test", "all", "originator_catalogs_control_turn_instructions_and_tools"],
+    ["codex-core", "--lib", "initial_settings_remain_pending_until_persistence_succeeds"],
+  ],
+  "third-appserver": [
+    ["codex-app-server", "--lib", "resume_history_reuse_tests"],
+    ["codex-app-server", "--test", "all", "thread_resume::"],
+    ["codex-app-server", "--test", "all", "resume_revalidates_persisted_thread_after_config_load"],
+    ["codex-app-server", "--test", "all", "resume_reloads_config_when_saved_workspace_roots_change"],
+  ],
+  "third-tui": [
+    ["codex-tui", "--lib", "transcript_view"],
+    ["codex-tui", "--lib", "owned_transcript"],
+    ["codex-tui", "--lib", "transcript_composer"],
+    ["codex-tui", "--lib", "owned_prompt_revert_retained_history"],
+  ],
   "mcp-reload-state": [
     ["codex-config", "--lib", "reload_local_mcp_servers"],
     ["codex-features", "--lib", "incremental_tools_are_stable"],
@@ -108,13 +144,13 @@ const suites = {
 
 function main(args = process.argv.slice(2)) {
   const [sourceRoot, suite, runtimeDirectory, ...extra] = args;
-  const needsHost = ["core-integration", "code-mode-trace"].includes(suite);
+  const needsHost = ["core-integration", "code-mode-trace", "third-core"].includes(suite);
   if (!sourceRoot || !path.isAbsolute(sourceRoot) || !Object.hasOwn(suites, suite) || extra.length ||
       (needsHost ? !runtimeDirectory || !path.isAbsolute(runtimeDirectory) : runtimeDirectory !== undefined)) {
     throw new Error(`Usage: check-selected-upstream-native.cjs <absolute frozen engine root> <${Object.keys(suites).join("|")}> [absolute engine runtime directory for Code Mode suites]`);
   }
   const env = { ...process.env };
-  if (suite === "mcp-reload-integration") {
+  if (["mcp-reload-integration", "third-mcp"].includes(suite)) {
     const fixture = buildCargoTestCommand(sourceRoot,
       ["test", "-p", "codex-rmcp-client", "--bin", "test_stdio_server", "--locked", "--offline"],
       { env, isolateHostEnvironment: true });

@@ -136,6 +136,7 @@ Registered features: `ui.instruction-settings`. The [contract index](../../share
 
 - [Selectable instruction packages and task profiles](../agent-profiles/README.md)
 - [Optional task-memory role fragments](../agent-profiles/roles.md)
+- [Automatic long-term memories](../long-term-memory/README.md)
 - [Settings experience and verification boundary](../skill-management/README.md)
 - [Profile composer](../agent-profiles/editing.md)
 - [environment](environment.md)

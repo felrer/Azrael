@@ -62,6 +62,7 @@ pub struct NetworkPolicy {
     state: Option<Arc<Mutex<State>>>,
     authority: Option<Arc<dyn NetworkPolicyAuthority>>,
     endpoints: Option<Arc<BTreeSet<Url>>>,
+    destinations: Option<Arc<DestinationPolicy>>,
     account: Option<u64>,
 }
 
@@ -76,6 +77,7 @@ impl fmt::Debug for NetworkPolicy {
 impl PartialEq for NetworkPolicy {
     fn eq(&self, other: &Self) -> bool {
         self.endpoints == other.endpoints
+            && self.destinations == other.destinations
             && self.account == other.account
             && match (&self.authority, &other.authority) {
                 (Some(left), Some(right)) => Arc::ptr_eq(left, right),
@@ -155,6 +157,7 @@ impl NetworkPolicyController {
             state: Some(self.state.clone()),
             authority: None,
             endpoints: None,
+            destinations: None,
             account: None,
         }
     }
@@ -206,6 +209,7 @@ impl NetworkPolicy {
             state: None,
             authority: None,
             endpoints: None,
+            destinations: None,
             account: None,
         }
     }
@@ -228,6 +232,27 @@ impl NetworkPolicy {
         self
     }
 
+    /// Adds immutable request-local restrictions without replacing the live
+    /// application policy, its account binding, or its revocation lifecycle.
+    pub fn restrict_to_destinations(mut self, policy: DestinationPolicy) -> Self {
+        let policy = match (self.destinations.as_deref(), policy) {
+            (
+                Some(DestinationPolicy::Restricted {
+                    allowed_hosts: parent,
+                }),
+                DestinationPolicy::Restricted {
+                    allowed_hosts: service,
+                },
+            ) => DestinationPolicy::Restricted {
+                allowed_hosts: parent.intersection(&service).cloned().collect(),
+            },
+            (Some(existing), DestinationPolicy::Unrestricted) => existing.clone(),
+            (_, incoming) => incoming,
+        };
+        self.destinations = Some(Arc::new(policy));
+        self
+    }
+
     /// Binds a content client to the current account so retained credentials cannot
     /// be used after another workspace's policy has been installed.
     pub fn for_current_account(mut self) -> Self {
@@ -237,7 +262,7 @@ impl NetworkPolicy {
 
     /// Whether destination-aware transport is required by a live or static policy.
     pub fn is_managed(&self) -> bool {
-        self.state.is_some() || self.authority.is_some()
+        self.state.is_some() || self.authority.is_some() || self.destinations.is_some()
     }
 
     /// Watches effective changes; unmanaged callers have no application policy owner.
@@ -277,6 +302,13 @@ impl NetworkPolicy {
     /// Checks a destination before proxy resolution, DNS, or transport work starts.
     pub fn acquire(&self, url: &Url) -> Result<NetworkPermit, NetworkPolicyDenied> {
         if self
+            .destinations
+            .as_ref()
+            .is_some_and(|policy| !policy.allows(url))
+        {
+            return Err(NetworkPolicyDenied::Destination);
+        }
+        if self
             .endpoints
             .as_ref()
             .is_some_and(|endpoints| !endpoints.contains(url))
@@ -292,7 +324,13 @@ impl NetworkPolicy {
     /// Disables SDKs without destination enforcement whenever restrictions apply.
     /// The returned permit also cancels work if an unrestricted policy changes.
     pub fn acquire_for_unsupported_sdk(&self) -> Result<NetworkPermit, NetworkPolicyDenied> {
-        if self.authority.is_some() || self.endpoints.is_some() {
+        if self.authority.is_some()
+            || self.endpoints.is_some()
+            || self
+                .destinations
+                .as_ref()
+                .is_some_and(|policy| !matches!(policy.as_ref(), DestinationPolicy::Unrestricted))
+        {
             return Err(NetworkPolicyDenied::UnsupportedTransport);
         }
         self.acquire_destination(PermitDestination::UnrestrictedSdk)
@@ -453,6 +491,63 @@ mod external_authority_tests {
         assert_eq!(
             policy.acquire_for_unsupported_sdk().unwrap_err(),
             NetworkPolicyDenied::UnsupportedTransport
+        );
+    }
+}
+
+#[cfg(test)]
+mod service_policy_tests {
+    use super::*;
+
+    #[test]
+    fn service_policy_narrows_live_policy_and_keeps_revocation() {
+        let controller = NetworkPolicyController::default();
+        let parent = controller.policy();
+        let restricted = |hosts: &[&str]| DestinationPolicy::Restricted {
+            allowed_hosts: hosts.iter().map(|host| (*host).to_string()).collect(),
+        };
+        assert!(controller.publish(parent.revision(), restricted(&["a.example", "b.example"])));
+        let service = parent
+            .clone()
+            .restrict_to_destinations(restricted(&["b.example", "c.example"]));
+        let url = |host| Url::parse(&format!("https://{host}/")).unwrap();
+        assert!(parent.acquire(&url("a.example")).is_ok());
+        assert!(service.acquire(&url("a.example")).is_err());
+        assert!(service.acquire(&url("c.example")).is_err());
+        assert!(service.acquire_for_unsupported_sdk().is_err());
+        let permit = service.acquire(&url("b.example")).unwrap();
+        parent.invalidate();
+        assert_eq!(permit.check().unwrap_err(), NetworkPolicyDenied::Revoked);
+        assert!(service.acquire(&url("b.example")).is_err());
+    }
+
+    #[test]
+    fn service_policy_narrowing_is_additive_and_preserves_endpoints() {
+        let restricted = |hosts: &[&str]| DestinationPolicy::Restricted {
+            allowed_hosts: hosts.iter().map(|host| (*host).to_string()).collect(),
+        };
+        let exact = Url::parse("https://b.example/allowed").unwrap();
+        let service = NetworkPolicy::unmanaged()
+            .restrict_to_endpoints(BTreeSet::from([exact.clone()]))
+            .restrict_to_destinations(restricted(&["a.example", "b.example"]))
+            .restrict_to_destinations(restricted(&["b.example", "c.example"]))
+            .restrict_to_destinations(DestinationPolicy::Unrestricted);
+        assert!(service.is_managed());
+        assert!(service.acquire(&exact).is_ok());
+        assert!(
+            service
+                .acquire(&Url::parse("https://b.example/elsewhere").unwrap())
+                .is_err()
+        );
+        assert!(
+            service
+                .acquire(&Url::parse("https://a.example/allowed").unwrap())
+                .is_err()
+        );
+        assert!(
+            service
+                .acquire(&Url::parse("https://c.example/allowed").unwrap())
+                .is_err()
         );
     }
 }

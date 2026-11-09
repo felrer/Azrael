@@ -4198,6 +4198,9 @@ async fn guardian_review_session_config_uses_requirements_guardian_policy_config
             guardian_policy_config: Some(
                 "  Use the workspace-managed guardian policy.  ".to_string(),
             ),
+            additional_developer_instructions: Some(
+                "Require the account's managed review policy.".to_string(),
+            ),
             ..Default::default()
         },
     )
@@ -4240,6 +4243,7 @@ async fn guardian_review_session_config_uses_requirements_guardian_policy_config
                 guardian_output_contract_prompt(),
             )
             .render()
+                + "\n<managed_developer_instructions>\nRequire the account's managed review policy.\n</managed_developer_instructions>"
         )
     );
 }

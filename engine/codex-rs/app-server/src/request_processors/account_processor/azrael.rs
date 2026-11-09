@@ -26,6 +26,9 @@ impl AccountRequestProcessor {
         let mut auto_windows = None;
         match params.action {
             AzraelAccountAction::List => {}
+            AzraelAccountAction::ServiceSelect => {
+                self.select_service_account(params.profile_id).await?;
+            }
             AzraelAccountAction::CaptureCurrent => self.azrael_capture_current().await?,
             AzraelAccountAction::LoginStart => {
                 login = Some(self.azrael_login_start(params.profile_id).await?);
@@ -307,6 +310,9 @@ impl AccountRequestProcessor {
             .store
             .publish_removal(&profile_id)
             .map_err(profile_remove_error)?;
+        self.service_account_store()
+            .clear_if_selected(&profile_id)
+            .map_err(|_| internal_error("Removed service account selection could not be cleared"))?;
         self.retire_native_account(&profile_id)
             .await
             .map_err(profile_remove_error)?;
@@ -834,6 +840,7 @@ impl AccountRequestProcessor {
             has_active_turns,
             login_pending,
             last_error,
+            service_account: Some(self.service_account_state().await),
         }
     }
 

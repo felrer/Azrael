@@ -18,6 +18,18 @@ use crate::rmcp_client::DEFAULT_STARTUP_TIMEOUT;
 use crate::rmcp_client::StartupOutcomeError;
 use crate::server::EffectiveMcpServer;
 
+pub(super) fn hosted_apps_auth_provider(
+    service_only: bool,
+    service: Option<SharedAuthProvider>,
+    conversation: Option<SharedAuthProvider>,
+) -> Option<SharedAuthProvider> {
+    if service_only {
+        service
+    } else {
+        service.or(conversation)
+    }
+}
+
 /// Makes ChatGPT authentication available to servers that explicitly opt in.
 pub(super) fn chatgpt_auth_provider_for_server(
     server: &EffectiveMcpServer,

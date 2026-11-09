@@ -264,6 +264,42 @@ class RecorderTests(unittest.TestCase):
         return recorder.record_changes(self.destination, self.baseline, self.digest, expected,
                                        self.current_digest() if updating else None, adapted, names)
 
+    def test_queue_migration_attributes_are_derived_from_reviewed_additions(self):
+        queue = self.source / importer.QUEUE_MIGRATION
+        queue.parent.mkdir(parents=True)
+        queue.write_bytes(b"SELECT 3;\n")
+        self.git(self.source, "add", ".")
+        self.git(self.source, "commit", "--quiet", "-m", "queue source")
+        baseline = Path(self.temp.name) / "queue-baseline"
+        with contextlib.redirect_stdout(io.StringIO()):
+            importer.import_source(self.source, baseline, allow_source_advance=True)
+        destination = self.repo / "queue-engine"
+        shutil.copytree(baseline, destination)
+        self.git(self.repo, "add", "queue-engine")
+        self.git(self.repo, "commit", "--quiet", "-m", "queue import")
+        name = "codex-rs/state/queue_migrations/0005_user_input_reverts.sql"
+        (destination / name).write_bytes(b"SELECT 5;\n")
+        overlay = destination / importer.QUEUE_ATTRIBUTES
+        expected = importer.QUEUE_ATTRIBUTE_BYTES + b"0005_user_input_reverts.sql -text\n"
+        overlay.write_bytes(expected)
+        self.git(self.repo, "add", "queue-engine")
+        digest = hashlib.sha256((baseline / "SOURCE.json").read_bytes()).hexdigest()
+        recorder.record_changes(destination, baseline, digest, (), expected_migration_paths=(name,))
+        receipt = json.loads((destination / "SOURCE.json").read_bytes())
+        importer.validate_receipt(destination, receipt)
+        self.assertEqual(receipt["distributionFiles"], json.loads((baseline / "SOURCE.json").read_bytes())["distributionFiles"])
+        self.assertIn(name, receipt["localIntegration"]["migrationAdditions"])
+        for bad in (importer.QUEUE_ATTRIBUTE_BYTES, expected + b"*.sql -text\n",
+                    expected.replace(b"0005_user_input_reverts", b"0006_other")):
+            with self.subTest(overlay=bad):
+                overlay.write_bytes(bad)
+                with self.assertRaisesRegex(ValueError, "attribute overlay differs"):
+                    importer.validate_receipt(destination, receipt)
+        overlay.write_bytes(expected)
+        (destination / name).write_bytes(b"SELECT 5;\r\n")
+        with self.assertRaises(ValueError):
+            importer.validate_receipt(destination, receipt)
+
     def test_explicit_migration_addition_then_rust_update_preserves_descriptor(self):
         name = self.add_migration()
         self.record_migrations((name,))

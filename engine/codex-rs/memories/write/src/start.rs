@@ -8,7 +8,6 @@ use crate::runtime::MemoryStartupContext;
 use codex_core::CodexThread;
 use codex_core::ThreadManager;
 use codex_core::config::Config;
-use codex_features::Feature;
 use codex_login::AuthManager;
 use codex_protocol::MemoryVersion;
 use codex_protocol::ThreadId;
@@ -30,10 +29,7 @@ pub fn start_memories_startup_task(
     parent_permission_profile: PermissionProfile,
     source: &SessionSource,
 ) {
-    if config.ephemeral
-        || !config.features.enabled(Feature::MemoryTool)
-        || source.is_non_root_agent()
-    {
+    if config.ephemeral || !config.long_term_memories_enabled() || source.is_non_root_agent() {
         return;
     }
 

@@ -266,6 +266,9 @@ pub struct InternalSessionParent {
 
 pub struct StartThreadOptions {
     pub config: Config,
+    /// Internal service catalog bound to the explicitly supplied provider/auth.
+    /// Ordinary threads retain the ThreadManager's shared catalog.
+    pub models_manager: Option<SharedModelsManager>,
     /// Host-owned provider for this root thread's additional instructions.
     ///
     /// Core composes these after the global [`UserInstructionsProvider`]
@@ -308,6 +311,7 @@ impl StartThreadOptions {
     pub fn new(config: Config) -> Self {
         Self {
             config,
+            models_manager: None,
             thread_instructions_provider: None,
             allow_provider_model_fallback: false,
             initial_history: InitialHistory::New,
@@ -939,6 +943,16 @@ impl ThreadManager {
 
     pub async fn list_thread_ids(&self) -> Vec<ThreadId> {
         self.state.list_thread_ids().await
+    }
+
+    pub async fn retire_stale_service_runtimes(&self, selection: &codex_login::AzraelServiceAccountSelection) {
+        let threads = self.state.threads.read().await.values().cloned().collect::<Vec<_>>();
+        for thread in threads { thread.retire_stale_service_runtime(selection); }
+    }
+
+    pub async fn poll_service_profile_retirements(&self) {
+        let threads = self.state.threads.read().await.values().cloned().collect::<Vec<_>>();
+        for thread in threads { thread.poll_service_profile_retirement(); }
     }
 
     pub fn subscribe_thread_created(&self) -> broadcast::Receiver<ThreadId> {
@@ -2219,6 +2233,7 @@ impl ThreadManagerState {
         } = request;
         let StartThreadOptions {
             mut config,
+            models_manager,
             thread_instructions_provider,
             allow_provider_model_fallback,
             initial_history,
@@ -2446,7 +2461,11 @@ impl ThreadManagerState {
             instructions,
             installation_id: self.installation_id.clone(),
             auth_manager,
-            models_manager: Arc::clone(&self.models_manager),
+            models_manager: models_manager.unwrap_or_else(|| {
+                self.models_manager
+                    .for_originator(&originator)
+                    .unwrap_or_else(|| Arc::clone(&self.models_manager))
+            }),
             git_root_discovery: Arc::clone(&self.git_root_discovery),
             environment_manager: Arc::clone(&self.environment_manager),
             skills_service: Arc::clone(&self.skills_service),

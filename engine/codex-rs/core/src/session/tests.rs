@@ -6490,16 +6490,18 @@ async fn mcp_runtime_keeps_local_backend_without_a_selected_local_environment() 
         .await;
     Arc::make_mut(&mut desired.config).prefer_mxc = true;
     desired.environments.environments.clear();
-    let runtime = session.build_mcp_runtime_input(
-        &desired,
-        crate::mcp::McpRuntimeProjection {
-            config: (*mcp_config_for_test(&desired.config)).clone(),
-            plugins_available: false,
-            selected_plugins: Default::default(),
-        },
-        &[],
-        /*elicitation_reviewer*/ None,
-    );
+    let runtime = session
+        .build_mcp_runtime_input(
+            &desired,
+            crate::mcp::McpRuntimeProjection {
+                config: (*mcp_config_for_test(&desired.config)).clone(),
+                plugins_available: false,
+                selected_plugins: Default::default(),
+            },
+            &[],
+            /*elicitation_reviewer*/ None,
+        )
+        .await;
     assert_eq!(
         runtime.config.environment_use_mxc,
         HashMap::from([(DEFAULT_MCP_SERVER_ENVIRONMENT_ID.to_string(), cfg!(windows))])

@@ -70,11 +70,10 @@ use codex_connectors::apps_config_from_layer_stack;
 use codex_extension_api::ExtensionData;
 use codex_features::Feature;
 use codex_features::SleepToolMode;
-use codex_login::AuthManager;
+use codex_login::AzraelServiceAccountStore;
 use codex_mcp::CODEX_APPS_MCP_SERVER_NAME;
 use codex_prompts::ResolvedModelMessages;
 use codex_protocol::DEFAULT_FUNCTION_NAMESPACE;
-use codex_protocol::account::PlanType;
 use codex_protocol::config_types::WebSearchMode;
 use codex_protocol::dynamic_tools::DynamicToolNamespaceTool;
 use codex_protocol::dynamic_tools::DynamicToolSpec;
@@ -82,7 +81,6 @@ use codex_protocol::error::CodexErrorDetails;
 use codex_protocol::error::Result as CodexResult;
 use codex_protocol::models::PermissionProfile;
 use codex_protocol::openai_models::ConfigShellToolType;
-use codex_protocol::openai_models::InputModality;
 use codex_protocol::openai_models::ModelInfo;
 use codex_protocol::openai_models::ToolMode;
 use codex_protocol::protocol::MultiAgentVersion;
@@ -756,6 +754,7 @@ fn hosted_model_tool_specs_for_runtime(
     // `Some(Cached/Live/Disabled)` are the options for mode when standalone search is unavailable
     // and the provider supports hosted search. `None` prevents emitting a hosted search tool.
     let provider_hosted_web_search_available = turn_context.provider.capabilities().web_search
+        && !turn_context.provider.info().is_openai()
         && !(turn_context.config.model_provider_id == crate::devin::PROVIDER_ID
             && native_devin_runtime_enabled);
     let web_search_mode = (!standalone_web_search_available
@@ -838,41 +837,23 @@ fn required_child_management_tool_names(
     tools
 }
 
-fn image_generation_available(turn_context: &TurnContext, model_info: &ModelInfo) -> bool {
-    if !turn_context
+fn image_generation_available(turn_context: &TurnContext, _model_info: &ModelInfo) -> bool {
+    turn_context
         .config
         .features
         .get()
         .enabled(Feature::ImageGeneration)
-    {
-        return false;
-    }
+        && AzraelServiceAccountStore::new(turn_context.config.codex_home.as_path())
+            .selected_profile_info()
+            .is_ok_and(|profile| {
+                profile.is_some_and(|profile| profile.plan_type.as_deref() != Some("free"))
+            })
+}
 
-    if turn_context
-        .auth_manager
-        .as_deref()
-        .and_then(AuthManager::auth_cached)
-        .and_then(|auth| auth.account_plan_type())
-        == Some(PlanType::Free)
-    {
-        return false;
-    }
-
-    if !turn_context.provider.capabilities().image_generation {
-        return false;
-    }
-
-    if !model_info.input_modalities.contains(&InputModality::Image) {
-        return false;
-    }
-
-    let provider = turn_context.provider.info();
-    provider.uses_openai_actor_authorization()
-        || (provider.requires_openai_auth
-            && turn_context
-                .auth_manager
-                .as_deref()
-                .is_some_and(AuthManager::current_auth_uses_codex_backend))
+fn independent_service_selected(turn_context: &TurnContext) -> bool {
+    AzraelServiceAccountStore::new(turn_context.config.codex_home.as_path())
+        .snapshot()
+        .is_ok_and(|selection| selection.profile_id.is_some())
 }
 
 fn wait_agent_timeout_options(turn_context: &TurnContext) -> WaitAgentTimeoutOptions {
@@ -1171,13 +1152,18 @@ fn add_core_tool_sources(context: &CoreToolPlanContext<'_>, registry: &mut ToolR
 }
 
 fn standalone_web_search_enabled(turn_context: &TurnContext, model_info: &ModelInfo) -> bool {
-    turn_context.provider.capabilities().web_search
-        && (model_info.use_responses_lite
-            || turn_context
-                .config
-                .features
-                .get()
-                .enabled(Feature::StandaloneWebSearch))
+    let provider = turn_context.provider.info();
+    if !provider.is_openai() && provider.supports_standalone_web_search {
+        turn_context.provider.capabilities().web_search
+            && (model_info.use_responses_lite
+                || turn_context
+                    .config
+                    .features
+                    .get()
+                    .enabled(Feature::StandaloneWebSearch))
+    } else {
+        independent_service_selected(turn_context)
+    }
 }
 
 fn tool_environment_mode(context: &CoreToolPlanContext<'_>) -> ToolEnvironmentMode {
@@ -1333,11 +1319,10 @@ mod project_maintenance_registration_tests {
                 1,
             ),
         ] {
-            let mut registry =
-                ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
-                    allowed_tools,
-                    ..Default::default()
-                }));
+            let mut registry = ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
+                allowed_tools,
+                ..Default::default()
+            }));
             add_project_maintenance_tools(
                 local,
                 Some(&azrael_project_maintenance::preferences::Preferences::default()),
@@ -1403,10 +1388,11 @@ mod task_memory_registration_tests {
             (Some(vec![ToolName::plain("exec_command")]), true, 0),
             (Some(vec![ToolName::plain("task_memory")]), true, 1),
         ] {
-            let mut registry = ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
-                allowed_tools,
-                ..Default::default()
-            }));
+            let mut registry =
+                ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
+                    allowed_tools,
+                    ..Default::default()
+                }));
             add_task_memory_tool(local, &mut registry);
             assert_eq!(registry.entries().count(), count);
         }

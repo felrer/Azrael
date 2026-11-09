@@ -45,13 +45,14 @@ pub(crate) const PROVIDER_ID: &str = "azrael-managed";
 #[derive(Debug)]
 struct ManagedModelsManager {
     inner: SharedModelsManager,
+    originator_managers: std::sync::Mutex<std::collections::HashMap<String, SharedModelsManager>>,
     helper: PathBuf,
     bun: PathBuf,
     codex_home: PathBuf,
     snapshot_path: PathBuf,
-    managed_models: RwLock<Vec<ModelInfo>>,
-    provider_catalogs: RwLock<Vec<ProviderCatalogStatus>>,
-    catalog_refresh: Semaphore,
+    managed_models: Arc<RwLock<Vec<ModelInfo>>>,
+    provider_catalogs: Arc<RwLock<Vec<ProviderCatalogStatus>>>,
+    catalog_refresh: Arc<Semaphore>,
 }
 
 pub(crate) fn is_managed(key: &str) -> bool {
@@ -146,13 +147,14 @@ pub(crate) fn wrap(inner: SharedModelsManager, codex_home: PathBuf) -> SharedMod
     let provider_catalogs = load_statuses(&snapshot_path).unwrap_or_default();
     Arc::new(ManagedModelsManager {
         inner,
+        originator_managers: std::sync::Mutex::new(std::collections::HashMap::new()),
         helper,
         bun,
         codex_home,
         snapshot_path,
-        managed_models: RwLock::new(managed_models),
-        provider_catalogs: RwLock::new(provider_catalogs),
-        catalog_refresh: Semaphore::new(1),
+        managed_models: Arc::new(RwLock::new(managed_models)),
+        provider_catalogs: Arc::new(RwLock::new(provider_catalogs)),
+        catalog_refresh: Arc::new(Semaphore::new(1)),
     })
 }
 
@@ -245,6 +247,35 @@ impl ManagedModelsManager {
 }
 
 impl ModelsManager for ManagedModelsManager {
+    fn for_originator(&self, originator: &str) -> Option<SharedModelsManager> {
+        let mut managers = self
+            .originator_managers
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if let Some(manager) = managers.get(originator) {
+            return Some(Arc::clone(manager));
+        }
+        let inner = self.inner.for_originator(originator)?;
+        // Only the native catalog is scoped; provider-owned discovery stays shared.
+        let manager: SharedModelsManager = Arc::new(Self {
+            inner,
+            originator_managers: std::sync::Mutex::new(std::collections::HashMap::new()),
+            helper: self.helper.clone(),
+            bun: self.bun.clone(),
+            codex_home: self.codex_home.clone(),
+            snapshot_path: self.snapshot_path.clone(),
+            managed_models: self.managed_models.clone(),
+            provider_catalogs: self.provider_catalogs.clone(),
+            catalog_refresh: self.catalog_refresh.clone(),
+        });
+        managers.insert(originator.to_string(), Arc::clone(&manager));
+        Some(manager)
+    }
+
+    fn set_api_key_model_discovery_enabled(&self, enabled: bool) {
+        self.inner.set_api_key_model_discovery_enabled(enabled);
+    }
+
     fn refresh_after_auth_change(
         &self,
         http_client_factory: HttpClientFactory,

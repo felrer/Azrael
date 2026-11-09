@@ -42,6 +42,10 @@ pub struct ConnectorMetadataStore {
 }
 
 impl ConnectorMetadataStore {
+    pub fn with_service_revision(mut self, revision: Option<u64>) -> Self {
+        self.scope.service_revision = revision;
+        self
+    }
     pub fn new(
         backend_base_url: String,
         account_id: Option<String>,
@@ -50,6 +54,7 @@ impl ConnectorMetadataStore {
     ) -> Self {
         Self {
             scope: ConnectorMetadataStoreScope {
+                service_revision: None,
                 backend_base_url,
                 account_id,
                 chatgpt_user_id,
@@ -124,6 +129,7 @@ impl ConnectorMetadataStore {
 // If that assumption changes, the SKU must be included in the cache scope.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct ConnectorMetadataStoreScope {
+    service_revision: Option<u64>,
     backend_base_url: String,
     account_id: Option<String>,
     chatgpt_user_id: Option<String>,

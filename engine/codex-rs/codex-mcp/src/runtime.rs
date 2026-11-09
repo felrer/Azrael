@@ -76,7 +76,10 @@ pub enum McpStartupPolicy {
 }
 
 /// Configuration and owning-thread state needed to materialize an MCP runtime.
+#[derive(Clone)]
 pub struct McpRuntimeInput {
+    /// Policy source captured with the configuration and connections in this publication.
+    pub network_policy_metadata: Option<Arc<dyn crate::NetworkPolicyMetadataProvider>>,
     pub startup_policy: McpStartupPolicy,
     pub config: Arc<McpConfig>,
     pub plugins_available: bool,
@@ -101,6 +104,7 @@ pub struct McpRuntimeInput {
 /// Publication replaces the latest state atomically. Existing bindings retain
 /// their exact connections and configuration for as long as they are needed.
 pub struct McpRuntime {
+    service_requests: Arc<crate::service_lifecycle::ServiceRequestState>,
     current: ArcSwap<PublishedMcpRuntime>,
     event_stream_cancellation: Mutex<EventStreamCancellation>,
     reconnect_pending: AtomicBool,
@@ -146,6 +150,26 @@ fn ensure_host_owned_apps_registration(
         anyhow::bail!("MCP server '{server}' is not registered by the hosted runtime");
     }
     Ok(())
+}
+
+fn service_identity_matches(previous: &McpConfig, latest: &McpConfig) -> bool {
+    previous
+        .azrael_service_account
+        .as_ref()
+        .map(|binding| &binding.selection)
+        == latest
+            .azrael_service_account
+            .as_ref()
+            .map(|binding| &binding.selection)
+        && previous.azrael_service_auth == latest.azrael_service_auth
+        && previous
+            .azrael_service_auth
+            .as_ref()
+            .and_then(|auth| auth.get_token().ok())
+            == latest
+                .azrael_service_auth
+                .as_ref()
+                .and_then(|auth| auth.get_token().ok())
 }
 
 impl PublishedMcpRuntime {
@@ -228,12 +252,99 @@ impl McpPublicationGate {
 }
 
 impl McpRuntime {
+    pub fn set_service_request_resolver(&self, resolver: crate::McpServiceRequestResolver) {
+        self.service_requests.set_resolver(resolver);
+    }
+
+    pub(crate) fn has_service_request_resolver(&self) -> bool {
+        self.service_requests.enabled()
+    }
+
+    pub(crate) async fn service_is_available(&self) -> bool {
+        self.service_requests.resolve_input().await.is_ok()
+    }
+
+    pub(crate) async fn capture_service_request(&self) -> anyhow::Result<Option<Arc<Self>>> {
+        if self.service_requests.enabled() {
+            Ok(Some(self.service_requests.capture().await?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub(crate) fn service_config(&self) -> Option<Arc<McpConfig>> {
+        self.current.load().config.clone()
+    }
+
+    pub(crate) fn service_cancellation_sender(&self) -> watch::Sender<()> {
+        self.event_stream_cancellation
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .cancel_event_streams_on_server_removal
+            .clone()
+    }
+
+    /// Drops idle stale Apps ownership without cancelling an already captured request.
+    pub fn retire_stale_service_runtime(
+        &self,
+        selection: &codex_login::AzraelServiceAccountSelection,
+    ) {
+        self.current.rcu(|current| {
+            let Some(config) = &current.config else {
+                return Arc::clone(current);
+            };
+            let Some(binding) = &config.azrael_service_account else {
+                return Arc::clone(current);
+            };
+            if &binding.selection == selection {
+                return Arc::clone(current);
+            }
+            let mut config = (**config).clone();
+            config.azrael_service_account = None;
+            config.azrael_service_auth = None;
+            config.azrael_service_network_policy = None;
+            Arc::new(PublishedMcpRuntime {
+                connections: Arc::new(current.connections.without_hosted_service()),
+                config: Some(Arc::new(config)),
+                auth: current.auth.clone(),
+                auth_token: current.auth_token.clone(),
+                auth_generation: Arc::new(()),
+                plugins_available: current.plugins_available,
+                ready_selected_capability_roots: current.ready_selected_capability_roots.clone(),
+                environment_selections: Arc::clone(&current.environment_selections),
+                ready_environments: current.ready_environments.clone(),
+                cached_binding: Mutex::new(None),
+            })
+        });
+    }
+
+    pub fn poll_service_profile_retirement(&self) {
+        self.service_requests.poll_retirements();
+        let retired = self
+            .current
+            .load()
+            .config
+            .as_ref()
+            .and_then(|config| config.azrael_service_account.as_ref())
+            .is_some_and(|binding| {
+                binding
+                    .profile
+                    .status()
+                    .is_ok_and(|status| status != codex_login::AzraelProfileStatus::Available)
+            });
+        if retired {
+            self.retire_stale_service_runtime(
+                &codex_login::AzraelServiceAccountSelection::default(),
+            );
+        }
+    }
     /// Creates a runtime with no configured servers.
     ///
     /// This is useful while constructing a thread that must publish a stable
     /// runtime handle before its full MCP inputs are available.
     pub fn empty(prefix_mcp_tool_names: bool) -> Self {
         Self {
+            service_requests: Arc::default(),
             current: ArcSwap::from_pointee(PublishedMcpRuntime {
                 connections: Arc::new(McpConnectionSet::empty(prefix_mcp_tool_names)),
                 config: None,
@@ -364,7 +475,11 @@ impl McpRuntime {
         let auth = input.auth.clone();
         let auth_token = auth.as_ref().and_then(|auth| auth.get_token().ok());
         let current = self.current.load_full();
-        let auth_generation = if current.auth_matches(auth.as_ref()) {
+        let service_matches = match current.config.as_ref() {
+            Some(previous) => service_identity_matches(previous, &config),
+            None => config.azrael_service_account.is_none(),
+        };
+        let auth_generation = if current.auth_matches(auth.as_ref()) && service_matches {
             Arc::clone(&current.auth_generation)
         } else {
             Arc::new(())
@@ -395,6 +510,17 @@ impl McpRuntime {
             .event_stream_cancellation
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if !service_matches && self.service_requests.enabled() {
+            // New service selections receive a distinct revocation channel. Selection
+            // itself never revokes an older, already-started request or subscription.
+            cancellation.cancel_event_streams_on_server_removal = watch::channel(()).0;
+        }
+        self.service_requests.track(
+            &config,
+            &connections,
+            cancellation.cancel_event_streams_on_server_removal.clone(),
+            None,
+        );
         self.current.store(Arc::new(PublishedMcpRuntime {
             connections,
             config: Some(config),
@@ -409,7 +535,7 @@ impl McpRuntime {
         }));
         let _ = publish.send(true);
         cancellation.event_server_available = hosted_event_server_retained;
-        if !hosted_event_server_retained {
+        if !hosted_event_server_retained && !self.service_requests.enabled() {
             cancellation
                 .cancel_event_streams_on_server_removal
                 .send_replace(());
@@ -532,15 +658,67 @@ impl McpRuntime {
         self.current.load().auth_matches(auth)
     }
 
+    /// Checks the latest service selection before admitting a new logical operation.
+    /// Existing bindings and prepared calls continue to own their original account.
+    pub async fn current_service_account_matches(&self, template: &AuthManager) -> bool {
+        if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_none() {
+            return true;
+        }
+        let current = self.current.load_full();
+        let Some(config) = current.config.as_ref() else {
+            return false;
+        };
+        let latest = codex_login::AzraelServiceAccountStore::new(&config.codex_home)
+            .resolve(template)
+            .await;
+        match (config.azrael_service_account.as_ref(), latest) {
+            (None, Err(_)) => true,
+            (Some(previous), Ok(latest)) => {
+                previous.selection == latest.selection
+                    && config
+                        .azrael_service_auth
+                        .as_ref()
+                        .and_then(|auth| auth.get_token().ok())
+                        == latest
+                            .manager()
+                            .auth_cached()
+                            .as_ref()
+                            .and_then(|auth| auth.get_token().ok())
+            }
+            _ => false,
+        }
+    }
+
     pub(crate) fn auth_cache_key_for_server(
         &self,
         server: &str,
     ) -> crate::McpResourceClientAuthKey {
         let current = self.current.load();
+        let service_is_current = server != CODEX_APPS_MCP_SERVER_NAME
+            || current.config.as_ref().is_none_or(|config| {
+                config
+                    .azrael_service_account
+                    .as_ref()
+                    .is_none_or(|binding| {
+                        codex_login::AzraelServiceAccountStore::new(&config.codex_home)
+                            .snapshot()
+                            .is_ok_and(|selection| selection == binding.selection)
+                    })
+            });
         crate::McpResourceClientAuthKey {
+            service_selection: (server == CODEX_APPS_MCP_SERVER_NAME
+                && self.service_requests.enabled())
+            .then(|| {
+                current.config.as_ref().and_then(|config| {
+                    codex_login::AzraelServiceAccountStore::new(&config.codex_home)
+                        .snapshot()
+                        .ok()
+                })
+            })
+            .flatten(),
             generation: Arc::clone(&current.auth_generation),
             server: server.to_string(),
-            available: current.connections.contains_server(server),
+            available: service_is_current && current.connections.contains_server(server),
         }
     }
 
@@ -579,7 +757,15 @@ impl McpRuntime {
     /// Prepares one advertised tool against this publication's current client and policy.
     /// Its model-visible name stays fixed while execution metadata comes from the live catalog.
     pub async fn prepare_call(&self, advertised_tool: &ToolInfo) -> Option<PreparedMcpCall> {
-        let current = self.current.load_full();
+        let scope = if advertised_tool.server_name == CODEX_APPS_MCP_SERVER_NAME {
+            self.capture_service_request().await.ok()?
+        } else {
+            None
+        };
+        let current = scope
+            .as_ref()
+            .map(|scope| scope.current.load_full())
+            .unwrap_or_else(|| self.current.load_full());
         current
             .connections
             .prepare_call_for_tool(Arc::clone(current.config.as_ref()?), advertised_tool)
@@ -588,7 +774,15 @@ impl McpRuntime {
 
     /// Captures the current runtime after its selected server has finished startup.
     pub async fn current_binding_for_call(&self, server: &str) -> Option<Arc<McpBinding>> {
-        let current = self.current.load_full();
+        let scope = if server == CODEX_APPS_MCP_SERVER_NAME {
+            self.capture_service_request().await.ok()?
+        } else {
+            None
+        };
+        let current = scope
+            .as_ref()
+            .map(|scope| scope.current.load_full())
+            .unwrap_or_else(|| self.current.load_full());
         current.config.as_ref()?;
         if !current.connections.wait_for_server_startup(server).await {
             return None;
@@ -691,7 +885,16 @@ impl McpRuntime {
         requested_timeout: Option<Duration>,
         wait_for_server: bool,
     ) -> anyhow::Result<CallToolResult> {
-        self.latest_connections()
+        let scope = if server == CODEX_APPS_MCP_SERVER_NAME {
+            self.capture_service_request().await?
+        } else {
+            None
+        };
+        let connections = scope
+            .as_ref()
+            .map(|scope| scope.latest_connections())
+            .unwrap_or_else(|| self.latest_connections());
+        connections
             .call_tool(
                 server,
                 tool,
@@ -709,9 +912,16 @@ impl McpRuntime {
         server: &str,
         params: ReadResourceRequestParams,
     ) -> anyhow::Result<ReadResourceResult> {
-        self.latest_connections()
-            .read_resource(server, params)
-            .await
+        let scope = if server == CODEX_APPS_MCP_SERVER_NAME {
+            self.capture_service_request().await?
+        } else {
+            None
+        };
+        let connections = scope
+            .as_ref()
+            .map(|scope| scope.latest_connections())
+            .unwrap_or_else(|| self.latest_connections());
+        connections.read_resource(server, params).await
     }
 
     pub async fn latest_wait_for_server_ready(&self, server: &str, timeout: Duration) -> bool {
@@ -785,20 +995,25 @@ impl McpRuntime {
             .event_stream_cancellation
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let service = self.service_requests.enabled();
         let connection = self
             .current
             .load()
             .connections
             .event_stream_connection
-            .clone()
-            .ok_or_else(|| anyhow::anyhow!("Event subscriptions are unavailable for this task"))?;
+            .clone();
+        anyhow::ensure!(
+            service || connection.is_some(),
+            "Event subscriptions are unavailable for this task"
+        );
         let cancel_event_streams_on_server_removal = cancellation
             .retained_subscription_cancellation
             .as_ref()
             .unwrap_or(&cancellation.cancel_event_streams_on_server_removal)
             .clone();
         Ok(McpEventStreamOpener {
-            connection,
+            connection: if service { None } else { connection },
+            service_requests: service.then(|| Arc::clone(&self.service_requests)),
             cancellation_receiver: cancel_event_streams_on_server_removal.subscribe(),
             cancel_event_streams_on_server_removal,
         })
@@ -857,7 +1072,10 @@ pub fn apply_http_headers_helper(
 ) -> Result<Arc<dyn HttpClient>, String> {
     if matches!(
         config.disabled_reason,
-        Some(McpServerDisabledReason::Requirements { .. })
+        Some(
+            McpServerDisabledReason::Requirements { .. }
+                | McpServerDisabledReason::ExplicitAndRequirements { .. }
+        )
     ) {
         return Err("the MCP server is disabled by managed requirements".to_string());
     }
@@ -904,6 +1122,12 @@ impl McpRuntimeContext {
 
     pub(crate) fn local_process_cwd(&self) -> PathBuf {
         self.local_process_cwd.clone()
+    }
+
+    /// Replaces only this snapshot's local transport for the hosted service.
+    pub(crate) fn with_local_http_client(mut self, client: Arc<dyn HttpClient>) -> Self {
+        self.local_http_client = client;
+        self
     }
 
     pub(crate) fn local_http_client(&self) -> Arc<dyn HttpClient> {

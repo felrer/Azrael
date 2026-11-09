@@ -57,14 +57,21 @@ impl<T> ConnectorRuntimePayload for T where T: Clone + PartialEq + Serialize + D
 /// The account and workspace identity of a connector runtime catalog.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ConnectorRuntimeContextKey {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    service_revision: Option<u64>,
     account_id: Option<String>,
     chatgpt_user_id: Option<String>,
     is_workspace_account: bool,
 }
 
 impl ConnectorRuntimeContextKey {
+    pub fn with_service_revision(mut self, revision: Option<u64>) -> Self {
+        self.service_revision = revision;
+        self
+    }
     pub fn personal(account_id: Option<String>, chatgpt_user_id: Option<String>) -> Self {
         Self {
+            service_revision: None,
             account_id,
             chatgpt_user_id,
             is_workspace_account: false,
@@ -73,6 +80,7 @@ impl ConnectorRuntimeContextKey {
 
     pub fn workspace(account_id: Option<String>, chatgpt_user_id: Option<String>) -> Self {
         Self {
+            service_revision: None,
             account_id,
             chatgpt_user_id,
             is_workspace_account: true,

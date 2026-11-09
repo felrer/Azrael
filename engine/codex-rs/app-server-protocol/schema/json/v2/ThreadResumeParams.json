@@ -28,6 +28,58 @@
           "type": "object"
         },
         {
+          "anyOf": [
+            {
+              "properties": {
+                "image_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "image_url"
+              ],
+              "title": "ImageUrlAgentMessageInputContent",
+              "type": "object"
+            },
+            {
+              "properties": {
+                "file_id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "file_id"
+              ],
+              "title": "FileIdAgentMessageInputContent",
+              "type": "object"
+            }
+          ],
+          "properties": {
+            "detail": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ImageDetail"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "enum": [
+                "input_image"
+              ],
+              "title": "InputImageAgentMessageInputContentType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "InputImageAgentMessageInputContent",
+          "type": "object"
+        },
+        {
           "properties": {
             "encrypted_content": {
               "type": "string"

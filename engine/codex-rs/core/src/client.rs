@@ -1104,6 +1104,19 @@ impl ModelClient {
         loop {
             let revision = auth_changes.as_ref().map(|changes| *changes.borrow());
             let auth = self.state.provider.auth().await;
+            let info = self.state.provider.info();
+            if info.requires_openai_auth
+                && info.env_key.is_none()
+                && info.experimental_bearer_token.is_none()
+                && info.auth.is_none()
+                && info.aws.is_none()
+                && auth.is_none()
+            {
+                return Err(std::io::Error::other(
+                    "Model connection is unavailable. Connect an account before starting inference.",
+                )
+                .into());
+            }
             let (api_provider, redirect_policy) = match routing {
                 ClientRouting::Workspace => {
                     let resolved = self

@@ -178,13 +178,19 @@
         {
           "id": "agent.image-attachments.mapping",
           "executable": "node",
-          "args": ["--test", "providers/opencodex/tests/harness-mapping.test.mjs", "providers/devin/tests/mapping.test.mjs"],
+          "args": [
+            "--test",
+            "providers/opencodex/tests/harness-mapping.test.mjs",
+            "providers/devin/tests/mapping.test.mjs"
+          ],
           "level": "source"
         },
         {
           "id": "agent.image-attachments.native",
           "executable": "node",
-          "args": ["scripts/check-agent-image-attachments.cjs"],
+          "args": [
+            "scripts/check-agent-image-attachments.cjs"
+          ],
           "level": "native",
           "cargoPreflight": "selected-tests-v2"
         }
@@ -766,7 +772,31 @@
         "engine/codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
         "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
         "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
-        "engine/codex-rs/login/src/auth/profiles_tests.rs"
+        "engine/codex-rs/login/src/auth/profiles_tests.rs",
+        "engine/codex-rs/login/src/auth/service_account.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/service_account.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/service_http.rs",
+        "engine/codex-rs/app-server-protocol/src/protocol/v2/azrael.rs",
+        "engine/codex-rs/core/src/config/service_policy.rs",
+        "engine/codex-rs/config/src/state.rs",
+        "engine/codex-rs/http-client/src/network_policy.rs",
+        "engine/codex-rs/core/src/connectors.rs",
+        "engine/codex-rs/core/src/session/mcp_runtime.rs",
+        "engine/codex-rs/core/src/guardian/review_session_setup.rs",
+        "engine/codex-rs/core/src/guardian/reviewer_config.rs",
+        "engine/codex-rs/core/src/thread_manager.rs",
+        "engine/codex-rs/core/src/config/mod.rs",
+        "engine/codex-rs/memories/write/src/start.rs",
+        "engine/codex-rs/ext/memories/src/extension.rs",
+        "scripts/check-service-auth-native.cjs",
+        "engine/codex-rs/ext/web-search/src/extension.rs",
+        "engine/codex-rs/ext/web-search/src/tool.rs",
+        "engine/codex-rs/ext/image-generation/src/extension.rs",
+        "engine/codex-rs/ext/image-generation/src/backend.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/codex-mcp/src/connection_manager_tests.rs",
+        "engine/codex-rs/codex-mcp/src/connection_manager/startup.rs",
+        "engine/codex-rs/login/src/test_support.rs"
       ],
       "contract": "docs/architecture/system/runtime-target.md",
       "reportFields": [],
@@ -848,6 +878,16 @@
             "scripts/check-shared-engine-native.cjs",
             "{engineSourceRoot}",
             "accounts"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.shared-engine.openai-services",
+          "executable": "node",
+          "args": [
+            "scripts/check-service-auth-native.cjs",
+            "{engineSourceRoot}"
           ],
           "level": "native",
           "cargoPreflight": "selected-tests-v2"
@@ -1912,7 +1952,19 @@
         "scripts/test-usage-window-ui.cjs",
         "scripts/inject-account-settings.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "extensions/azrael-ex/src/protocol.ts",
+        "extensions/azrael-ex/src/accountService.ts",
+        "extensions/azrael-ex/src/accountView.ts",
+        "extensions/azrael-ex/test/protocol.test.ts",
+        "scripts/verify-account-overview-render.mjs",
+        "scripts/inject-service-auth.cjs",
+        "scripts/tests/inject-service-auth.test.cjs",
+        "scripts/service-identity-apps.cjs",
+        "scripts/service-identity-cloud.cjs",
+        "scripts/tests/service-identity-apps.test.cjs",
+        "scripts/tests/service-identity-cloud.test.cjs",
+        "scripts/tests/service-identity-fixture.cjs"
       ],
       "contract": "docs/architecture/features/accounts/README.md",
       "checks": [
@@ -1942,10 +1994,22 @@
             "scripts/test-namespace-cache-owner.cjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "ui.account-settings.service-transport",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/tests/inject-service-auth.test.cjs",
+            "scripts/tests/service-identity-apps.test.cjs",
+            "scripts/tests/service-identity-cloud.test.cjs"
+          ],
+          "level": "source"
         }
       ],
       "reportFields": [
-        "accountSettingsEdits"
+        "accountSettingsEdits",
+        "serviceAuthEdits"
       ]
     },
     {
@@ -2150,7 +2214,9 @@
         {
           "id": "ui.student-design.scientist-assets",
           "executable": "node",
-          "args": ["scripts/test-scientist-avatar-assets.cjs"],
+          "args": [
+            "scripts/test-scientist-avatar-assets.cjs"
+          ],
           "level": "source"
         },
         {
@@ -2329,7 +2395,9 @@
       "owners": [
         "scripts/inject-url-safety-transport.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/inject-service-auth.cjs",
+        "scripts/tests/inject-service-auth.test.cjs"
       ],
       "contract": "docs/architecture/features/computer-use-retirement/README.md",
       "checks": [
@@ -2807,7 +2875,8 @@
       "owners": [
         "scripts/inject-auto-review.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/verify-service-auto-review-render.mjs"
       ],
       "contract": "docs/architecture/features/auto-review/README.md",
       "checks": [
@@ -3428,7 +3497,10 @@
       "owners": [
         "scripts/inject-provider-model-picker.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/inject-auth-shell.cjs",
+        "scripts/provider-model-picker.cjs",
+        "scripts/verify-auth-shell-render.mjs"
       ],
       "contract": "docs/architecture/features/managed-providers/README.md",
       "checks": [
@@ -3925,7 +3997,10 @@
         {
           "id": "engine.provider-context.devin-compaction-runner",
           "executable": "node",
-          "args": ["--test", "scripts/tests/check-devin-compaction.test.cjs"],
+          "args": [
+            "--test",
+            "scripts/tests/check-devin-compaction.test.cjs"
+          ],
           "level": "source"
         },
         {
@@ -4485,6 +4560,7 @@
         "engine/codex-rs/project-maintenance/tests/root_retirement.rs",
         "engine/codex-rs/project-maintenance/tests/absent_adoption.rs",
         "engine/codex-rs/project-maintenance/tests/verified_junctions.rs",
+        "engine/codex-rs/project-maintenance/tests/verified_file_symlinks.rs",
         "engine/codex-rs/project-maintenance/tests/hardlink_normalization.rs",
         "engine/codex-rs/project-maintenance/src/paths.rs",
         "engine/codex-rs/project-maintenance/src/planning.rs",
@@ -4563,7 +4639,6 @@
         "scripts/test-clean-engine-caches.ps1",
         "scripts/test-deploy-azrael.ps1",
         "engine/codex-rs/project-maintenance/src/registry.rs",
-        "engine/codex-rs/project-maintenance/tests/verified_file_symlinks.rs",
         "engine/codex-rs/project-maintenance/tests/registry.rs",
         "scripts/verify-composer-emoticon-render.mjs",
         "scripts/test-project.cjs",
@@ -4634,7 +4709,7 @@
         "scripts/check-multiwindow-accounts.mjs",
         "scripts/create-ui-design-preview.cjs",
         "scripts/create-ui-icon-review.cjs",
-        "scripts/verify-auto-review-render.mjs",
+        "scripts/verify-service-auto-review-render.mjs",
         "scripts/verify-ticket-usage-render.mjs",
         "scripts/verification-schedule.cjs",
         "scripts/test-verification-schedule.cjs",
@@ -5214,7 +5289,24 @@
         "engine/codex-rs/core/src/tools/handlers/dynamic.rs",
         "engine/codex-rs/core/tests/suite/code_mode_dynamic_tools_tests.rs",
         "engine/codex-rs/core/src/context/instruction_state_projection.rs",
-        "engine/codex-rs/core/src/compact_remote_v2_attempt.rs"
+        "engine/codex-rs/core/src/compact_remote_v2_attempt.rs",
+        "engine/codex-rs/voice-host/src/processing_tests.rs",
+        "engine/codex-rs/core/src/session/turn_input.rs",
+        "engine/codex-rs/core/tests/suite/hooks.rs",
+        "engine/codex-rs/core/tests/suite/guardian_review.rs",
+        "engine/codex-rs/core-plugins/src/marketplace_policy.rs",
+        "engine/codex-rs/core-plugins/src/marketplace_policy_tests.rs",
+        "engine/codex-rs/cloud-config/src/bundle_loader.rs",
+        "engine/codex-rs/cloud-config/src/service_tests.rs",
+        "engine/codex-rs/codex-mcp/src/catalog.rs",
+        "engine/codex-rs/codex-mcp/src/connection_manager/network_policy.rs",
+        "engine/codex-rs/models-manager/src/originator.rs",
+        "engine/codex-rs/core/src/managed_catalog.rs",
+        "engine/codex-rs/core/src/devin/catalog.rs",
+        "engine/codex-rs/model-provider/src/models_originator_tests.rs",
+        "engine/sdk/typescript/package.json",
+        "engine/package.json",
+        "engine/pnpm-lock.yaml"
       ],
       "contract": "docs/architecture/system/runtime-target.md",
       "checks": [
@@ -5230,14 +5322,22 @@
         {
           "id": "engine.selected-upstream.reasoning-effort-default",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "reasoning-effort-default"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "reasoning-effort-default"
+          ],
           "level": "native",
           "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.auth-decrypted-cache",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "auth-decrypted-cache"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "auth-decrypted-cache"
+          ],
           "level": "native",
           "cargoPreflight": "selected-tests-v2"
         },
@@ -5404,6 +5504,73 @@
             "scripts/check-selected-upstream-native.cjs",
             "{engineSourceRoot}",
             "tui"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.selected-upstream.third-small",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "third-small"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.selected-upstream.third-mcp",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "third-mcp"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.selected-upstream.third-models",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "third-models"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.selected-upstream.third-core",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "third-core",
+            "{engineDirectory}"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.selected-upstream.third-appserver",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "third-appserver"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.selected-upstream.third-tui",
+          "executable": "node",
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "third-tui"
           ],
           "level": "native",
           "cargoPreflight": "selected-tests-v2"

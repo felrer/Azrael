@@ -1,7 +1,6 @@
 use super::*;
 
 use codex_connectors::ConnectorRuntimeTool;
-use codex_connectors::connector_runtime_context_key;
 use codex_connectors::connector_tool_is_synthetic;
 use codex_connectors::installed_connector_runtime;
 use codex_mcp::CODEX_APPS_MCP_SERVER_NAME;
@@ -58,20 +57,26 @@ impl AppsRequestProcessor {
                     None,
                 ),
             };
-            let auth = self.auth_manager.auth().await;
+            let config = codex_core::connectors::service_request_config(&config, &self.auth_manager)
+                .await
+                .map_err(|err| internal_error(format!("Apps service unavailable: {err}")))?;
+            let auth_manager = codex_core::connectors::service_auth_manager(&config)
+                .await
+                .map_err(|err| internal_error(format!("Apps service unavailable: {err}")))?;
+            let auth = auth_manager.auth().await;
             let runtime_enabled = config
                 .features
                 .apps_enabled_for_auth(auth.as_ref().is_some_and(CodexAuth::uses_codex_backend));
 
             let mcp_manager = self.thread_manager.mcp_manager();
-            let cache_key = connector_runtime_context_key(auth.as_ref());
+            let cache_key = codex_core::connectors::service_runtime_cache_key(&config, auth.as_ref());
             let previous_snapshot = mcp_manager
                 .codex_apps_tools_cache()
                 .current_snapshot(config.codex_home.to_path_buf(), cache_key.clone());
             let mut model_visible_tool_names = None;
             let tools = if force_refresh && runtime_enabled {
                 let refresh_result = async {
-                    if let Some(thread) = thread {
+                    if let Some(thread) = thread.filter(|_| config.azrael_service_account.is_none()) {
                         let snapshot = thread.refresh_codex_apps_tools().await?;
                         model_visible_tool_names = Some(snapshot.model_visible_tool_names);
                         snapshot_age = Some(Duration::ZERO);
@@ -96,8 +101,9 @@ impl AppsRequestProcessor {
                     let cancellation_token = CancellationToken::new();
                     let codex_apps_auth_manager =
                         host_owned_codex_apps_enabled(&mcp_config, auth.as_ref())
-                            .then(|| Arc::clone(&self.auth_manager));
+                            .then(|| Arc::clone(&auth_manager));
                     let runtime = McpRuntime::new(McpRuntimeInput {
+                        network_policy_metadata: None,
                         startup_policy: McpStartupPolicy::Eager,
                         config: Arc::clone(&mcp_config),
                         plugins_available: false,

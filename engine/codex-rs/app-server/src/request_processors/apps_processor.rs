@@ -70,7 +70,14 @@ impl AppsRequestProcessor {
                 .set_enabled(Feature::Apps, thread.enabled(Feature::Apps));
         }
 
-        let auth = self.auth_manager.auth().await;
+        config = codex_core::connectors::service_request_config(&config, &self.auth_manager)
+            .await
+            .map_err(|err| internal_error(format!("Apps service unavailable: {err}")))?;
+        let auth = codex_core::connectors::service_auth_manager(&config)
+            .await
+            .map_err(|err| internal_error(format!("Apps service unavailable: {err}")))?
+            .auth()
+            .await;
         if !config
             .features
             .apps_enabled_for_auth(auth.as_ref().is_some_and(CodexAuth::uses_codex_backend))
@@ -147,7 +154,10 @@ impl AppsRequestProcessor {
             .send_result(request_id, result.map(|(response, _)| response))
             .await;
 
-        if should_retry && !retry_params.force_refetch {
+        if should_retry
+            && !retry_params.force_refetch
+            && service_selection_is_current(&retry_config)
+        {
             let mut retry_params = retry_params;
             retry_params.force_refetch = true;
             if let Err(err) = Self::apps_list_response(
@@ -250,7 +260,9 @@ impl AppsRequestProcessor {
                 accessible_loaded,
                 all_loaded,
             ) {
-                send_app_list_updated_notification(outgoing, merged.clone()).await;
+                if service_selection_is_current(&config) {
+                    send_app_list_updated_notification(outgoing, merged.clone()).await;
+                }
                 last_notified_apps = Some(merged);
                 sent_app_list_update = true;
             }
@@ -316,7 +328,9 @@ impl AppsRequestProcessor {
                     && all_loaded
                     && !sent_app_list_update))
             {
-                send_app_list_updated_notification(outgoing, merged.clone()).await;
+                if service_selection_is_current(&config) {
+                    send_app_list_updated_notification(outgoing, merged.clone()).await;
+                }
                 last_notified_apps = Some(merged.clone());
                 sent_app_list_update = true;
             }
@@ -371,6 +385,17 @@ impl AppsRequestProcessor {
 }
 
 const APP_LIST_LOAD_TIMEOUT: Duration = Duration::from_secs(90);
+
+fn service_selection_is_current(config: &Config) -> bool {
+    config
+        .azrael_service_account
+        .as_ref()
+        .is_none_or(|binding| {
+            codex_login::AzraelServiceAccountStore::new(config.codex_home.as_path())
+                .snapshot()
+                .is_ok_and(|selection| selection == binding.selection)
+        })
+}
 // `app/list` is the legacy request-path baseline for the `app/installed` endpoint;
 // `path=legacy` keeps it separate from the new snapshot-backed implementation in dashboards.
 const APPS_INSTALLED_DURATION_METRIC: &str = "codex.apps.installed.duration_ms";

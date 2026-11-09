@@ -93,6 +93,10 @@ pub(super) fn start_monitor(processor: &Arc<AccountRequestProcessor>) {
     let cancellation = processor.workspace_routing_shutdown.clone();
     let handle = tokio::spawn(async move {
         let mut native_worker: Option<AbortOnDropHandle<()>> = None;
+        let mut service_worker: Option<AbortOnDropHandle<()>> = None;
+        let mut service_selection = None;
+        let mut service_notification_pending = false;
+        let service_accounts_enabled = std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some();
         let mut managed_workers = codex_core::account_retirement::RetirementWorkers::default();
         let mut interval = tokio::time::interval(Duration::from_millis(750));
         interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
@@ -105,6 +109,43 @@ pub(super) fn start_monitor(processor: &Arc<AccountRequestProcessor>) {
             let Some(processor) = weak.upgrade() else {
                 break;
             };
+            // Service selection is shared across projects and engine instances.
+            // Poll only its small identity record; policy/auth refresh runs off the
+            // retirement loop so a slow backend cannot delay revocation checks.
+            if service_accounts_enabled {
+                let latest = processor.service_account_store().snapshot().ok();
+                if latest != service_selection {
+                    service_selection = latest;
+                    service_notification_pending = true;
+                    if let Some(selection) = service_selection.as_ref() {
+                        processor
+                            .thread_manager
+                            .retire_stale_service_runtimes(selection)
+                            .await;
+                    }
+                }
+                processor
+                    .thread_manager
+                    .poll_service_profile_retirements()
+                    .await;
+                // UI readiness can await cloud policy. Keep idle connection retirement
+                // independent so that a slow UI update cannot retain an old account.
+                if service_notification_pending
+                    && service_worker
+                        .as_ref()
+                        .is_none_or(|worker| worker.is_finished())
+                {
+                    service_notification_pending = false;
+                    let service_processor = processor.clone();
+                    let service_cancellation = cancellation.clone();
+                    service_worker = Some(AbortOnDropHandle::new(tokio::spawn(async move {
+                        tokio::select! {
+                            _ = service_cancellation.cancelled() => {},
+                            _ = service_processor.send_azrael_update() => {},
+                        }
+                    })));
+                }
+            }
             if native_worker
                 .as_ref()
                 .is_none_or(|worker| worker.is_finished())

@@ -52,10 +52,11 @@ pub(crate) struct DevinSelection {
 #[derive(Debug)]
 struct DevinModelsManager {
     inner: SharedModelsManager,
+    originator_managers: std::sync::Mutex<std::collections::HashMap<String, SharedModelsManager>>,
     executable: PathBuf,
     snapshot_path: PathBuf,
     capabilities_path: PathBuf,
-    devin_models: RwLock<Vec<ModelInfo>>,
+    devin_models: Arc<RwLock<Vec<ModelInfo>>>,
 }
 
 /// Image-capable cloud model ids persisted beside the CLI catalog. Only the
@@ -121,10 +122,11 @@ pub(crate) fn wrap(inner: SharedModelsManager, codex_home: PathBuf) -> SharedMod
     let devin_models = load_snapshot(&snapshot_path, &capabilities_path).unwrap_or_default();
     Arc::new(DevinModelsManager {
         inner,
+        originator_managers: std::sync::Mutex::new(std::collections::HashMap::new()),
         executable,
         snapshot_path,
         capabilities_path,
-        devin_models: RwLock::new(devin_models),
+        devin_models: Arc::new(RwLock::new(devin_models)),
     })
 }
 
@@ -191,6 +193,32 @@ impl DevinModelsManager {
 }
 
 impl ModelsManager for DevinModelsManager {
+    fn for_originator(&self, originator: &str) -> Option<SharedModelsManager> {
+        let mut managers = self
+            .originator_managers
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if let Some(manager) = managers.get(originator) {
+            return Some(Arc::clone(manager));
+        }
+        let inner = self.inner.for_originator(originator)?;
+        // Only the native catalog is scoped; provider-owned discovery stays shared.
+        let manager: SharedModelsManager = Arc::new(Self {
+            inner,
+            originator_managers: std::sync::Mutex::new(std::collections::HashMap::new()),
+            executable: self.executable.clone(),
+            snapshot_path: self.snapshot_path.clone(),
+            capabilities_path: self.capabilities_path.clone(),
+            devin_models: self.devin_models.clone(),
+        });
+        managers.insert(originator.to_string(), Arc::clone(&manager));
+        Some(manager)
+    }
+
+    fn set_api_key_model_discovery_enabled(&self, enabled: bool) {
+        self.inner.set_api_key_model_discovery_enabled(enabled);
+    }
+
     fn refresh_after_auth_change(
         &self,
         http_client_factory: HttpClientFactory,

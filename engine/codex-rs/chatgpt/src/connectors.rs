@@ -22,7 +22,6 @@ pub use codex_core::connectors::list_accessible_connectors_from_mcp_tools_with_m
 pub use codex_core::connectors::list_accessible_connectors_from_mcp_tools_with_options;
 pub use codex_core::connectors::list_accessible_connectors_from_mcp_tools_with_options_and_status;
 pub use codex_core::connectors::list_cached_accessible_connectors_from_mcp_tools;
-use codex_login::AuthManager;
 use codex_login::CodexAuth;
 use codex_plugin::AppConnectorId;
 use serde::Deserialize;
@@ -33,8 +32,7 @@ const CONNECTOR_METADATA_TIMEOUT: Duration = Duration::from_secs(60);
 const DEFAULT_APPS_PRODUCT_SKU: &str = "codex";
 
 async fn apps_enabled(config: &Config) -> anyhow::Result<bool> {
-    let auth_manager =
-        AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await?;
+    let auth_manager = codex_core::connectors::service_auth_manager(config).await?;
     let auth = auth_manager.auth().await;
     Ok(config
         .features
@@ -42,8 +40,7 @@ async fn apps_enabled(config: &Config) -> anyhow::Result<bool> {
 }
 
 async fn connector_auth(config: &Config) -> anyhow::Result<CodexAuth> {
-    let auth_manager =
-        AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await?;
+    let auth_manager = codex_core::connectors::service_auth_manager(config).await?;
     let auth = auth_manager
         .auth()
         .await
@@ -56,6 +53,9 @@ async fn connector_auth(config: &Config) -> anyhow::Result<CodexAuth> {
 }
 
 pub async fn list_connectors(config: &Config) -> anyhow::Result<Vec<AppInfo>> {
+    let template = codex_core::connectors::service_auth_manager(config).await?;
+    let scoped = codex_core::connectors::service_request_config(config, &template).await?;
+    let config = &scoped;
     if !apps_enabled(config).await? {
         return Ok(Vec::new());
     }
@@ -82,6 +82,13 @@ pub async fn list_cached_all_connectors(
     config: &Config,
     plugin_apps: &[AppConnectorId],
 ) -> Option<Vec<AppInfo>> {
+    let template = codex_core::connectors::service_auth_manager(config)
+        .await
+        .ok()?;
+    let scoped = codex_core::connectors::service_request_config(config, &template)
+        .await
+        .ok()?;
+    let config = &scoped;
     if !apps_enabled(config).await.ok()? {
         return Some(Vec::new());
     }
@@ -100,6 +107,9 @@ pub async fn list_all_connectors_with_options(
     force_refetch: bool,
     plugin_apps: &[AppConnectorId],
 ) -> anyhow::Result<Vec<AppInfo>> {
+    let template = codex_core::connectors::service_auth_manager(config).await?;
+    let scoped = codex_core::connectors::service_request_config(config, &template).await?;
+    let config = &scoped;
     if !apps_enabled(config).await? {
         return Ok(Vec::new());
     }
@@ -156,6 +166,12 @@ pub async fn read_connector_metadata(
         auth.get_account_id(),
         auth.get_chatgpt_user_id(),
         auth.is_workspace_account(),
+    )
+    .with_service_revision(
+        config
+            .azrael_service_account
+            .as_ref()
+            .map(|binding| binding.selection.revision),
     );
     let mut metadata_by_id = store.fresh_records(app_ids, include_tools);
     let missing_ids = app_ids
@@ -311,6 +327,12 @@ fn connector_directory_cache_context(
             auth.get_account_id(),
             auth.get_chatgpt_user_id(),
             auth.is_workspace_account(),
+        )
+        .with_service_revision(
+            config
+                .azrael_service_account
+                .as_ref()
+                .map(|binding| binding.selection.revision),
         ),
     )
 }

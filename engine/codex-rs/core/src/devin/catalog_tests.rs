@@ -56,6 +56,7 @@ fn catalog_merge_preserves_native_provider_on_collision() {
 
 fn manager(codex_home: &Path, devin_models: Vec<ModelInfo>) -> DevinModelsManager {
     DevinModelsManager {
+        originator_managers: std::sync::Mutex::new(std::collections::HashMap::new()),
         inner: Arc::new(codex_models_manager::manager::StaticModelsManager::new(
             None,
             ModelsResponse { models: Vec::new() },
@@ -63,7 +64,7 @@ fn manager(codex_home: &Path, devin_models: Vec<ModelInfo>) -> DevinModelsManage
         executable: codex_home.join("missing-devin-executable"),
         snapshot_path: snapshot_path(codex_home),
         capabilities_path: codex_home.join(CAPABILITIES_PATH),
-        devin_models: RwLock::new(devin_models),
+        devin_models: Arc::new(RwLock::new(devin_models)),
     }
 }
 
@@ -608,4 +609,27 @@ fn capability_snapshot_is_ignored_without_native_transport() {
     assert_eq!(image_models(&path), expected);
     std::fs::write(&path, b"not json").unwrap();
     assert!(image_models(&path).is_empty());
+}
+
+// Native scope changes must not split the CLI-owned catalog.
+#[tokio::test]
+async fn originator_catalogs_preserve_devin_state_and_reuse() {
+    let home = tempfile::tempdir().unwrap();
+    let mut manager = manager(home.path(), Vec::new());
+    manager.inner = codex_model_provider::create_model_provider(
+        codex_model_provider_info::ModelProviderInfo::create_openai_provider(None),
+        None,
+    )
+    .models_manager(home.path().to_path_buf(), None);
+    let scoped = manager.for_originator("chatgpt_cca").unwrap();
+    assert!(Arc::ptr_eq(
+        &scoped,
+        &manager.for_originator("chatgpt_cca").unwrap()
+    ));
+    assert!(manager.for_originator("unknown").is_none());
+    let models = models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).unwrap();
+    *manager.devin_models.write().await = models.clone();
+    for model in models {
+        assert!(scoped.get_remote_models().await.contains(&model));
+    }
 }

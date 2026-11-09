@@ -14,6 +14,92 @@ use crate::config::NetworkProxySpec;
 use crate::context::ContextualUserFragment;
 use crate::context::GuardianConversationHistory;
 
+/// One logical review owns its account lease, catalog and resolved model together.
+pub(super) struct ServiceReviewer {
+    pub binding: Arc<codex_login::AzraelServiceAccountBinding>,
+    pub models: codex_models_manager::manager::SharedModelsManager,
+}
+
+pub(super) fn openai_service_base_config(parent_config: &Config) -> Config {
+    let mut config = parent_config.clone();
+    config.model_provider_id = codex_model_provider_info::OPENAI_PROVIDER_ID.to_owned();
+    config.model_provider =
+        codex_model_provider_info::ModelProviderInfo::create_openai_provider(None);
+    config.native_model_provider = None;
+    config.model_catalog = None;
+    config
+}
+
+pub(super) async fn resolve_service_reviewer(
+    session: &crate::session::session::Session,
+    parent_config: &Config,
+) -> anyhow::Result<(
+    Config,
+    ServiceReviewer,
+    codex_guardian_reviewer::ReviewModel,
+    Arc<codex_protocol::openai_models::ModelInfo>,
+)> {
+    let binding = Arc::new(
+        codex_login::AzraelServiceAccountStore::new(parent_config.codex_home.as_path())
+            .resolve(&session.services.auth_manager)
+            .await
+            .map_err(|_| anyhow::anyhow!("Guardian OpenAI service account is unavailable"))?,
+    );
+    let service_config = openai_service_base_config(parent_config);
+    let mut config = service_config
+        .for_openai_service(binding.manager())
+        .await
+        .map_err(|_| anyhow::anyhow!("Guardian OpenAI service policy is unavailable"))?;
+    config.azrael_service_account = Some(Arc::clone(&binding));
+    anyhow::ensure!(
+        config.model_provider_id == codex_model_provider_info::OPENAI_PROVIDER_ID
+            && config.model_provider.is_openai(),
+        "Guardian OpenAI service provider is unavailable"
+    );
+    let provider = codex_model_provider::create_model_provider(
+        config.model_provider.clone(),
+        Some(binding.manager()),
+    );
+    // Never borrow the chat provider's catalog, nor its shared on-disk cache.
+    let models = provider.models_manager_without_cache(None);
+    let available = models
+        .list_models(
+            codex_models_manager::manager::RefreshStrategy::OnlineIfUncached,
+            config.http_client_factory(),
+        )
+        .await;
+    let preferred = provider.approval_review_preferred_model();
+    let preset = available
+        .iter()
+        .find(|preset| preset.model == preferred)
+        .ok_or_else(|| anyhow::anyhow!("Guardian OpenAI review model is unavailable"))?;
+    let info = Arc::new(
+        models
+            .get_model_info(&preset.model, &config.to_models_manager_config())
+            .await,
+    );
+    // The seed is the selected OpenAI model, never the foreign parent's metadata.
+    let review_model =
+        codex_guardian_reviewer::select_review_model(&info, None, preferred, &available);
+    anyhow::ensure!(
+        available
+            .iter()
+            .any(|preset| preset.model == review_model.model),
+        "Guardian OpenAI review model is unavailable"
+    );
+    let info = Arc::new(
+        models
+            .get_model_info(&review_model.model, &config.to_models_manager_config())
+            .await,
+    );
+    Ok((
+        config,
+        ServiceReviewer { binding, models },
+        review_model,
+        info,
+    ))
+}
+
 /// Adds the captured model, policy prompt and live network rules before reuse selection.
 pub fn build_guardian_review_session_config(
     mut guardian_config: Config,
@@ -46,6 +132,18 @@ pub fn build_guardian_review_session_config(
         guardian_output_contract_prompt(),
     )
     .render();
+    // Guardian's basic internal source omits ordinary world-state developer
+    // instructions. Managed service policy must still reach the reviewer.
+    if let Some(managed) = guardian_config
+        .config_layer_stack
+        .requirements()
+        .additional_developer_instructions
+        .as_ref()
+    {
+        instructions.push_str("\n<managed_developer_instructions>\n");
+        instructions.push_str(&managed.value);
+        instructions.push_str("\n</managed_developer_instructions>");
+    }
     if guardian_config
         .features
         .enabled(Feature::GuardianConversationHistoryTools)

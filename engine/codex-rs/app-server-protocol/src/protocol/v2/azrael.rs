@@ -16,6 +16,7 @@ pub enum AzraelAccountAction {
     LoginCancel,
     Remove,
     Switch,
+    ServiceSelect,
     CancelSwitch,
     Usage,
     ConsumeResetCredit,
@@ -74,7 +75,109 @@ pub struct AzraelAccountState {
     pub has_active_turns: bool,
     pub login_pending: bool,
     pub last_error: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub service_account: Option<AzraelServiceAccountState>,
 }
+
+/// Service identity is independent from the project's inference account.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceAccountState {
+    pub profile_id: Option<String>,
+    pub revision: u64,
+    pub state: AzraelServiceAccountReadiness,
+    pub reason: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub enum AzraelServiceAccountReadiness {
+    Unconfigured,
+    Checking,
+    Ready,
+    ReauthRequired,
+    Unavailable,
+    PolicyBlocked,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceAuthParams {
+    pub request_id: String,
+    #[serde(default)]
+    pub refresh_token: bool,
+    #[serde(default, deserialize_with = "deserialize_present_service_precondition")]
+    pub profile_id: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_present_service_precondition")]
+    pub revision: Option<u64>,
+}
+
+// Omitted preconditions select the latest account; explicit null must not turn
+// a malformed expected binding into an unconditioned new request.
+fn deserialize_present_service_precondition<'de, D, T>(
+    deserializer: D,
+) -> Result<Option<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    T::deserialize(deserializer).map(Some)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceAuthResponse {
+    pub auth_method: Option<crate::protocol::common::AuthMode>,
+    pub auth_token: Option<String>,
+    pub requires_openai_auth: bool,
+    pub profile_id: Option<String>,
+    pub revision: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceHttpParams {
+    pub request_id: String,
+    pub profile_id: String,
+    pub revision: u64,
+    pub url: String,
+    pub method: String,
+    #[serde(default)]
+    pub headers: std::collections::BTreeMap<String, String>,
+    pub body: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceHttpResponse {
+    pub status: u16,
+    pub headers: std::collections::BTreeMap<String, String>,
+    pub body_base64: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceRequestEndParams {
+    pub request_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceRequestEndResponse {}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelServiceHttpCancelResponse {}
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]

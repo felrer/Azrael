@@ -59,6 +59,8 @@ pub const CONNECTOR_METADATA_CACHE_TTL: Duration = CONNECTORS_CACHE_TTL;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConnectorDirectoryCacheKey {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    service_revision: Option<u64>,
     chatgpt_base_url: String,
     account_id: Option<String>,
     chatgpt_user_id: Option<String>,
@@ -66,6 +68,10 @@ pub struct ConnectorDirectoryCacheKey {
 }
 
 impl ConnectorDirectoryCacheKey {
+    pub fn with_service_revision(mut self, revision: Option<u64>) -> Self {
+        self.service_revision = revision;
+        self
+    }
     pub fn new(
         chatgpt_base_url: String,
         account_id: Option<String>,
@@ -73,6 +79,7 @@ impl ConnectorDirectoryCacheKey {
         is_workspace_account: bool,
     ) -> Self {
         Self {
+            service_revision: None,
             chatgpt_base_url,
             account_id,
             chatgpt_user_id,
@@ -544,6 +551,16 @@ mod tests {
             Some(format!("user-{id}")),
             /*is_workspace_account*/ true,
         )
+    }
+
+    #[test]
+    fn service_revision_partitions_directory_identity_without_changing_native_identity() {
+        let native = cache_key("service-revision");
+        assert_eq!(native.clone().with_service_revision(None), native);
+        assert_ne!(
+            native.clone().with_service_revision(Some(1)),
+            native.with_service_revision(Some(2))
+        );
     }
 
     fn cache_context(codex_home: &TempDir, id: &str) -> ConnectorDirectoryCacheContext {

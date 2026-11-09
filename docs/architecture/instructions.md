@@ -66,6 +66,10 @@ Status: `reference` — link-only compatibility router.
 
 [optional-task-memory-role-fragments](features/agent-profiles/roles.md#optional-task-memory-role-fragments).
 
+<a id="automatic-long-term-memories"></a>
+
+[automatic-long-term-memories](features/long-term-memory/README.md#automatic-long-term-memories).
+
 <a id="personal-skill-management"></a>
 
 [personal-skill-management](features/skill-management/README.md#personal-skill-management).

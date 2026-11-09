@@ -122,6 +122,7 @@ pub(super) struct GuardianReviewSessionConfig {
     pub(super) spawn_config: crate::config::Config,
     pub(super) node_repl_policy: GuardianNodeReplPolicy,
     review_model: ReviewModel,
+    pub(super) service_reviewer: Option<Arc<super::reviewer_config::ServiceReviewer>>,
 }
 
 pub(super) async fn guardian_review_session_config(
@@ -134,8 +135,17 @@ pub(super) async fn guardian_review_session_config(
         Some(network_proxy) => Some(network_proxy.proxy().current_cfg().await?),
         None => None,
     };
-    let (review_model, guardian_model_info) =
-        super::reviewer_config::resolve_review_model(session, context).await;
+    let (source_config, service_reviewer, review_model, guardian_model_info) =
+        if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+            let (config, service, model, info) =
+                super::reviewer_config::resolve_service_reviewer(session, turn.config.as_ref())
+                    .await?;
+            (config, Some(Arc::new(service)), model, info)
+        } else {
+            let (model, info) =
+                super::reviewer_config::resolve_review_model(session, context).await;
+            (turn.config.as_ref().clone(), None, model, info)
+        };
     let reviewer_config = session
         .services
         .thread_extension_data
@@ -143,7 +153,7 @@ pub(super) async fn guardian_review_session_config(
         .ok_or_else(|| anyhow::anyhow!("Guardian reviewer configuration is not installed"))?;
     let model_messages = ResolvedModelMessages::from_model(&guardian_model_info);
     let mut spawn_config = build_guardian_review_session_config(
-        (reviewer_config.0)(turn.config.as_ref())?,
+        (reviewer_config.0)(&source_config)?,
         live_network_config,
         review_model.model.as_str(),
         review_model.reasoning_effort.clone(),
@@ -169,6 +179,7 @@ pub(super) async fn guardian_review_session_config(
         spawn_config,
         node_repl_policy: GuardianNodeReplPolicy::from_messages(model_messages),
         review_model,
+        service_reviewer,
     })
 }
 
@@ -203,11 +214,23 @@ async fn run_guardian_review_session_before_deadline(
             GuardianReviewAnalyticsResult::without_session(),
         );
     };
-    let session_config = match guardian_review_session_config(session.as_ref(), &context).await {
-        Ok(session_config) => session_config,
-        Err(err) => {
+    let session_config = match codex_guardian_reviewer::run_before_review_deadline(
+        deadline,
+        external_cancel.as_ref(),
+        guardian_review_session_config(session.as_ref(), &context),
+    )
+    .await
+    {
+        Ok(Ok(session_config)) => session_config,
+        Ok(Err(err)) => {
             return (
                 GuardianReviewOutcome::Error(GuardianReviewError::prompt_build(err)),
+                GuardianReviewAnalyticsResult::without_session(),
+            );
+        }
+        Err(outcome) => {
+            return (
+                outcome.into(),
                 GuardianReviewAnalyticsResult::without_session(),
             );
         }
@@ -220,6 +243,7 @@ async fn run_guardian_review_session_before_deadline(
                 parent_context: context.clone(),
                 parent_history: session.clone_history().await,
                 spawn_config: session_config.spawn_config,
+                service_reviewer: session_config.service_reviewer,
                 node_repl_policy: session_config.node_repl_policy,
                 request,
                 category,

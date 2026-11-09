@@ -1466,6 +1466,14 @@ impl CodexThread {
         Ok(serde_json::to_value(result)?)
     }
 
+    pub fn retire_stale_service_runtime(&self, selection: &codex_login::AzraelServiceAccountSelection) {
+        self.session.services.mcp_runtime.retire_stale_service_runtime(selection);
+    }
+
+    pub fn poll_service_profile_retirement(&self) {
+        self.session.services.mcp_runtime.poll_service_profile_retirement();
+    }
+
     /// Inspects one server through this thread's current MCP connection.
     pub async fn mcp_server_status_snapshot(
         &self,

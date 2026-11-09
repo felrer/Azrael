@@ -19,6 +19,8 @@ use codex_rmcp_client::EnterpriseOAuthCredentialGuard;
 mod azrael;
 mod azrael_login;
 mod azrael_state;
+mod service_account;
+mod service_http;
 pub(crate) use azrael_state::AzraelAccountBackendState;
 pub(crate) use azrael_state::AzraelAccountStatePaths;
 mod bedrock_gov_cloud;
@@ -165,6 +167,7 @@ pub(crate) struct AccountRequestProcessor {
     workspace_routing: Arc<Mutex<Option<workspace_routing::CachedWorkspaceRouting>>>,
     workspace_routing_fetches: Arc<Mutex<workspace_routing::WorkspaceRoutingFetches>>,
     workspace_routing_shutdown: CancellationToken,
+    service_http_requests: Arc<service_http::ServiceHttpRequests>,
     gateway_login: Arc<std::sync::Mutex<Option<gateway_oauth::ActiveGatewayLogin>>>,
     gateway_client: Arc<std::sync::Mutex<Option<Arc<codex_login::GatewayAuthManager>>>>,
     _gateway_notifications: Arc<tokio_util::task::AbortOnDropHandle<()>>,
@@ -271,6 +274,7 @@ impl AccountRequestProcessor {
             workspace_routing: Arc::new(Mutex::new(None)),
             workspace_routing_fetches: Arc::new(Mutex::new(HashMap::new())),
             workspace_routing_shutdown: CancellationToken::new(),
+            service_http_requests: Arc::new(service_http::ServiceHttpRequests::default()),
             azrael,
             retirement_gate,
             retirement_monitor: Arc::new(std::sync::Mutex::new(None)),
@@ -832,6 +836,11 @@ impl AccountRequestProcessor {
         codex_streamlined_login: bool,
         login_success_page: LoginSuccessPage,
     ) -> std::result::Result<LoginServerOptions, JSONRPCErrorError> {
+        if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+            return Err(invalid_request(
+                "Add or reauthenticate an OpenAI account in Azrael account settings",
+            ));
+        }
         let config = self.config.as_ref();
 
         if self.auth_manager.azrael_admission().has_pending_switch() {
@@ -1490,6 +1499,11 @@ impl AccountRequestProcessor {
                 peer.config_manager.clear_cloud_config_bundle_loader();
                 *peer.workspace_routing.lock().await = None;
             }
+        } else if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+            // Legacy root credentials are preserved for explicit import. An
+            // unselected host logout must neither adopt nor revoke that account.
+            retirement::hide_project_auth(&self.auth_manager)
+                .map_err(azrael::account_mutation_error)?;
         } else {
             let _refresh_guard = self
                 .auth_manager

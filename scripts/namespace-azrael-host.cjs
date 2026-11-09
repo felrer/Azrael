@@ -13,6 +13,9 @@ const { selectAssetCacheFactory } = require("./namespace-cache-owner.cjs");
 const { readAssetsInOrder } = require("./ordered-asset-reader.cjs");
 const { injectRecovery } = require("./inject-recovery.cjs");
 const { injectFetchResponse } = require("./inject-fetch-response.cjs");
+const { injectServiceAuth, SERVICE_AUTH_ASSETS } = require("./inject-service-auth.cjs");
+const { injectServiceIdentityApps, APPS_ASSETS } = require("./service-identity-apps.cjs");
+const { injectServiceCloud, SERVICE_CLOUD_ASSETS } = require("./service-identity-cloud.cjs");
 const { injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
 const { injectWindowApprovalTitle, injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET } = require("./inject-computer-use.cjs");
 const { injectWindowApprovalClassifier, APPROVAL_CLASSIFIER_ASSET, injectWindowControl, SETTINGS_ASSET: WINDOW_CONTROL_SETTINGS_ASSET } = require("./inject-window-control.cjs");
@@ -48,6 +51,7 @@ const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-qu
 const { QUESTION_WITHDRAWAL_ASSETS, injectQuestionWithdrawal } = require("./inject-question-withdrawal.cjs");
 const { QUESTION_QUEUE_ASSETS, injectQuestionQueue } = require("./inject-question-queue.cjs");
 const { PROVIDER_PICKER_ASSETS, injectProviderModelPicker } = require("./inject-provider-model-picker.cjs");
+const { AUTH_SHELL_ASSET, injectAuthShell } = require("./inject-auth-shell.cjs");
 const { MAX_REASONING_ASSETS, injectMaxReasoning } = require("./inject-max-reasoning.cjs");
 const { loadManifest, validateManifest, validateTransformReport } = require("./feature-preservation.cjs");
 const { CAPACITY_RETRY_ASSET, injectCapacityRetryStop } = require("./inject-capacity-retry-stop.cjs");
@@ -358,7 +362,7 @@ function transformAsset(source, relativePath, filename, ts) {
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
   const isTeamAsset = relativePath === TEAM_UI_ASSET || TEAM_RUNTIME_ASSETS.includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![USER_WAIT_PENDING_ASSET, TASK_TIME_MESSAGE_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !IMAGE_SKETCH_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !SERVICE_AUTH_ASSETS.includes(relativePath) && !APPS_ASSETS.includes(relativePath) && !SERVICE_CLOUD_ASSETS.includes(relativePath) && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![USER_WAIT_PENDING_ASSET, TASK_TIME_MESSAGE_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !IMAGE_SKETCH_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = relativePath === CONTENT_FONT_CSS_ASSET ? { text: source, count: 0 } : rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
@@ -369,7 +373,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const persistedAtoms = isHostBundle ? injectPersistedAtoms(filtered.text) : { text: filtered.text, count: 0 };
   const projectDrafts = isHostBundle ? injectProjectDrafts(persistedAtoms.text) : { text: persistedAtoms.text, count: 0 };
   const fetchResponse = isHostBundle ? injectFetchResponse(projectDrafts.text) : { text: projectDrafts.text, count: 0 };
-  const recovered = isHostBundle ? injectRecovery(fetchResponse.text, filename, ts) : { text: fetchResponse.text, count: 0 };
+  const serviceAuth = isHostBundle ? injectServiceAuth(fetchResponse.text) : { text: fetchResponse.text, count: 0 };
+  const recovered = isHostBundle ? injectRecovery(serviceAuth.text, filename, ts) : { text: serviceAuth.text, count: 0 };
   const deferred = isHostBundle ? injectDeferredHostNotification(recovered.text) : relativePath === DEFERRED_NOTIFICATION_ASSET ? injectDeferredRendererNotification(recovered.text) : relativePath === DEFERRED_REDUCER_ASSET ? injectDeferredTurn(recovered.text) :
     relativePath === DEFERRED_PRESENTATION_ASSET ? injectDeferredPresentation(recovered.text) :
     relativePath === DEFERRED_WAIT_RENDERER_ASSET ? injectDeferredWaitRenderer(recovered.text) :
@@ -403,7 +408,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const submitOnlyThread = injectSubmitOnlyThread(paginatedHistory.text, relativePath);
   const requestPreparation = injectRequestPreparation(submitOnlyThread.text, relativePath);
   const requestState = injectRequestState(requestPreparation.text, relativePath, ts);
-  const recentChatFilter = injectRecentChatFilter(requestState.text, relativePath);
+  const authShell = injectAuthShell(requestState.text, relativePath);
+  const recentChatFilter = injectRecentChatFilter(authShell.text, relativePath);
   const sessionFlags = injectSessionFlags(recentChatFilter.text, relativePath);
   const teamUI = injectTeamUI(sessionFlags.text, relativePath);
   const webviewIdle = injectWebviewIdle(teamUI.text, relativePath);
@@ -438,7 +444,10 @@ function transformAsset(source, relativePath, filename, ts) {
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
   const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
   const teamApprovals = injectTeamApprovals(taskProfile.text, relativePath);
-  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || userWaitTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || requestPreparation.count || requestState.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || teamApprovals.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || maintenancePreferences.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  const serviceIdentity = isHostBundle ? { text: teamApprovals.text, count: 0 } : injectServiceAuth(teamApprovals.text, relativePath);
+  const serviceApps = injectServiceIdentityApps(serviceIdentity.text, relativePath);
+  const serviceCloud = injectServiceCloud(serviceApps.text, relativePath);
+  if (serviceCloud.count || serviceApps.count || serviceIdentity.count || serviceAuth.count || commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || userWaitTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || requestPreparation.count || requestState.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || teamApprovals.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || maintenancePreferences.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     const asset = {
       path: relativePath,
       edits: 0,
@@ -449,6 +458,7 @@ function transformAsset(source, relativePath, filename, ts) {
       workspaceThreadListEdits: filtered.count,
       recoveryEdits: recovered.count,
       fetchResponseEdits: fetchResponse.count,
+      serviceAuthEdits: serviceAuth.count + serviceIdentity.count + serviceApps.count + serviceCloud.count,
       projectDraftEdits: projectDrafts.count,
       persistedAtomEdits: persistedAtoms.count,
       deferredTurnEdits: deferred.count,
@@ -461,6 +471,7 @@ function transformAsset(source, relativePath, filename, ts) {
       queueRefreshEdits: queueRefresh.count,
       queueRefreshNativeChecks: queueRefresh.nativeChecks ?? 0,
       providerPickerEdits: providerPicker.count,
+      authShellEdits: authShell.count,
       maxReasoningEdits: maxReasoning.count,
       threadBranchEdits: threadBranch.count,
       capacityRetryStopEdits: capacityRetryStop.count,
@@ -508,12 +519,12 @@ function transformAsset(source, relativePath, filename, ts) {
       uiInputDiagnosticsEdits: uiInputDiagnostics.count,
       sessionLinkEdits: sessionLinks.count,
       sourceSha256: sha(source),
-      sha256: sha(teamApprovals.text),
+      sha256: sha(serviceCloud.text),
     };
     asset.edits = Object.entries(asset).filter(([name]) => name.endsWith("Edits")).reduce((total, [, count]) => total + count, 0);
-    return { text: teamApprovals.text, asset };
+    return { text: serviceCloud.text, asset };
   }
-  return { text: teamApprovals.text, asset: null };
+  return { text: serviceCloud.text, asset: null };
 }
 
 function getTransformRules() {
@@ -525,8 +536,8 @@ function getTransformRules() {
     "inject-task-work-time.cjs", "inject-user-wait-time.cjs", "task-work-time.cjs", "task-work-time-history.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs", "ui-health-runtime.cjs", "optional-diagnostics.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs", "inject-question-withdrawal.cjs", "inject-question-queue.cjs",
-    "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "astra-speed-toggle.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
-    "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
+    "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "inject-auth-shell.cjs", "astra-speed-toggle.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
+    "inject-service-auth.cjs", "service-identity-apps.cjs", "service-identity-cloud.cjs", "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
     "inject-student-design.cjs", "student-avatar-assets.cjs", "scientist-avatar-assets.cjs",
     "inject-maintenance-preferences.cjs", "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-image-sketch.cjs", "inject-auto-review.cjs", "inject-pets-cleanup.cjs",
     "inject-content-fonts.cjs", "content-fonts.cjs", "inject-scroll-fade.cjs", "scroll-fade.cjs",
@@ -565,6 +576,9 @@ const ASSET_RULE_PATHS = {
   "inject-recovery.cjs": ["out/extension.js"],
   "optional-diagnostics.cjs": ["out/extension.js"],
   "inject-fetch-response.cjs": ["out/extension.js"],
+  "inject-service-auth.cjs": SERVICE_AUTH_ASSETS,
+  "service-identity-apps.cjs": APPS_ASSETS,
+  "service-identity-cloud.cjs": SERVICE_CLOUD_ASSETS,
   "inject-url-safety-transport.cjs": ["out/extension.js"],
   "inject-image-file-open.cjs": ["out/extension.js"],
   "inject-missing-image.cjs": MISSING_IMAGE_ASSETS,
@@ -606,6 +620,7 @@ const ASSET_RULE_PATHS = {
   "inject-request-preparation.cjs": [REQUEST_PREPARATION_ASSET],
   "inject-request-state.cjs": REQUEST_STATE_ASSETS,
   "inject-provider-model-picker.cjs": PROVIDER_PICKER_ASSETS,
+  "inject-auth-shell.cjs": [AUTH_SHELL_ASSET],
   "inject-max-reasoning.cjs": MAX_REASONING_ASSETS,
   "inject-account-settings.cjs": ["out/extension.js", ACCOUNT_SETTINGS_ASSET],
   "inject-instruction-settings.cjs": ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS],
@@ -811,6 +826,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + asset.urlSafetyTransportEdits, 0) !== 1) {
     throw new Error("URL safety transport transformation was incomplete.");
   }
+  if (report.assets.reduce((total, asset) => total + (asset.serviceAuthEdits ?? 0), 0) !== SERVICE_AUTH_ASSETS.length + APPS_ASSETS.length + SERVICE_CLOUD_ASSETS.length) throw new Error("Service authentication transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.fileOpenMenuEdits ?? 0), 0) !== 1) {
     throw new Error("File-open menu transformation was incomplete.");
   }

@@ -85,6 +85,9 @@ async fn status_snapshot_only_downgrades_oauth_authentication_failures() {
 
 pub(crate) fn test_mcp_config(codex_home: PathBuf) -> McpConfig {
     McpConfig {
+        azrael_service_account: None,
+        azrael_service_auth: None,
+        azrael_service_network_policy: None,
         chatgpt_base_url: "https://chatgpt.com".to_string(),
         apps_mcp_product_sku: None,
         requires_read_only_mcp_tools: false,

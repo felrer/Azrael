@@ -6,8 +6,60 @@ const vm = require("node:vm");
 const {test} = require("node:test");
 const {createProviderModelCatalog, renderProviderModelList} = require("./provider-model-picker.cjs");
 const injection = require("./inject-provider-model-picker.cjs");
+const { injectAuthShell, useModelAdmission, useSubmitAdmission } = require("./inject-auth-shell.cjs");
 const {renderAstraSpeedToggle} = require("./astra-speed-toggle.cjs");
 const client = fn => () => ({sendRequest: async (method, params) => { assert.equal(method,"model/list"); return fn(params); }});
+// Pinned imports can restore the route/auth gate or omit its registration. Keep
+// this narrow check alongside the existing transform and picker contract.
+test("auth shell transform retains account truth, removes root login routing and gates transport",async()=>{
+ const asset=injection.PROVIDER_PICKER_ASSET,source=fs.readFileSync(path.join(original,asset),"utf8");
+ const result=injectAuthShell(injection.injectProviderModelPicker(source,asset).text,asset);
+ const ts=require("../extensions/azrael-ex/node_modules/typescript");
+ assert.equal(ts.createSourceFile(asset,result.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics.length,0);
+ assert.equal(injectAuthShell(result.text,asset).count,0);
+ assert.throws(()=>injectAuthShell("",asset),/anchor/);
+ const originalAst=ts.createSourceFile(asset,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+ const transformed=ts.createSourceFile(asset,result.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+ const fn=(ast,name)=>ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text===name).getText(ast);
+ assert.equal(fn(transformed,"Mgn"),fn(originalAst,"Mgn"));
+ const route=fn(transformed,"Ski"),ctx={Lu:()=>({pathname:"/home"}),b2:{jsx:(type,props)=>({type,props})},_ki:"shell",eu:"redirect"};
+ vm.runInNewContext(route,ctx);assert.equal(ctx.Ski({routes:[]}).type,"shell");
+ ctx.Lu=()=>({pathname:"/login"});assert.equal(ctx.Ski({}).props.to,"/settings/usage");
+ let requestMethod;const visit=node=>{if(ts.isMethodDeclaration(node)&&node.name?.getText(transformed)==="sendRequest"&&!requestMethod)requestMethod=node;ts.forEachChild(node,visit);};visit(transformed);
+ const catalog=createProviderModelCatalog(),transport=vm.runInNewContext(`({${requestMethod.getText(transformed)}})`,{__azraelProviderCatalog:catalog,ntn:1000});
+ let sent=0;Object.assign(transport,{hostId:"a",dispatchMessage(){},enqueueRequest(){sent++;return "sent";}});
+ await assert.rejects(transport.sendRequest("turn/start",{model:"stale-gpt"}),/확인하는 중/);assert.equal(sent,0);
+ assert.equal(await transport.sendRequest("model/list",{}),"sent");
+ await catalog.query("a",client(()=>({data:[{model:"managed/anthropic/claude"}],nextCursor:null})),100);
+ assert.equal(await transport.sendRequest("turn/start",{model:"managed/anthropic/claude"}),"sent");
+ await assert.rejects(transport.sendRequest("turn/start",{model:"stale-gpt"}),/선택한 모델/);assert.equal(sent,2);
+ let menuConfig;const findConfig=node=>{if(ts.isBinaryExpression(node)&&node.left.getText(transformed)==="Te"&&ts.isObjectLiteralExpression(node.right)&&node.right.getText(transformed).includes("providerGroups"))menuConfig=node.right;ts.forEachChild(node,findConfig);};findConfig(transformed);
+ const hostModels=[];Object.defineProperty(hostModels,"__azraelCatalogHost",{value:"remote"});
+ const configContext={h:hostModels,Ce:{id:"stale-default"},he:null,we:[]};
+ assert.equal(vm.runInNewContext(`(${menuConfig.getText(transformed)})`,configContext).defaultOption,null);
+ assert.equal(vm.runInNewContext(`(${menuConfig.getText(transformed)})`,configContext).catalogHost,"remote");
+});
+test("host readiness blocks submit without replay and keeps another connected provider usable",async()=>{
+ const catalog=createProviderModelCatalog();let submitted=0;
+ const react={useState:()=>[0,()=>{}],useEffect:()=>{}};
+ const props={executionTargetHostId:"a",handleSubmit:()=>submitted++};
+ assert.match(catalog.admission("a"),/확인하는 중/);
+ assert.equal(useSubmitAdmission(react,catalog,props).submitDisabled,true);
+ await catalog.query("a",client(()=>({data:[],nextCursor:null,providerCatalogs:[{providerId:"openai",state:"empty",errorCode:"authentication_expired"}]})),100);
+ assert.match(catalog.admission("a"),/만료/);
+ assert.throws(()=>useSubmitAdmission(react,catalog,props).handleSubmit(),/만료/);
+ await catalog.query("b",client(()=>({data:[{model:"api/local/model"}],nextCursor:null})),100);
+ assert.equal(catalog.admission("b","api/local/model"),null);
+ assert.equal(catalog.admission("a")?.includes("만료"),true);
+ const connected={executionTargetHostId:"b",models:[],selectedModel:"old-gpt",onSubmit:()=>submitted++};
+ const blocked=useModelAdmission(react,catalog,connected);assert.equal(blocked.submitDisabled,true);assert.equal(blocked.modelPickerDisabled,undefined);
+ assert.equal(submitted,0);
+ const selected=catalog.tag({models:[{model:"gpt-fallback"},{model:"api/local/model"}],defaultModel:{model:"gpt-fallback"}},"b");
+ assert.deepEqual(selected.models.map(model=>model.model),["api/local/model"]);assert.equal(selected.defaultModel,null);assert.equal(selected.models.__azraelCatalogHost,"b");
+ catalog.notification({hostId:"b",method:"account/updated"});
+ assert.match(catalog.admission("b"),/확인하는 중/);assert.equal(submitted,0);
+ assert.equal(nodes(harness(catalog,{hostId:"b",options:[{id:"api/local/model",label:"stale"}],renderOption:option=>({type:"old-model",props:option})}).render(),node=>node.type==="old-model").length,0);
+});
 const status = (providerId,state) => ({providerId,state,modelCount:0,observedAt:123});
 test("Meta models and discovery status share the Meta picker group",()=>{
  const c=createProviderModelCatalog(),option={id:"managed/meta-muse/muse-spark-1.3",label:"Muse Spark 1.3"};
@@ -194,13 +246,13 @@ test("session creation during discovery schedules a forced refresh",async()=>{
  const initial=c.query("a",fn,100,invalidate);await Promise.resolve();
  c.sessionCreated("a");release({data:[],nextCursor:null});await initial;await request;assert.equal(calls,2);
 });
-test("failed session refresh retains cached result and retry state",async()=>{
+test("failed session refresh revokes cached choices and retains retry state",async()=>{
  const c=createProviderModelCatalog();let request;
  const fn=client(()=>{throw Error("failure");});
  const invalidate=()=>request=c.query("a",fn,100,invalidate);
- const initial=await c.query("a",client(()=>({data:[{model:"gpt"}],nextCursor:null})),100,invalidate);
+ await c.query("a",client(()=>({data:[{model:"gpt"}],nextCursor:null})),100,invalidate);
  c.sessionCreated("a");await assert.rejects(request);assert.equal(c.snapshot("a").error,true);
- assert.equal(await c.query("a",fn,100,invalidate),initial);
+ await assert.rejects(c.query("a",fn,100,invalidate));assert.deepEqual(c.snapshot("a").models,[]);
 });
 
 const original=process.env.AZRAEL_PRESERVATION_UI_ROOT||process.env.PROVIDER_PICKER_ORIGINAL||path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434"));
@@ -260,7 +312,6 @@ for(const asset of injection.PROVIDER_PICKER_ASSETS)test(`pinned transformation 
  assert.equal(vp.createSourceFile(asset,result.text,vp.ScriptTarget.Latest,true,vp.ScriptKind.JS).parseDiagnostics.length,0);
  assert.equal(injection.injectProviderModelPicker(result.text,asset).text, result.text);
  assert.throws(()=>injection.injectProviderModelPicker("",asset),/anchor/);assert.throws(()=>injection.injectProviderModelPicker(source+source,asset),/anchor/);
- const out=path.resolve("artifacts/verification/provider-model-picker-transformed");fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,path.basename(asset)),result.text);
 
 });
 

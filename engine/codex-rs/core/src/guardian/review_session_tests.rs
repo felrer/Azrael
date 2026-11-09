@@ -132,7 +132,7 @@ async fn run_review_preserves_evidence_during_parent_compaction() {
     );
 }
 
-async fn test_review_session() -> (
+pub(super) async fn test_review_session() -> (
     GuardianReviewSession,
     async_channel::Sender<Event>,
     async_channel::Receiver<Submission>,
@@ -173,7 +173,7 @@ async fn test_review_session() -> (
     )
 }
 
-fn turn_complete_event(
+pub(super) fn turn_complete_event(
     turn_id: &str,
     last_agent_message: Option<&str>,
     time_to_first_token_ms: Option<i64>,
@@ -208,7 +208,7 @@ fn turn_aborted_event(turn_id: &str) -> Event {
     }
 }
 
-async fn test_review_params() -> GuardianReviewSessionParams {
+pub(super) async fn test_review_params() -> GuardianReviewSessionParams {
     let (session, turn) = crate::session::tests::make_session_and_context().await;
     let model = turn.model_info().slug.clone();
     let reasoning_effort = turn.reasoning_effort().cloned();
@@ -233,6 +233,7 @@ async fn test_review_params() -> GuardianReviewSessionParams {
         parent_session: Arc::new(session),
         parent_context: GuardianReviewContext::from(Arc::new(turn)),
         spawn_config,
+        service_reviewer: None,
         node_repl_policy: GuardianNodeReplPolicy::from_messages(ResolvedModelMessages::bundled()),
         category: GuardianScope::Shell,
         request: GuardianApprovalRequest::ExecCommand {

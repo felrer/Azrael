@@ -263,6 +263,47 @@ async fn probe(configure_turn: impl FnOnce(&mut TurnContext)) -> ToolPlanProbe {
     probe_with(configure_turn, ToolPlanInputs::default()).await
 }
 
+async fn probe_with_selected_service(
+    configure_turn: impl FnOnce(&mut TurnContext),
+    inputs: ToolPlanInputs,
+) -> ToolPlanProbe {
+    probe_with_selected_service_plan(configure_turn, inputs, None).await
+}
+
+async fn probe_with_selected_service_plan(
+    configure_turn: impl FnOnce(&mut TurnContext),
+    inputs: ToolPlanInputs,
+    observed_plan: Option<&str>,
+) -> ToolPlanProbe {
+    let (_session, mut turn) = make_session_and_context().await;
+    let home = tempfile::tempdir().unwrap();
+    update_config(&mut turn, |config| {
+        config.codex_home =
+            codex_utils_absolute_path::AbsolutePathBuf::from_absolute_path(home.path()).unwrap();
+    });
+    let template = AuthManager::from_auth_for_testing(CodexAuth::from_api_key("parent-only"));
+    let accounts = codex_login::test_support::EphemeralServiceAccounts::new(home.path());
+    let profile = accounts
+        .create(
+            &template,
+            &codex_login::test_support::fixture_chatgpt_auth("service-main"),
+        )
+        .await
+        .unwrap();
+    if let Some(plan) = observed_plan {
+        profile
+            .update_observed_plan(&profile.manager().auth().await.unwrap(), plan)
+            .unwrap();
+    }
+    accounts
+        .selection
+        .select(Some(profile.id().to_string()))
+        .unwrap();
+    let _binding = accounts.resolve(&template).await.unwrap();
+    configure_turn(&mut turn);
+    ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), inputs))
+}
+
 fn set_feature(turn: &mut TurnContext, feature: Feature, enabled: bool) {
     let mut config = (*turn.config).clone();
     if enabled {
@@ -318,6 +359,16 @@ fn use_bedrock_provider(turn: &mut TurnContext) {
         config.model_provider = provider_info.clone();
     });
     turn.provider = create_model_provider(provider_info, turn.auth_manager.clone());
+}
+
+fn use_custom_standalone_web_provider(turn: &mut TurnContext) {
+    let mut provider = ModelProviderInfo::create_openai_provider(None);
+    provider.name = "Custom standalone search".to_string();
+    update_config(turn, |config| {
+        config.model_provider_id = "custom-search".to_string();
+        config.model_provider = provider.clone();
+    });
+    turn.provider = create_model_provider(provider, turn.auth_manager.clone());
 }
 
 struct TestNamespaceExtensionTool {
@@ -522,6 +573,7 @@ async fn allowed_tools_filter_sources_before_code_mode_and_discovery() {
     ] {
         let (_, mut turn) = make_session_and_context().await;
         set_feature(&mut turn, Feature::CodeMode, /*enabled*/ true);
+        use_custom_standalone_web_provider(&mut turn);
         set_web_search_mode(&mut turn, WebSearchMode::Live);
         update_turn_settings_for_test(&mut turn, |settings| {
             let model = Arc::make_mut(&mut settings.model_info);
@@ -998,7 +1050,11 @@ async fn wait_for_environment_falls_back_for_oversized_host_configuration() {
 async fn request_user_input_tool_respects_experimental_config_gate() {
     let enabled = probe(|_| {}).await;
     enabled.assert_visible_lacks(&["request_user_input", "legacy_codex_tools"]);
-    enabled.assert_registered_contains(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+    enabled.assert_registered_contains(&[&ToolName::namespaced(
+        "legacy_codex_tools",
+        "request_user_input",
+    )
+    .to_string()]);
     enabled.assert_registered_lacks(&["request_user_input"]);
     assert_eq!(
         enabled.exposure(&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()),
@@ -1012,7 +1068,10 @@ async fn request_user_input_tool_respects_experimental_config_gate() {
     })
     .await;
     disabled.assert_visible_lacks(&["request_user_input"]);
-    disabled.assert_registered_lacks(&["request_user_input", &ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+    disabled.assert_registered_lacks(&[
+        "request_user_input",
+        &ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string(),
+    ]);
 }
 
 #[tokio::test]
@@ -1043,7 +1102,11 @@ async fn request_user_input_stays_deferred_and_outside_code_mode_only() {
         codex_code_mode::WAIT_TOOL_NAME,
     ]);
     plan.assert_visible_lacks(&["request_user_input", "legacy_codex_tools"]);
-    plan.assert_registered_contains(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+    plan.assert_registered_contains(&[&ToolName::namespaced(
+        "legacy_codex_tools",
+        "request_user_input",
+    )
+    .to_string()]);
     plan.assert_registered_lacks(&["request_user_input"]);
     assert_eq!(
         plan.exposure(&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()),
@@ -3568,7 +3631,9 @@ async fn parent_request_router_dispatches_plaintext_and_rejects_opaque_sources()
             let call = ToolCall {
                 tool_name: ToolName::namespaced("azrael_agents", name),
                 call_id: format!("{name}-{index}"),
-                payload: ToolPayload::Function { arguments: "{}".into() },
+                payload: ToolPayload::Function {
+                    arguments: "{}".into(),
+                },
                 encrypted_function_args: metadata,
             };
             let source = if index == 3 {
@@ -3606,8 +3671,11 @@ async fn dispatch_parent_request_fixture(
         registry, Vec::new(), ToolMode::Direct, BTreeMap::new(), None, &[],
     );
     let call = ToolCall {
-        tool_name, call_id: uuid::Uuid::new_v4().to_string(),
-        payload: ToolPayload::Function { arguments: arguments.to_string() },
+        tool_name,
+        call_id: uuid::Uuid::new_v4().to_string(),
+        payload: ToolPayload::Function {
+            arguments: arguments.to_string(),
+        },
         encrypted_function_args: None,
     };
     let source = call.direct_source();
@@ -3626,9 +3694,9 @@ async fn dispatch_parent_request_fixture(
 
 #[tokio::test]
 async fn parent_request_real_router_persists_request_wait_and_response() {
+    use crate::session::tests::make_persistent_session_and_context_with_time_provider_and_rx;
     use crate::tools::handlers::ParentRequestHandler;
     use codex_protocol::parent_request::{ParentRequestPresentation, ParentRequestStatus};
-    use crate::session::tests::make_persistent_session_and_context_with_time_provider_and_rx;
     let server = core_test_support::responses::start_mock_server().await;
     let home = tempfile::tempdir().unwrap();
     let (parent, parent_turn, _parent_events) =
@@ -3652,10 +3720,20 @@ async fn parent_request_real_router_persists_request_wait_and_response() {
         "context": "Two routes exist", "recommendation": "Use A",
         "blocked_action": "Select the route",
     });
-    let first = dispatch_parent_request_fixture(Arc::clone(&child), Arc::clone(&child_turn),
-        ParentRequestHandler::Request, arguments.clone()).await;
-    let retry = dispatch_parent_request_fixture(Arc::clone(&child), Arc::clone(&child_turn),
-        ParentRequestHandler::Request, arguments).await;
+    let first = dispatch_parent_request_fixture(
+        Arc::clone(&child),
+        Arc::clone(&child_turn),
+        ParentRequestHandler::Request,
+        arguments.clone(),
+    )
+    .await;
+    let retry = dispatch_parent_request_fixture(
+        Arc::clone(&child),
+        Arc::clone(&child_turn),
+        ParentRequestHandler::Request,
+        arguments,
+    )
+    .await;
     assert_eq!(first["requestId"], retry["requestId"]);
     let id = first["requestId"].as_str().unwrap();
     let db = child.state_db().unwrap();
@@ -3663,21 +3741,45 @@ async fn parent_request_real_router_persists_request_wait_and_response() {
     assert_eq!(request.child_thread_id, child.thread_id.to_string());
     assert_eq!(request.child_task_id, child_turn.sub_id);
     assert_eq!(request.status, ParentRequestStatus::Pending);
-    let wait = dispatch_parent_request_fixture(Arc::clone(&child), Arc::clone(&child_turn),
-        ParentRequestHandler::Await, json!({"request_id": id})).await;
+    let wait = dispatch_parent_request_fixture(
+        Arc::clone(&child),
+        Arc::clone(&child_turn),
+        ParentRequestHandler::Await,
+        json!({"request_id": id}),
+    )
+    .await;
     let wait_id = wait["waitId"].as_str().unwrap();
     assert!(db.get_parent_response_wait(wait_id).await.unwrap().is_some());
     // LocalAgentControl is deliberately detached: delivery is checked by separate lifecycle fixtures.
-    db.set_parent_request_presentation(id, &parent.thread_id.to_string(), &ParentRequestPresentation {
-        parent_turn_id: parent_turn.sub_id.clone(),
-        child_agent_path: AgentPath::try_from("/root/worker").unwrap(),
-    }).await.unwrap();
-    dispatch_parent_request_fixture(Arc::clone(&parent), parent_turn,
-        ParentRequestHandler::Respond, json!({"request_id": id, "status": "resolved",
-            "decision": "Use A", "reason": "A meets the requirement"})).await;
-    assert_eq!(db.get_parent_request(id).await.unwrap().unwrap().status, ParentRequestStatus::Resolved);
-    let answered = dispatch_parent_request_fixture(Arc::clone(&child), child_turn,
-        ParentRequestHandler::Await, json!({"request_id": id})).await;
+    db.set_parent_request_presentation(
+        id,
+        &parent.thread_id.to_string(),
+        &ParentRequestPresentation {
+            parent_turn_id: parent_turn.sub_id.clone(),
+            child_agent_path: AgentPath::try_from("/root/worker").unwrap(),
+        },
+    )
+    .await
+    .unwrap();
+    dispatch_parent_request_fixture(
+        Arc::clone(&parent),
+        parent_turn,
+        ParentRequestHandler::Respond,
+        json!({"request_id": id, "status": "resolved",
+            "decision": "Use A", "reason": "A meets the requirement"}),
+    )
+    .await;
+    assert_eq!(
+        db.get_parent_request(id).await.unwrap().unwrap().status,
+        ParentRequestStatus::Resolved
+    );
+    let answered = dispatch_parent_request_fixture(
+        Arc::clone(&child),
+        child_turn,
+        ParentRequestHandler::Await,
+        json!({"request_id": id}),
+    )
+    .await;
     assert_eq!(answered["response"]["decision"], "Use A");
     child.cancel_parent_response_wait().await.unwrap();
     parent.state_db().unwrap().close().await;
@@ -3775,16 +3877,7 @@ async fn code_mode_only_can_expose_namespaced_multi_agent_v2_as_normal_tools() {
     })
     .await;
 
-    assert_eq!(
-        plan.visible_names,
-        vec![
-            "exec",
-            "wait",
-            "agents",
-            // Hosted Responses tool.
-            "web_search",
-        ]
-    );
+    assert_eq!(plan.visible_names, vec!["exec", "wait", "agents"]);
     assert!(
         !plan
             .namespace_function_names("agents")
@@ -3813,6 +3906,7 @@ async fn code_mode_only_can_expose_namespaced_multi_agent_v2_as_normal_tools() {
 async fn hosted_web_search_fallback_follows_winning_browser_runtime() {
     let plan = probe_with(
         |turn| {
+            use_custom_standalone_web_provider(turn);
             set_feature(turn, Feature::StandaloneWebSearch, /*enabled*/ true);
             set_web_search_mode(turn, WebSearchMode::Live);
         },
@@ -3840,7 +3934,7 @@ async fn hosted_web_search_fallback_follows_winning_browser_runtime() {
 }
 
 #[tokio::test]
-async fn native_devin_omits_provider_hosted_web_search_while_openai_preserves_it() {
+async fn no_main_omits_openai_hosted_web_search_and_native_devin_omits_custom_hosted_search() {
     let (_session, mut turn) = make_session_and_context().await;
     set_web_search_mode(&mut turn, WebSearchMode::Live);
 
@@ -3850,6 +3944,8 @@ async fn native_devin_omits_provider_hosted_web_search_while_openai_preserves_it
         &[],
         /*native_devin_runtime_enabled*/ true,
     );
+    assert_eq!(openai_specs, Vec::<ToolSpec>::new());
+    use_custom_standalone_web_provider(&mut turn);
     update_config(&mut turn, |config| {
         config.model_provider_id = crate::devin::PROVIDER_ID.to_string();
     });
@@ -3866,7 +3962,10 @@ async fn native_devin_omits_provider_hosted_web_search_while_openai_preserves_it
         /*native_devin_runtime_enabled*/ true,
     );
 
-    assert_eq!(acp_devin_specs, openai_specs);
+    assert!(matches!(
+        acp_devin_specs.as_slice(),
+        [ToolSpec::WebSearch { .. }]
+    ));
     assert_eq!(native_devin_specs, Vec::<ToolSpec>::new());
 }
 
@@ -3876,9 +3975,10 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
         namespace: "image_gen",
         tool_name: "imagegen",
     });
-    let image_generation = probe_with(
+    let image_generation = probe_with_selected_service(
         |turn| {
             use_chatgpt_auth(turn);
+            set_feature(turn, Feature::ImageGeneration, true);
             update_turn_settings_for_test(turn, |settings| {
                 Arc::make_mut(&mut settings.model_info).input_modalities =
                     vec![InputModality::Image];
@@ -3892,7 +3992,7 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
     .await;
     image_generation.assert_visible_contains(&["image_gen"]);
 
-    let extension_disabled = probe_with(
+    let extension_disabled = probe_with_selected_service(
         |turn| {
             use_chatgpt_auth(turn);
             set_feature(turn, Feature::ImageGeneration, /*enabled*/ false);
@@ -3909,9 +4009,29 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
     .await;
     extension_disabled.assert_visible_lacks(&["image_gen"]);
 
-    let text_only_model = probe_with(
+    let text_only_model = probe_with_selected_service(
         |turn| {
-            use_chatgpt_auth(turn);
+            turn.auth_manager = Some(AuthManager::from_auth_for_testing(
+                CodexAuth::from_external_chatgpt_tokens(
+                    &codex_login::test_support::fixture_chatgpt_auth("parent-free")
+                        .tokens
+                        .unwrap()
+                        .access_token,
+                    "parent-free",
+                    Some("free"),
+                )
+                .unwrap(),
+            ));
+            assert_eq!(
+                turn.auth_manager
+                    .as_ref()
+                    .unwrap()
+                    .auth_cached()
+                    .unwrap()
+                    .account_plan_type(),
+                Some(codex_protocol::account::PlanType::Free)
+            );
+            set_feature(turn, Feature::ImageGeneration, true);
             update_turn_settings_for_test(turn, |settings| {
                 Arc::make_mut(&mut settings.model_info).input_modalities = vec![];
             });
@@ -3922,25 +4042,88 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
         },
     )
     .await;
-    text_only_model.assert_visible_lacks(&["image_gen"]);
+    text_only_model.assert_visible_contains(&["image_gen"]);
 
-    let unsupported_provider = probe_with(
+    let custom_chat_provider = probe_with_selected_service(
         |turn| {
             use_bedrock_provider(turn);
+            set_feature(turn, Feature::ImageGeneration, true);
             update_turn_settings_for_test(turn, |settings| {
                 Arc::make_mut(&mut settings.model_info).input_modalities =
                     vec![InputModality::Image];
             });
         },
         ToolPlanInputs {
-            extension_tool_executors: vec![image_generation_tool],
+            extension_tool_executors: vec![image_generation_tool.clone()],
             ..Default::default()
         },
     )
     .await;
-    unsupported_provider.assert_visible_lacks(&["image_gen"]);
+    custom_chat_provider.assert_visible_contains(&["image_gen"]);
+
+    let free_service = probe_with_selected_service_plan(
+        |turn| {
+            use_chatgpt_auth(turn);
+            set_feature(turn, Feature::ImageGeneration, true);
+            set_web_search_mode(turn, WebSearchMode::Live);
+        },
+        ToolPlanInputs {
+            extension_tool_executors: vec![
+                image_generation_tool.clone(),
+                Arc::new(TestNamespaceExtensionTool {
+                    namespace: "web",
+                    tool_name: "run",
+                }),
+            ],
+            ..Default::default()
+        },
+        Some("free"),
+    )
+    .await;
+    free_service.assert_visible_lacks(&["image_gen"]);
+    free_service.assert_visible_contains(&["web"]);
+
+    let no_main = probe_with(
+        |turn| {
+            use_chatgpt_auth(turn);
+            set_feature(turn, Feature::ImageGeneration, true);
+            set_feature(turn, Feature::StandaloneWebSearch, true);
+            set_web_search_mode(turn, WebSearchMode::Live);
+        },
+        ToolPlanInputs {
+            extension_tool_executors: vec![
+                image_generation_tool,
+                Arc::new(TestNamespaceExtensionTool {
+                    namespace: "web",
+                    tool_name: "run",
+                }),
+            ],
+            ..Default::default()
+        },
+    )
+    .await;
+    no_main.assert_visible_lacks(&["image_gen", "web", "web_search"]);
+
+    let service_web_for_custom_chat = probe_with_selected_service(
+        |turn| {
+            use_bedrock_provider(turn);
+            set_feature(turn, Feature::StandaloneWebSearch, false);
+            set_web_search_mode(turn, WebSearchMode::Live);
+        },
+        ToolPlanInputs {
+            extension_tool_executors: vec![Arc::new(TestNamespaceExtensionTool {
+                namespace: "web",
+                tool_name: "run",
+            })],
+            ..Default::default()
+        },
+    )
+    .await;
+    service_web_for_custom_chat.assert_visible_contains(&["web"]);
+    service_web_for_custom_chat.assert_visible_lacks(&["web_search"]);
 
     let live_web_search = probe(|turn| {
+        use_custom_standalone_web_provider(turn);
         set_web_search_mode(turn, WebSearchMode::Live);
         update_turn_settings_for_test(turn, |settings| {
             Arc::make_mut(&mut settings.model_info).web_search_tool_type =
@@ -3977,12 +4160,11 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
             codex_code_mode::WAIT_TOOL_NAME,
             // Multi-agent v2 tools.
             MULTI_AGENT_V2_NAMESPACE,
-            // Hosted Responses tools.
-            "web_search",
         ]
     );
 
     let standalone_web_search_without_web_run = probe(|turn| {
+        use_custom_standalone_web_provider(turn);
         set_feature(turn, Feature::StandaloneWebSearch, /*enabled*/ true);
         set_web_search_mode(turn, WebSearchMode::Live);
     })
@@ -3991,6 +4173,7 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
 
     let standalone_web_search_with_dynamic_web_run = probe_with(
         |turn| {
+            use_custom_standalone_web_provider(turn);
             set_feature(turn, Feature::StandaloneWebSearch, /*enabled*/ true);
             set_web_search_mode(turn, WebSearchMode::Live);
         },
@@ -4008,6 +4191,7 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
 
     let standalone_web_search_with_mcp_web_run = probe_with(
         |turn| {
+            use_custom_standalone_web_provider(turn);
             set_feature(turn, Feature::StandaloneWebSearch, /*enabled*/ true);
             set_web_search_mode(turn, WebSearchMode::Live);
         },
@@ -4026,6 +4210,7 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
 
     let standalone_web_search = probe_with(
         |turn| {
+            use_custom_standalone_web_provider(turn);
             set_feature(turn, Feature::StandaloneWebSearch, /*enabled*/ true);
             set_web_search_mode(turn, WebSearchMode::Live);
         },
@@ -4039,6 +4224,7 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
     )
     .await;
     standalone_web_search.assert_visible_lacks(&["web_search"]);
+    standalone_web_search.assert_visible_contains(&["web"]);
 
     let bedrock_cached_web_search = probe(|turn| {
         use_bedrock_provider(turn);
@@ -4255,9 +4441,17 @@ async fn anthropic_shared_tools_async_questions_and_withdrawal_follow_root_capab
                 ));
                 plan.assert_registered_lacks(&["AskUserQuestion"]);
                 if blocking {
-                    plan.assert_registered_contains(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+                    plan.assert_registered_contains(&[&ToolName::namespaced(
+                        "legacy_codex_tools",
+                        "request_user_input",
+                    )
+                    .to_string()]);
                 } else {
-                    plan.assert_registered_lacks(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+                    plan.assert_registered_lacks(&[&ToolName::namespaced(
+                        "legacy_codex_tools",
+                        "request_user_input",
+                    )
+                    .to_string()]);
                 }
                 if async_supported && !child {
                     plan.assert_visible_contains(&[

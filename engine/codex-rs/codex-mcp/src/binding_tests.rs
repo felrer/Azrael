@@ -113,6 +113,7 @@ async fn test_step_with_visibility(
         tool_timeout: None,
         server_instructions: None,
         server_supports_sandbox_state_meta_capability: supports_sandbox_state_meta,
+        client_supports_network_policy_meta_capability: false,
         codex_apps_tools_cache_context: None,
     });
     let clients = Arc::new(McpBindingClients::new(HashMap::from([(

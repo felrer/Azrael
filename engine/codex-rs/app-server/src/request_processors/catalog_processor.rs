@@ -315,8 +315,37 @@ impl CatalogRequestProcessor {
             .list_models(strategy)
             .await
             .map_err(|err| config_load_error(&err))?;
-        let models = supported_models(presets, include_hidden.unwrap_or(false));
-        let provider_catalogs = self
+        // A bundled or warm OpenAI catalog is metadata, not a model connection.
+        // Other providers retain their own discovery/auth admission, including
+        // explicitly configured API connections with auth:none.
+        let provider = codex_model_provider::create_model_provider(
+            self.config.model_provider.clone(),
+            Some(self.thread_manager.auth_manager()),
+        );
+        let openai_unavailable = self.config.model_provider.is_openai()
+            && self.config.model_provider.requires_openai_auth
+            && self.config.model_provider.env_key.is_none()
+            && self
+                .config
+                .model_provider
+                .experimental_bearer_token
+                .is_none()
+            && self.config.model_provider.auth.is_none()
+            && self.config.model_provider.aws.is_none()
+            && provider
+                .account_state()
+                .map_err(|error| internal_error(error.to_string()))?
+                .account
+                .is_none();
+        let mut models = supported_models(presets, include_hidden.unwrap_or(false));
+        if openai_unavailable {
+            models.retain(|model| {
+                model.model.starts_with("managed/")
+                    || model.model.starts_with("api/")
+                    || model.model.starts_with("devin/")
+            });
+        }
+        let mut provider_catalogs: Vec<_> = self
             .thread_manager
             .provider_catalogs()
             .await
@@ -338,6 +367,24 @@ impl CatalogRequestProcessor {
                 }
             })
             .collect();
+        if openai_unavailable {
+            let auth_manager = self.thread_manager.auth_manager();
+            let expired = auth_manager
+                .auth_cached()
+                .is_some_and(|auth| auth_manager.refresh_failure_for_auth(&auth).is_some());
+            provider_catalogs.retain(|status| status.provider_id != "openai");
+            provider_catalogs.push(codex_app_server_protocol::ProviderCatalogStatus {
+                provider_id: "openai".to_string(),
+                state: codex_app_server_protocol::ProviderCatalogState::Empty,
+                model_count: 0,
+                observed_at: 0,
+                error_code: Some(if expired {
+                    "authentication_expired".to_string()
+                } else {
+                    "authentication_required".to_string()
+                }),
+            });
+        }
         let total = models.len();
 
         if total == 0 {

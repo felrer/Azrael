@@ -1576,16 +1576,16 @@
         "2326a3f74b4b7dd79de063ef20685b6ccad7da12"
       ],
       "decision": {
-        "status": "deferred",
-        "reason": "사용자의 최신 요청이 19번 반영 검토이므로 기존 selected를 검토 대기로 전환한다. Azrael ManagedModelsManager·DevinModelsManager와 per-thread manager override가 있어 upstream의 OpenAiModelsManager 변경만으로는 부족하다. 래퍼와 기존 provider catalog를 보존하는 호환 이식을 조건으로 권고한다.",
+        "status": "selected",
+        "reason": "사용자가 권고대로 반영하도록 승인했다. originator catalog 분리를 managed·Devin wrapper 및 thread manager override와 호환되게 이식한다.",
         "evidence": [
           {
-            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
-            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-approved.json",
+            "sha256": "2cbbb14ce8f3e9951fe7bfc36f1718455099d283f809e6eafe391e0a71d49ff9"
           }
         ],
         "dependsOn": [],
-        "retryWhen": "사용자가 managed·Devin 래퍼 및 thread manager override 보존을 포함한 호환 이식 대상으로 확정할 때"
+        "retryWhen": null
       },
       "implementation": {
         "status": "none",
@@ -1906,16 +1906,16 @@
         "cb2581dae8de14ca5282332ec329c335bf04195f"
       ],
       "decision": {
-        "status": "deferred",
-        "reason": "사용자가 13번 반영 검토를 요청했다. 현 catalog의 명시 차단·requirements 원인 혼합 및 materialization 시 차단 상태 유실 경로가 있어 반영을 권고한다. Azrael environment authority·SelectedPlugin·EMA 처리 보존을 포함한 이식 선택은 미확정이다.",
+        "status": "selected",
+        "reason": "사용자가 권고대로 반영하도록 승인했다. MCP 비활성화 원인 분리와 runtime overlay 보존을 Azrael environment authority·SelectedPlugin·EMA와 호환되게 이식한다.",
         "evidence": [
           {
-            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
-            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-approved.json",
+            "sha256": "2cbbb14ce8f3e9951fe7bfc36f1718455099d283f809e6eafe391e0a71d49ff9"
           }
         ],
         "dependsOn": [],
-        "retryWhen": "사용자가 검토 결과에 따라 호환 이식 대상으로 선택하거나 제외할 때"
+        "retryWhen": null
       },
       "implementation": {
         "status": "none",
@@ -1936,16 +1936,16 @@
         "0eb98b46176fd41fc285e5e2f82218bf0ccd70f5"
       ],
       "decision": {
-        "status": "deferred",
-        "reason": "사용자가 14번 반영 검토를 요청했다. generator 갱신과 schema annotation 수정·현 schema 재생성을 함께 하는 조건부 반영을 권고한다. 실행 기능 직접 개선보다 Python SDK 생성 호환성 유지가 목적이며 아직 선택 미확정이다.",
+        "status": "excluded",
+        "reason": "사용자가 14번 Python SDK 모델 생성기 갱신을 제외하도록 명시했다.",
         "evidence": [
           {
-            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
-            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-approved.json",
+            "sha256": "2cbbb14ce8f3e9951fe7bfc36f1718455099d283f809e6eafe391e0a71d49ff9"
           }
         ],
         "dependsOn": [],
-        "retryWhen": "사용자가 Python SDK 생성기·호환 처리·현 schema 재생성을 묶어 반영하도록 선택할 때"
+        "retryWhen": null
       },
       "implementation": {
         "status": "none",
@@ -1966,16 +1966,16 @@
         "e0fdd608e8d255f8b4b2c8fa5eecc855efb89fb9"
       ],
       "decision": {
-        "status": "deferred",
-        "reason": "사용자가 20번 반영 검토를 요청했다. registry의 1.32.0 존재와 Node >=18, zod ^3.25 또는 ^4.0 요건을 확인했고 현 SDK 선언·lock과 명백한 버전 충돌은 발견하지 못했다. root resolution·lock 동기화 및 TS/conformance 검증을 조건으로 반영 권고하며 선택은 미확정이다.",
+        "status": "selected",
+        "reason": "사용자가 권고대로 반영하도록 승인했다. JS MCP SDK 1.32.0 resolution·lock을 갱신하고 TypeScript 소비 경로를 검증한다.",
         "evidence": [
           {
-            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
-            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-approved.json",
+            "sha256": "2cbbb14ce8f3e9951fe7bfc36f1718455099d283f809e6eafe391e0a71d49ff9"
           }
         ],
         "dependsOn": [],
-        "retryWhen": "사용자가 root resolution·lock 갱신과 TypeScript SDK/conformance 검증 범위로 반영을 확정할 때"
+        "retryWhen": null
       },
       "implementation": {
         "status": "none",

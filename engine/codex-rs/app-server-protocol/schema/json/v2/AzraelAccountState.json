@@ -103,6 +103,47 @@
       ],
       "type": "object"
     },
+    "AzraelServiceAccountReadiness": {
+      "enum": [
+        "unconfigured",
+        "checking",
+        "ready",
+        "reauthRequired",
+        "unavailable",
+        "policyBlocked"
+      ],
+      "type": "string"
+    },
+    "AzraelServiceAccountState": {
+      "description": "Service identity is independent from the project's inference account.",
+      "properties": {
+        "profileId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revision": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "state": {
+          "$ref": "#/definitions/AzraelServiceAccountReadiness"
+        }
+      },
+      "required": [
+        "revision",
+        "state"
+      ],
+      "type": "object"
+    },
     "PlanType": {
       "enum": [
         "free",
@@ -181,6 +222,16 @@
       "format": "uint32",
       "minimum": 0.0,
       "type": "integer"
+    },
+    "serviceAccount": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/AzraelServiceAccountState"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [

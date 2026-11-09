@@ -48,6 +48,7 @@ pub(super) struct TextLayout {
     width: u16,
     pub(super) separated: bool,
     pub(super) disclosure: bool,
+    leading_blank_hidden: bool,
     disclosure_control: Option<DisclosureControl>,
 }
 
@@ -137,6 +138,9 @@ impl TextLayout {
             layout =
                 layout.with_disclosure_control_at(control.label.clone(), control.source_offset);
         }
+        if self.leading_blank_hidden {
+            layout = layout.without_leading_blank_row();
+        }
         if self.separated {
             layout.with_leading_separator()
         } else {
@@ -201,6 +205,22 @@ impl TextLayout {
         if !self.separated {
             self = self.with_leading_spacer();
             self.separated = !self.rows.is_empty();
+        }
+        self
+    }
+
+    /// Hide one leading blank row without changing selectable source offsets.
+    pub(super) fn without_leading_blank_row(mut self) -> Self {
+        if self
+            .rows
+            .first()
+            .is_some_and(|row| line_width(&row.line.line) == 0)
+        {
+            self.rows.remove(/*index*/ 0);
+            self.leading_blank_hidden = true;
+            if let Some(control) = &mut self.disclosure_control {
+                control.row = control.row.saturating_sub(/*rhs*/ 1);
+            }
         }
         self
     }
@@ -454,6 +474,7 @@ impl TextLayout {
             width,
             separated: false,
             disclosure: false,
+            leading_blank_hidden: false,
             disclosure_control: None,
         }
     }

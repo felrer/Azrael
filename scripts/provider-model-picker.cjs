@@ -5,9 +5,9 @@
 function createProviderModelCatalog() {
   const hosts = new Map();
   const labels = { openai: "OpenAI", api: "API", devin: "Devin", anthropic: "Anthropic", "meta-muse": "Meta", openrouter: "OpenRouter", google: "Google AI Studio", "google-antigravity": "Google Antigravity", xai: "xAI" };
-  const empty = Object.freeze({ loading: false, providers: [], updatedAt: 0, error: false });
+  const empty = Object.freeze({ loading: false, providers: [], models: [], updatedAt: 0, error: false });
   function host(id) {
-    if (!hosts.has(id)) hosts.set(id, { snapshot: empty, listeners: new Set(), force: false, pending: null, result: null, refreshAfterPending: false });
+    if (!hosts.has(id)) hosts.set(id, { snapshot: empty, listeners: new Set(), force: false, pending: null, result: null, refreshAfterPending: false, generation: 0 });
     return hosts.get(id);
   }
   function publish(id, update) {
@@ -60,6 +60,7 @@ function createProviderModelCatalog() {
     if (item.pending) return item.pending;
     if (item.result && !item.force) return item.result;
     const force = item.force;
+    const generation = item.generation;
     item.force = false;
     publish(id, { loading: true, error: false });
     item.pending = (async () => {
@@ -94,7 +95,8 @@ function createProviderModelCatalog() {
           if (data.length > 10000) throw new Error("model_catalog_limit");
           cursor = result.nextCursor;
           if (cursor == null) {
-            publish(id, { loading: false, providers, updatedAt: Date.now(), error: false });
+            if (generation !== item.generation) throw new Error("model_connection_changed");
+            publish(id, { loading: false, providers, models: data.map(model => model.model), updatedAt: Date.now(), error: false, revoked: false });
             item.result = { data, nextCursor: null, providerCatalogs: providers };
             return item.result;
           }
@@ -103,7 +105,8 @@ function createProviderModelCatalog() {
         }
         throw new Error("model_catalog_page_limit");
       } catch (error) {
-        publish(id, { loading: false, error: true });
+        item.result = null;
+        publish(id, { loading: false, models: [], error: true, revoked: true });
         // Do not pass upstream response/error text into the webview diagnostics.
         throw new Error("모델 목록을 불러오지 못했습니다. 다시 시도해 주세요.");
       } finally {
@@ -119,6 +122,16 @@ function createProviderModelCatalog() {
   }
   return {
     query, groups, title, providerFor,
+    admission(id, model) {
+      const state = id == null ? empty : host(id).snapshot;
+      if (state.error) return "모델 연결을 확인하지 못했습니다. 다시 시도해 주세요.";
+      if (state.loading || !state.updatedAt) return "모델 연결을 확인하는 중입니다.";
+      if (!state.models.length) return state.providers.some(provider => provider.errorCode === "authentication_expired")
+        ? "모델 계정 인증이 만료되었습니다. 계정 및 사용량에서 다시 연결해 주세요."
+        : "사용 가능한 모델 연결이 없습니다. 계정 및 사용량에서 연결해 주세요.";
+      if (model != null && !state.models.includes(model)) return "선택한 모델 연결을 사용할 수 없습니다. 모델을 다시 선택해 주세요.";
+      return null;
+    },
     efforts(models, id, fallback) {
       if (!id?.startsWith("managed/") && !id?.startsWith("api/")) return fallback();
       const model = models?.find(model => model.model === id);
@@ -143,7 +156,16 @@ function createProviderModelCatalog() {
     tag(result, id) {
       // Runs after the query library's structural sharing so even an empty
       // selected array retains the scope needed by loading/error presentation.
-      if (Array.isArray(result.data?.models)) Object.defineProperty(result.data.models, "__azraelCatalogHost", { value: id, configurable: true });
+      const selected = result.data ?? result;
+      if (Array.isArray(selected.models)) {
+        const allowed = host(id).snapshot.models;
+        if (selected.models.some(model => !allowed.includes(model.model))) {
+          const filtered = { ...selected, models: selected.models.filter(model => allowed.includes(model.model)),
+            defaultModel: allowed.includes(selected.defaultModel?.model) ? selected.defaultModel : null };
+          result = result.data ? { ...result, data: filtered } : filtered;
+        }
+        Object.defineProperty((result.data ?? result).models, "__azraelCatalogHost", { value: id, configurable: true });
+      }
       return result;
     },
     singleHost: () => hosts.size === 1 ? hosts.keys().next().value : undefined,
@@ -164,7 +186,13 @@ function createProviderModelCatalog() {
       if (item.invalidate) Promise.resolve(item.invalidate()).catch(() => publish(id, { loading: false, error: true }));
     },
     notification(event) {
-      if (event?.method === "account/updated") this.sessionCreated(event.hostId);
+      if (event?.method === "account/updated" && event.hostId != null) {
+        const item = host(event.hostId);
+        item.generation++;
+        item.result = null;
+        publish(event.hostId, { models: [], updatedAt: 0, error: false, revoked: true });
+        this.sessionCreated(event.hostId);
+      }
     },
   };
 }
@@ -204,7 +232,7 @@ function renderProviderModelList(React, jsx, Menu, catalog, props) {
     for (const type of types) element.addEventListener(type, guard, true);
     return () => { for (const type of types) element.removeEventListener(type, guard, true); };
   }, []);
-  const groups = catalog.groups(props.options, query, snapshot.providers);
+  const groups = catalog.groups(snapshot.revoked ? [] : props.options, query, snapshot.providers);
   const selectedProvider = catalog.providerFor(props.options.find(option => option.selected)?.id ?? "");
   const search = query.trim().length > 0;
   const statusText = group => {

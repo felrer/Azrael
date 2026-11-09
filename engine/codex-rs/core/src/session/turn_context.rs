@@ -777,6 +777,12 @@ impl TurnContext {
     }
 
     pub(crate) fn apps_enabled(&self) -> bool {
+        // The service account is independent of the turn's model provider. Runtime
+        // discovery admits only a ready service binding before exposing Apps tools.
+        if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+            return self.config.features.enabled(Feature::Apps)
+                && self.config.orchestrator_mcp_enabled;
+        }
         let uses_codex_backend = self
             .auth_manager
             .as_deref()

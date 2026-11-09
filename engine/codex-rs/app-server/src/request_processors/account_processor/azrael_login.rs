@@ -105,7 +105,7 @@ impl AccountRequestProcessor {
             let _ = self.azrael.store.discard_pending(&staged);
             return;
         }
-        let completion = match result {
+        let mut completion = match result {
             Ok(Ok(())) if replacement_id.is_none() => staged.finalize().await.map(|_| ()),
             Ok(Ok(())) => {
                 self.finish_azrael_reauthentication(
@@ -117,6 +117,12 @@ impl AccountRequestProcessor {
             }
             Ok(Err(_)) | Err(_) => Err(io::Error::other("account login did not complete")),
         };
+        if completion.is_ok() && replacement_id.is_none() {
+            completion = self
+                .service_account_store()
+                .initialize_after_login(staged.id())
+                .map(|_| ());
+        }
         {
             let mut state = self.azrael.inner.lock().await;
             if state

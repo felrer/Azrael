@@ -122,6 +122,11 @@ pub struct McpPermissionPromptAutoApproveContext {
 /// runtime entry points such as [`effective_mcp_servers`].
 #[derive(Debug, Clone)]
 pub struct McpConfig {
+    /// Request-scoped service identity; keeps the selected profile leased for prepared calls.
+    pub azrael_service_account: Option<std::sync::Arc<codex_login::AzraelServiceAccountBinding>>,
+    pub azrael_service_auth: Option<CodexAuth>,
+    /// Effective service transport policy, independent of the conversation's model auth.
+    pub azrael_service_network_policy: Option<codex_http_client::NetworkPolicy>,
     /// Base URL for ChatGPT-hosted app MCP servers, copied from the root config.
     pub chatgpt_base_url: String,
     /// Optional product SKU forwarded to the host-owned apps MCP server.
@@ -197,6 +202,17 @@ pub struct McpConfig {
 pub const DEFAULT_OPTIONAL_MCP_STARTUP_GRACE: Duration = Duration::from_secs(1);
 
 impl McpConfig {
+    pub fn apps_runtime_cache_key(
+        &self,
+        context_auth: Option<&CodexAuth>,
+    ) -> codex_connectors::ConnectorRuntimeContextKey {
+        connector_runtime_context_key(self.azrael_service_auth.as_ref().or(context_auth))
+            .with_service_revision(
+                self.azrael_service_account
+                    .as_ref()
+                    .map(|binding| binding.selection.revision),
+            )
+    }
     /// Resolves enabled runtime servers against the exact attachment permissions being published.
     pub fn set_server_permission_profiles(
         &mut self,
@@ -342,7 +358,14 @@ impl ToolPluginContext {
 }
 
 pub fn host_owned_codex_apps_enabled(config: &McpConfig, auth: Option<&CodexAuth>) -> bool {
-    config.apps_enabled && auth.is_some_and(CodexAuth::uses_codex_backend)
+    config.apps_enabled
+        && ((config.azrael_service_account.is_some()
+            && config
+                .azrael_service_auth
+                .as_ref()
+                .is_some_and(CodexAuth::uses_codex_backend))
+            || (std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_none()
+                && auth.is_some_and(CodexAuth::uses_codex_backend)))
 }
 
 pub fn configured_mcp_servers(config: &McpConfig) -> HashMap<String, McpServerConfig> {
@@ -356,7 +379,7 @@ pub fn effective_mcp_servers(
     effective_mcp_servers_from_configured(configured_mcp_servers(config), config, auth)
 }
 
-fn is_trusted_chatgpt_mcp_server(
+pub(crate) fn is_trusted_chatgpt_mcp_server(
     transport: &McpServerTransportConfig,
     chatgpt_base_url: &str,
 ) -> bool {
@@ -457,6 +480,7 @@ pub async fn read_mcp_resource(
         /*previous*/ None,
         McpPublicationGate::already_published(),
         McpRuntimeInput {
+            network_policy_metadata: None,
             startup_policy: McpStartupPolicy::Eager,
             config: Arc::new(runtime_config),
             plugins_available: false,
@@ -468,7 +492,7 @@ pub async fn read_mcp_resource(
             runtime_context,
             codex_apps_tools_cache,
             tool_catalog_cache,
-            codex_apps_tools_cache_key: connector_runtime_context_key(auth),
+            codex_apps_tools_cache_key: config.apps_runtime_cache_key(auth),
             client_mcp_extensions: ClientMcpExtensions::default(),
             auth: auth.cloned(),
             auth_manager: None,
@@ -537,6 +561,7 @@ pub async fn collect_mcp_server_status_snapshot_with_detail(
         /*previous*/ None,
         McpPublicationGate::already_published(),
         McpRuntimeInput {
+            network_policy_metadata: None,
             startup_policy: McpStartupPolicy::Eager,
             config: Arc::new(runtime_config),
             plugins_available: false,
@@ -548,7 +573,7 @@ pub async fn collect_mcp_server_status_snapshot_with_detail(
             runtime_context,
             codex_apps_tools_cache,
             tool_catalog_cache,
-            codex_apps_tools_cache_key: connector_runtime_context_key(auth),
+            codex_apps_tools_cache_key: config.apps_runtime_cache_key(auth),
             client_mcp_extensions: ClientMcpExtensions::default(),
             auth: auth.cloned(),
             auth_manager: None,

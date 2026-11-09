@@ -57,6 +57,58 @@
           "type": "object"
         },
         {
+          "anyOf": [
+            {
+              "properties": {
+                "image_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "image_url"
+              ],
+              "title": "ImageUrlAgentMessageInputContent",
+              "type": "object"
+            },
+            {
+              "properties": {
+                "file_id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "file_id"
+              ],
+              "title": "FileIdAgentMessageInputContent",
+              "type": "object"
+            }
+          ],
+          "properties": {
+            "detail": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ImageDetail"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "enum": [
+                "input_image"
+              ],
+              "title": "InputImageAgentMessageInputContentType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "InputImageAgentMessageInputContent",
+          "type": "object"
+        },
+        {
           "properties": {
             "encrypted_content": {
               "type": "string"
@@ -247,6 +299,7 @@
         "loginCancel",
         "remove",
         "switch",
+        "serviceSelect",
         "cancelSwitch",
         "usage",
         "consumeResetCredit",
@@ -294,6 +347,90 @@
       },
       "required": [
         "action"
+      ],
+      "type": "object"
+    },
+    "AzraelServiceAuthParams": {
+      "properties": {
+        "profileId": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "refreshToken": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "revision": {
+          "default": null,
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "AzraelServiceHttpParams": {
+      "properties": {
+        "body": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "method": {
+          "type": "string"
+        },
+        "profileId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "profileId",
+        "requestId",
+        "revision",
+        "url"
+      ],
+      "type": "object"
+    },
+    "AzraelServiceRequestEndParams": {
+      "properties": {
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestId"
       ],
       "type": "object"
     },
@@ -9185,6 +9322,103 @@
         "params"
       ],
       "title": "Account/readRequest",
+      "type": "object"
+    },
+    {
+      "description": "Host-owned HTTP services use an independent, request-bound OpenAI identity.",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "azrael/service/auth"
+          ],
+          "title": "Azrael/service/authRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/AzraelServiceAuthParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Azrael/service/authRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "azrael/service/http"
+          ],
+          "title": "Azrael/service/httpRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/AzraelServiceHttpParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Azrael/service/httpRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "azrael/service/http/cancel"
+          ],
+          "title": "Azrael/service/http/cancelRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/AzraelServiceRequestEndParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Azrael/service/http/cancelRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "azrael/service/request/end"
+          ],
+          "title": "Azrael/service/request/endRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/AzraelServiceRequestEndParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Azrael/service/request/endRequest",
       "type": "object"
     },
     {

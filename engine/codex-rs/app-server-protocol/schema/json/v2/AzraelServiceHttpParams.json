@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "body": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "headers": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "type": "object"
+    },
+    "method": {
+      "type": "string"
+    },
+    "profileId": {
+      "type": "string"
+    },
+    "requestId": {
+      "type": "string"
+    },
+    "revision": {
+      "format": "uint64",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "method",
+    "profileId",
+    "requestId",
+    "revision",
+    "url"
+  ],
+  "title": "AzraelServiceHttpParams",
+  "type": "object"
+}

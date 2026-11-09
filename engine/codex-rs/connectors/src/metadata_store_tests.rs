@@ -17,6 +17,25 @@ fn metadata(id: &str) -> ConnectorMetadata {
 }
 
 #[test]
+fn service_revision_keeps_delayed_metadata_in_its_original_scope() {
+    let store = |revision| {
+        ConnectorMetadataStore::new(
+            "https://service-revision.example".to_string(),
+            Some("same-account".to_string()),
+            Some("same-user".to_string()),
+            false,
+        )
+        .with_service_revision(Some(revision))
+    };
+    let previous = store(1);
+    let current = store(2);
+    let ids = vec!["revision-scoped-app".to_string()];
+    previous.commit(&[metadata(&ids[0])]);
+    assert_eq!(previous.fresh_records(&ids, false).len(), 1);
+    assert!(current.fresh_records(&ids, false).is_empty());
+}
+
+#[test]
 fn records_are_isolated_by_backend_account_user_and_workspace_scope() {
     let requested_scope = ConnectorMetadataStore::new(
         "https://backend-a.example".to_string(),

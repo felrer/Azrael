@@ -68,7 +68,7 @@ fn quota_exhausted(error: &CodexErr) -> bool {
     )
 }
 
-pub(super) fn public_history(items: &[ResponseItemEnvelope]) -> Vec<ResponseItemEnvelope> {
+pub(crate) fn public_history(items: &[ResponseItemEnvelope]) -> Vec<ResponseItemEnvelope> {
     let mut calls = HashSet::new();
     items
         .iter()

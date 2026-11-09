@@ -42,11 +42,55 @@ use codex_mcp::effective_mcp_servers;
 use codex_mcp::tool_plugin_context;
 use codex_protocol::mcp::ClientMcpExtensions;
 
+/// Captures the independent service account once for a logical Apps operation.
+/// Nested discovery calls reuse this binding, including its profile usage lease.
+pub async fn service_request_config(
+    config: &Config,
+    template: &AuthManager,
+) -> anyhow::Result<Config> {
+    if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_none()
+        || config.azrael_service_account.is_some()
+    {
+        return Ok(config.clone());
+    }
+    let binding = Arc::new(
+        codex_login::AzraelServiceAccountStore::new(config.codex_home.as_path())
+            .resolve(template)
+            .await?,
+    );
+    let mut scoped = config.for_openai_service(binding.manager()).await?;
+    scoped.azrael_service_account = Some(binding);
+    Ok(scoped)
+}
+
+pub async fn service_auth_manager(config: &Config) -> anyhow::Result<Arc<AuthManager>> {
+    if let Some(binding) = &config.azrael_service_account {
+        return Ok(binding.manager());
+    }
+    if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+        return Ok(Arc::new(AuthManager::azrael_service_template(config)));
+    }
+    Ok(AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await?)
+}
+
+pub fn service_runtime_cache_key(
+    config: &Config,
+    auth: Option<&CodexAuth>,
+) -> codex_connectors::ConnectorRuntimeContextKey {
+    connector_runtime_context_key(auth).with_service_revision(
+        config
+            .azrael_service_account
+            .as_ref()
+            .map(|binding| binding.selection.revision),
+    )
+}
+
 const CONNECTORS_READY_TIMEOUT_ON_EMPTY_TOOLS: Duration = Duration::from_secs(30);
 
 #[derive(Clone, PartialEq, Eq)]
 struct AccessibleConnectorsCacheKey {
     chatgpt_base_url: String,
+    service_revision: Option<u64>,
     account_id: Option<String>,
     chatgpt_user_id: Option<String>,
     is_workspace_account: bool,
@@ -118,10 +162,10 @@ pub(crate) async fn list_tool_suggest_discoverable_tools_with_auth(
 pub async fn list_cached_accessible_connectors_from_mcp_tools(
     config: &Config,
 ) -> Option<Vec<AppInfo>> {
-    let auth_manager =
-        AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false)
-            .await
-            .ok()?;
+    let template = service_auth_manager(config).await.ok()?;
+    let scoped = service_request_config(config, &template).await.ok()?;
+    let config = &scoped;
+    let auth_manager = service_auth_manager(config).await.ok()?;
     let auth = auth_manager.auth().await;
     if !config
         .features
@@ -138,6 +182,14 @@ pub(crate) fn refresh_accessible_connectors_cache_from_mcp_tools(
     auth: Option<&CodexAuth>,
     mcp_tools: &[ToolInfo],
 ) {
+    // Legacy post-auth callers only own conversation config. Do not attribute a
+    // service runtime's tools to that conversation account; bound discovery owns
+    // the service cache publication.
+    if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some()
+        && config.azrael_service_account.is_none()
+    {
+        return;
+    }
     if !config.features.enabled(Feature::Apps) {
         return;
     }
@@ -188,8 +240,10 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_environment_manager(
     force_refetch: bool,
     environment_manager: Arc<EnvironmentManager>,
 ) -> anyhow::Result<AccessibleConnectorsStatus> {
-    let auth_manager =
-        AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await?;
+    let template = service_auth_manager(config).await?;
+    let scoped = service_request_config(config, &template).await?;
+    let config = &scoped;
+    let auth_manager = service_auth_manager(config).await?;
     let plugins_manager = Arc::new(plugins_manager_for_config(
         config,
         Arc::clone(&auth_manager),
@@ -210,8 +264,10 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
     environment_manager: Arc<EnvironmentManager>,
     mcp_manager: Arc<McpManager>,
 ) -> anyhow::Result<AccessibleConnectorsStatus> {
-    let auth_manager =
-        AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false).await?;
+    let template = service_auth_manager(config).await?;
+    let scoped = service_request_config(config, &template).await?;
+    let config = &scoped;
+    let auth_manager = service_auth_manager(config).await?;
     let auth = auth_manager.auth().await;
     if !config
         .features
@@ -252,6 +308,7 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
         codex_mcp::host_owned_codex_apps_enabled(&mcp_config, auth.as_ref())
             .then(|| Arc::clone(&auth_manager));
     let mcp_runtime = McpRuntime::new(McpRuntimeInput {
+        network_policy_metadata: None,
         startup_policy: McpStartupPolicy::Eager,
         config: Arc::clone(&mcp_config),
         plugins_available: false,
@@ -265,7 +322,7 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
         runtime_context,
         codex_apps_tools_cache: mcp_manager.codex_apps_tools_cache(),
         tool_catalog_cache: mcp_manager.tool_catalog_cache(),
-        codex_apps_tools_cache_key: connector_runtime_context_key(auth.as_ref()),
+        codex_apps_tools_cache_key: service_runtime_cache_key(config, auth.as_ref()),
         client_mcp_extensions: ClientMcpExtensions::default(),
         auth: auth.clone(),
         auth_manager: codex_apps_auth_manager,
@@ -351,6 +408,10 @@ fn accessible_connectors_cache_key(
     let is_workspace_account = auth.is_some_and(CodexAuth::is_workspace_account);
     AccessibleConnectorsCacheKey {
         chatgpt_base_url: config.chatgpt_base_url.clone(),
+        service_revision: config
+            .azrael_service_account
+            .as_ref()
+            .map(|binding| binding.selection.revision),
         account_id,
         chatgpt_user_id,
         is_workspace_account,
@@ -427,6 +488,19 @@ async fn cached_directory_connectors_for_tool_suggest_with_auth(
         return Vec::new();
     }
 
+    let Ok(template) = service_auth_manager(config).await else {
+        return Vec::new();
+    };
+    let Ok(scoped) = service_request_config(config, &template).await else {
+        return Vec::new();
+    };
+    let config = &scoped;
+    let service_auth = config
+        .azrael_service_account
+        .as_ref()
+        .and_then(|binding| binding.manager().auth_cached());
+    let auth = service_auth.as_ref().or(auth);
+
     let loaded_auth;
     let auth = if let Some(auth) = auth {
         Some(auth)
@@ -455,6 +529,12 @@ async fn cached_directory_connectors_for_tool_suggest_with_auth(
             Some(account_id),
             auth.get_chatgpt_user_id(),
             is_workspace_account,
+        )
+        .with_service_revision(
+            config
+                .azrael_service_account
+                .as_ref()
+                .map(|binding| binding.selection.revision),
         ),
     );
 

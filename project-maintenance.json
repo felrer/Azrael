@@ -2,6 +2,7 @@
   "schema_version": 1,
   "project_id": "azrael",
   "managed_roots": [
+    "artifacts/a",
     "artifacts/ex02i",
     "artifacts/ex02w",
     "artifacts/tasks",
@@ -78,39 +79,8 @@
       "kind": "test",
       "purpose": "retained",
       "cwd": ".",
-      "argv": [
-        "node",
-        "scripts/check-artifact-lifecycle.cjs",
-        "--stage",
-        "writers",
-        "--test-file",
-        "scripts/test-deployment-workspace.cjs",
-        "--test-file",
-        "scripts/test-committed-project-inputs.cjs",
-        "--test-file",
-        "scripts/test-packaging-workspace.cjs"
-      ],
-      "inputs": [
-        "scripts/deployment-manifest.cjs",
-        "scripts/deployment-workspace.cjs",
-        "scripts/test-deployment-workspace.cjs",
-        "scripts/committed-project-inputs.cjs",
-        "scripts/test-committed-project-inputs.cjs",
-        "scripts/packaging-workspace.cjs",
-        "scripts/test-packaging-workspace.cjs",
-        "scripts/check-artifact-lifecycle.cjs",
-        "scripts/artifact-run.cjs",
-        "scripts/artifact-lifecycle.cjs",
-        "scripts/maintenance-lock-owner.cjs",
-        "scripts/maintenance-owner-config.cjs",
-        "scripts/capture-project-inputs.cjs",
-        "scripts/deployment-input-snapshot.cjs",
-        "scripts/freeze-platform-inputs.cjs",
-        "scripts/engine-provenance.py",
-        "scripts/import-engine-source.py",
-        "scripts/engine-native-materialization.py",
-        "scripts/azrael-platforms.json"
-      ],
+      "argv": ["node", "scripts/check-artifact-lifecycle.cjs", "--stage", "writers", "--test-file", "scripts/test-deployment-workspace.cjs", "--test-file", "scripts/test-committed-project-inputs.cjs", "--test-file", "scripts/test-packaging-workspace.cjs"],
+      "inputs": ["scripts/deployment-manifest.cjs", "scripts/deployment-workspace.cjs", "scripts/test-deployment-workspace.cjs", "scripts/committed-project-inputs.cjs", "scripts/test-committed-project-inputs.cjs", "scripts/packaging-workspace.cjs", "scripts/test-packaging-workspace.cjs", "scripts/check-artifact-lifecycle.cjs", "scripts/artifact-run.cjs", "scripts/artifact-lifecycle.cjs", "scripts/maintenance-lock-owner.cjs", "scripts/maintenance-owner-config.cjs", "scripts/capture-project-inputs.cjs", "scripts/deployment-input-snapshot.cjs", "scripts/freeze-platform-inputs.cjs", "scripts/engine-provenance.py", "scripts/import-engine-source.py", "scripts/engine-native-materialization.py", "scripts/azrael-platforms.json"],
       "env": {},
       "depends_on": [],
       "guards": []
@@ -584,7 +554,7 @@
         "scripts/check-multiwindow-accounts.mjs",
         "scripts/create-ui-design-preview.cjs",
         "scripts/create-ui-icon-review.cjs",
-        "scripts/verify-auto-review-render.mjs",
+        "scripts/verify-service-auto-review-render.mjs",
         "scripts/verify-ticket-usage-render.mjs"
       ]
     },
@@ -1112,9 +1082,7 @@
         "--stage",
         "source"
       ],
-      "inputs": [
-        "scripts/module-cache-dotnet-lease.cjs",
-        "scripts/maintenance-lock-owner.cjs",
+      "inputs": ["scripts/module-cache-dotnet-lease.cjs", "scripts/maintenance-lock-owner.cjs",
         "scripts/check-artifact-lifecycle.cjs",
         "scripts/artifact-lifecycle.cjs",
         "scripts/test-artifact-lifecycle.cjs",
@@ -1340,6 +1308,29 @@
         "docs/boards/tests/browser-driver.mjs",
         "scripts/artifact-lifecycle.cjs"
       ]
+    },
+    {
+      "id": "service-auth-native",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": [
+        "node",
+        "scripts/check-service-auth-native.cjs"
+      ],
+      "inputs": [
+        "scripts/check-service-auth-native.cjs",
+        "scripts/cargo-verification.cjs",
+        "scripts/cargo-target-owner.cjs",
+        "scripts/cargo-shared-cache.cjs",
+        "scripts/cargo-stable-source.cjs",
+        "scripts/artifact-run.cjs",
+        "scripts/artifact-lifecycle.cjs",
+        "engine/codex-rs"
+      ],
+      "env": {},
+      "depends_on": [],
+      "guards": []
     }
   ],
   "policy": {

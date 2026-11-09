@@ -131,6 +131,7 @@ pub(crate) fn has_explicit_http_authorization(config: &McpServerConfig) -> bool 
 /// those belong to a publication and can change without reconnecting.
 #[derive(Clone)]
 pub(crate) struct McpServerConnectionIdentity {
+    pub(crate) service_selection: Option<codex_login::AzraelServiceAccountSelection>,
     auth: McpServerAuth,
     pub(crate) credential_policy: McpCredentialPolicy,
     transport: McpServerTransportConfig,
@@ -258,6 +259,7 @@ impl McpServerConnectionIdentity {
 
         Self {
             auth: config.auth.clone(),
+            service_selection: None,
             credential_policy: server.credential_policy(),
             transport: config.transport.clone(),
             environment_id: config.environment_id.clone(),
@@ -297,6 +299,7 @@ impl McpServerConnectionIdentity {
             (Some(_), None) | (None, Some(_)) => false,
         };
         self.auth == other.auth
+            && self.service_selection == other.service_selection
             && self.credential_policy == other.credential_policy
             && self.transport == other.transport
             && self.environment_id == other.environment_id

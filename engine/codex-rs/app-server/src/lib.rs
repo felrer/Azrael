@@ -442,7 +442,9 @@ fn log_format_from_env() -> LogFormat {
 
 async fn app_server_auth_manager(config: &Config) -> IoResult<Arc<AuthManager>> {
     if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
-        AuthManager::shared_for_azrael(config, /*enable_codex_api_key_env*/ false).await
+        // Legacy root credentials are available only to explicit profile import.
+        // Host/service startup must not resurrect them after project logout.
+        AuthManager::shared_for_azrael_project(config, None).await
     } else {
         AuthManager::shared_from_config(config, /*enable_codex_api_key_env*/ false)
             .await

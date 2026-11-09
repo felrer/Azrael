@@ -1007,7 +1007,7 @@ def adapted_source_entry(entry, fix):
     return {**entry, "sha256": fix["adaptedSha256"], "size": fix["adaptedSize"]}
 
 
-def verify_destination(destination, files, has_receipt=False, allow_build_caches=False, adaptation=None, distribution_files=None, source_fixes=None, adapted_changes=None):
+def verify_destination(destination, files, has_receipt=False, allow_build_caches=False, adaptation=None, distribution_files=None, source_fixes=None, adapted_changes=None, migration_additions=None):
     context = validation_root(destination)
     destination = filesystem_path(context.path)
     actual = set()
@@ -1049,7 +1049,15 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
         if distribution_files != distribution_files_record() or not migration or migration["kind"] == "missing" or QUEUE_ATTRIBUTES in files:
             raise ValueError("Malformed distribution files: only the fixed queue attribute overlay is supported")
         overlay = safe_path(context, QUEUE_ATTRIBUTES)
-        if overlay.is_symlink() or overlay.read_bytes() != QUEUE_ATTRIBUTE_BYTES:
+        expected_attributes = QUEUE_ATTRIBUTE_BYTES
+        # Local integration has already validated these exact, append-only SQL
+        # additions. Preserve their LF bytes without admitting arbitrary rules.
+        queue_parent = PurePosixPath(QUEUE_ATTRIBUTES).parent
+        for name in sorted(migration_additions or {}):
+            migration_path = PurePosixPath(name)
+            if migration_path.parent == queue_parent:
+                expected_attributes += (migration_path.name + " -text\n").encode("utf-8")
+        if overlay.is_symlink() or overlay.read_bytes() != expected_attributes:
             raise ValueError("Queue distribution attribute overlay differs")
         expected.add(QUEUE_ATTRIBUTES)
     if adaptation is not None:
@@ -1258,7 +1266,8 @@ def validate_receipt(destination, receipt, allow_build_caches=False):
     verify_destination(context, receipt["files"], has_receipt=True, allow_build_caches=allow_build_caches,
                        adaptation=receipt.get("distributionAdaptation"), distribution_files=receipt.get("distributionFiles"),
                        source_fixes=receipt.get("sourceFixes"),
-                       adapted_changes=receipt.get("localIntegration", {}).get("adaptedChanges"))
+                       adapted_changes=receipt.get("localIntegration", {}).get("adaptedChanges"),
+                       migration_additions=receipt.get("localIntegration", {}).get("migrationAdditions"))
     context.check()
     return digest
 

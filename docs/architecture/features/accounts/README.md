@@ -24,6 +24,20 @@ Managed-profile OAuth, secure storage, refresh, selected-account status and nati
 
 Preservation mapping uses the [feature inventory](../../../../scripts/azrael-feature-contracts.json), including `ui.account-settings`, `ui.provider-model-picker`, `ui.account-switch-queue` and `engine.shared-engine`; each implementation owner must connect the changed boundary and its mandatory checks before acceptance.
 
+### Independent OpenAI service account
+
+Status: `target` — source integration is in progress; [implementation acceptance](../../../../work/FO-01-azrael-auth-entry-review/01-plan.md) distinguishes native, UI and installed verification.
+
+One managed OpenAI profile supplies OpenAI services for all local windows and projects sharing an Azrael state home. The first successful managed OpenAI login initializes this selection; subsequent logins preserve it. The account page identifies the service main separately from the current project chat account and allows manual selection or clearing. Clearing, removal, expiry and authentication failure do not select another saved account automatically. Legacy root credentials are used only for explicit import.
+
+Apps, ChatGPT connectors, hosted cloud plugins, OpenAI-backed search/image services, URL safety and Guardian use this service identity independently from chat provider selection. Ordinary MCP OAuth, local plugins and explicitly configured API connections retain their own authentication. Each feature additionally checks its real adapter, subscription, capability and policy prerequisites; stored metadata does not establish readiness.
+
+Selection is an atomic, cross-process record with a monotonic revision and explicit initialized/empty states. Each new logical service request resolves the current selection and pins its profile lease, identity and revision until the request ends. A later request, including one after failure or interruption, resolves again. Service changes do not replace project chat authentication or replay a request. A stale 401 refresh cannot obtain the replacement account's token. Cache, tool discovery and reviewer reuse identities include service revision; late results remain attributable to the original request and cannot populate the replacement identity's catalog.
+
+Service requests preserve the project's effective local and cloud requirements and additionally enforce the service account's mandatory requirements. Allowed sets intersect, restrictions remain cumulative, and incompatible or unsupported mandatory constraints block the affected service with an explicit reason. The original runtime configuration and live network-policy controller remain unchanged. Native host HTTP services use the policy-aware HTTP factory, including redirects and response-body revocation, rather than exporting policy enforcement to an unconstrained fetch.
+
+Missing selection, checking, reauthentication, transport unavailability and policy blocking are distinct states. Tokens remain native or in the host-owned authentication transport and never enter Webviews or diagnostics. Account updates and cross-process selection observation refresh service availability without automatically resuming a stopped conversation.
+
 ### Provider groups and account summaries
 
 Status: `current` in source — compiled account summaries, handlers and settings embedding verified in light/dark themes and desktop/narrow layouts; packaging and installed-host verification pending.

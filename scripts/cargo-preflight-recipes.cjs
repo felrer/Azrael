@@ -10,6 +10,7 @@ const { createHash } = require('node:crypto');
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
   'check-responses-worker-native': 'ac1a092b5b59694c9ec24a76d2dd566903b4181f1da9be4160788c7f6578a639',
+  'check-service-auth-native': 'c3de3963bb8e39d2dc54cbc0cf18c48c11459fd70d7fbe041f28fc22fe9b95ae',
   'check-agent-image-attachments': 'cd163c4a4b7b8f45539549aa3d3193e966632ad2a58d1ca1e5b0252db29e1e2b',
   'check-find-names': 'ca76c4c96c8240322096bd9d271ea00e2bb7a6153527d557ce63d527405bbf9a',
   'check-devin-compaction': 'e5e9113405e0ec7875ab871975c4598e17b20a60e9485ec54f83742235be5c4a',
@@ -17,7 +18,7 @@ const wrapperHashes = Object.freeze({
   'check-executor-completion': 'fbba5203634989dcdd30802d2f58af11418b8f32d9b8613ef05cbf7f80a28c09',
   'check-deletion-approval-native': '139f05599adda7215de9fd9c67a986803fc08a7b081dc9fc3184441ac8631829',
   'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
-  'check-selected-upstream-native': '1595fc0409f3ec15be1330f7330cd305ca65db8c625ce15147735199ea7778de',
+  'check-selected-upstream-native': '732679dc9744387cb117463d077298c30d45f4fa55a92fc056a54a169e58428c',
   'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
   'check-model-harness-profiles': 'c4f2c63c2034e2ee134431573739132a16d550a7a1e097a7bac256b01b3a24fa',
@@ -58,6 +59,43 @@ function reviewedRecipes(wrapper, tail, platform) {
       args = [[...finish(['-p', 'codex-responses-worker-protocol', '-p', 'codex-responses-worker-client', '-p', 'codex-responses-worker']), '--nocapture']];
       break;
     }
+    case 'check-service-auth-native': {
+      const scope = tail.length === 0 ? 'all' : tail.length === 2 && tail[0] === '--scope' ? tail[1] : undefined;
+      // Baseline-pin invocations are explicit one-off verification inputs and do
+      // not advertise reusable recipes for an unmodified configured source.
+      if (!['login', 'all'].includes(scope)) break;
+      args = [
+        ['codex-login', 'auth::service_account::tests'],
+        ['codex-core', 'long_term_memories_cannot_be_enabled_for_azrael'],
+        ['codex-memories-extension', 'when_disabled'],
+        ['codex-memories-extension', 'prompt_contribution_uses_memory_summary_when_enabled'],
+        ['codex-app-server', 'azrael'],
+        ['codex-app-server', 'project_accounts_share_admission_without_sharing_policy_or_root_login'],
+        ['codex-core', 'service_policy'],
+        ['codex-http-client', 'service_policy'],
+        ['codex-core', 'guardian::review_session::setup::service_history_tests'],
+        ['codex-connectors', 'service_revision'],
+        ['codex-core', 'mcp_runtime_keeps_local_backend_without_a_selected_local_environment'],
+        ['codex-app-server', 'service_account'],
+        ['codex-app-server', 'service_http'],
+        ['codex-app-server-protocol', 'azrael'],
+        ['codex-app-server-protocol', 'schema_fixtures_tests::'],
+        ['codex-web-search-extension', 'only_explicit_custom_standalone_search_uses_chat_provider'],
+        ['codex-mcp', 'hosted_apps_service_auth_reaches_transport_without_conversation_fallback'],
+        ['codex-image-generation-extension', ''],
+        ['codex-core', 'service_reviewer_spawn_pins_account_and_catalog_across_main_switch'],
+        ['codex-core', 'guardian_review_session_config_uses_requirements_guardian_policy_config'],
+        ['codex-core', 'hosted_web_search_and_standalone_image_generation_follow_runtime_gates'],
+        ['codex-core', 'no_main_omits_openai_hosted_web_search_and_native_devin_omits_custom_hosted_search'],
+        ['codex-core', 'hosted_web_search_fallback_follows_winning_browser_runtime'],
+        ['codex-core', 'allowed_tools_filter_sources_before_code_mode_and_discovery'],
+        ['codex-core', 'code_mode_only_can_expose_namespaced_multi_agent_v2_as_normal_tools'],
+        ['codex-mcp-extension', 'service_selection_keeps_started_streams_and_rebinds_retained_openers'],
+        ['codex-mcp-extension', 'event_connections_open_after_runtime_shutdown_with_current_auth'],
+      ].filter(([crate]) => scope === 'all' || crate === 'codex-login').map(([crate, filter]) =>
+        ['test', '-p', crate, '--lib', '--locked', '--offline', filter, '--', '--test-threads=1']);
+      break;
+    }
     case 'check-agent-image-attachments': {
       const groups = { protocol: [['codex-protocol', 'inter_agent']], storage: [['codex-thread-store', 'image_snapshot']],
         core: ['image_attachments', 'agent_image_label', 'tool_message_transport', 'devin_recipient_requires_plaintext'].map(filter => ['codex-core', filter]) };
@@ -93,9 +131,15 @@ function reviewedRecipes(wrapper, tail, platform) {
       break;
     case 'check-selected-upstream-native': {
       const [scope, runtime, ...extra] = tail;
-      const needsHost = ['core-integration', 'code-mode-trace'].includes(scope);
+      const needsHost = ['core-integration', 'code-mode-trace', 'third-core'].includes(scope);
       if (extra.length || (needsHost ? !runtime : tail.length !== 1)) break;
       const choices = {
+        'third-small': [["codex-cloud-config","--lib","each_loader_owns_refresh_until_its_last_clone_is_dropped"],["codex-core-plugins","--lib","marketplace_"],["codex-voice-host","--lib","real_encoder_produces_twenty_millisecond_opus_packets"]],
+        'third-mcp': [["codex-mcp","--lib",""],["codex-config","--lib","requirements"],["codex-rmcp-client","--lib","recovered_tool_calls_use_current_session_capabilities"],["codex-mcp-extension","--test","hosted_apps_mcp",""]],
+        'third-models': [["codex-models-manager","--lib",""],["codex-model-provider","--lib","originator_tests"],["codex-core","--lib","originator_catalogs_preserve_"],["codex-core","--lib","new_uses_active_provider_for_model_refresh"]],
+        'third-core': [["codex-core","--test","all","suite::hooks::user_prompt_submit"],["codex-core","--test","all","guardian_denial_rejects_tool_call_with_rationale"],["codex-core","--test","all","code_mode_can_yield_and_resume_with_wait"],["codex-core","--test","all","originator_catalogs_control_turn_instructions_and_tools"],["codex-core","--lib","initial_settings_remain_pending_until_persistence_succeeds"]],
+        'third-appserver': [["codex-app-server","--lib","resume_history_reuse_tests"],["codex-app-server","--test","all","thread_resume::"],["codex-app-server","--test","all","resume_revalidates_persisted_thread_after_config_load"],["codex-app-server","--test","all","resume_reloads_config_when_saved_workspace_roots_change"]],
+        'third-tui': [["codex-tui","--lib","transcript_view"],["codex-tui","--lib","owned_transcript"],["codex-tui","--lib","transcript_composer"],["codex-tui","--lib","owned_prompt_revert_retained_history"]],
         'mcp-reload-state': [
           ['codex-config', '--lib', 'reload_local_mcp_servers'],
           ['codex-features', '--lib', 'incremental_tools_are_stable'],

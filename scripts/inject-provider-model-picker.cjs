@@ -58,12 +58,12 @@ function injectProviderModelPicker(text, asset) {
     }
     text = once(text, "toa[e.reasoningEffort]", "toa[e.reasoningEffort]??__azraelReasoningLabel(e.reasoningEffort)");
     text = once(text, "id:t.model,isLocked:t.model===u,label:", "id:t.model,catalogHost:t.__azraelCatalogHost,isLocked:t.model===u,label:");
-    text = once(text, "Te={beforeModels:he,defaultOption:Ce,options:we}", "Te={beforeModels:he,defaultOption:Ce,options:we,providerGroups:!0,catalogHost:g?.__azraelCatalogHost}");
+    text = once(text, "Te={beforeModels:he,defaultOption:Ce,options:we}", "Te={beforeModels:he,defaultOption:h?.length?Ce:null,options:we,providerGroups:!0,catalogHost:h?.__azraelCatalogHost}");
     // The unified native options keep their original selection/lock callbacks.
     // Include the model catalog in the compiled memo dependency for host tagging.
     text = once(text, "function lCa(e){let t=(0,uCa.c)(134)", "function lCa(e){let t=(0,uCa.c)(135)");
-    text = once(text, "t[59]!==he||t[60]!==Ce||t[61]!==we?", "t[59]!==he||t[60]!==Ce||t[61]!==we||t[134]!==g?");
-    text = once(text, "t[59]=he,t[60]=Ce,t[61]=we,t[62]=Te", "t[59]=he,t[60]=Ce,t[61]=we,t[134]=g,t[62]=Te");
+    text = once(text, "t[59]!==he||t[60]!==Ce||t[61]!==we?", "t[59]!==he||t[60]!==Ce||t[61]!==we||t[134]!==h?");
+    text = once(text, "t[59]=he,t[60]=Ce,t[61]=we,t[62]=Te", "t[59]=he,t[60]=Ce,t[61]=we,t[134]=h,t[62]=Te");
     text = once(text, "function ssa(e){let t=(0,dsa.c)(130)", "function ssa(e){let t=(0,dsa.c)(131)");
     text = once(text, "He=c.options.map(e)", "He=c.providerGroups?(0,K8.jsx)(__AzraelProviderModelList,{hostId:c.catalogHost,options:c.options,renderOption:e}):c.options.map(e)");
     text = once(text, "t[99]!==D||t[100]!==c.options||t[101]!==h", "t[99]!==D||t[100]!==c||t[101]!==h");

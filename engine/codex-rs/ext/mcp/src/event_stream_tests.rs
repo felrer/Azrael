@@ -155,6 +155,7 @@ impl Fixture {
         config.mcp_server_catalog = catalog.build();
         let config = Arc::new(config);
         let runtime_input = || McpRuntimeInput {
+            network_policy_metadata: None,
             startup_policy: McpStartupPolicy::Eager,
             config: Arc::clone(&config),
             plugins_available: false,
@@ -237,5 +238,136 @@ async fn event_connections_open_after_runtime_shutdown_with_current_auth() -> Re
     assert_eq!(timeout(WAIT, stream.recv()).await??, Some(expected));
     drop(stream);
     timeout(WAIT, remote.notifications.closed()).await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn service_selection_keeps_started_streams_and_rebinds_retained_openers() -> Result<()> {
+    let mut fixture = Fixture::new().await?;
+    let original = ConfigBuilder::default()
+        .codex_home(fixture._home.path().into())
+        .fallback_cwd(Some(fixture._home.path().into()))
+        .build()
+        .await?;
+    let template = AuthManager::azrael_service_template(&original);
+    assert!(
+        template.auth_cached().is_none(),
+        "service template must not adopt conversation credentials"
+    );
+    let accounts = Arc::new(codex_login::test_support::EphemeralServiceAccounts::new(
+        fixture._home.path(),
+    ));
+    let auth_a = codex_login::test_support::fixture_chatgpt_auth("service-a");
+    let auth_b = codex_login::test_support::fixture_chatgpt_auth("service-b");
+    let profile_a = accounts.create(&template, &auth_a).await?;
+    let profile_b = accounts.create(&template, &auth_b).await?;
+    let profile_a_id = profile_a.id().to_string();
+    let profile_b_id = profile_b.id().to_string();
+    accounts.selection.select(Some(profile_a_id.clone()))?;
+    drop(profile_a);
+    drop(profile_b);
+
+    let mut base = fixture.runtime_input.clone();
+    base.auth = None;
+    base.auth_manager = None;
+    let observed = Arc::new(std::sync::Mutex::new(Vec::<(
+        String,
+        std::sync::Weak<codex_login::AzraelProfileAuth>,
+        std::sync::Weak<AuthManager>,
+    )>::new()));
+    let observation = Arc::clone(&observed);
+    let build = Arc::new(move || {
+        let accounts = Arc::clone(&accounts);
+        let original = original.clone();
+        let mut input = base.clone();
+        let observation = Arc::clone(&observation);
+        Box::pin(async move {
+            let template = AuthManager::azrael_service_template(&original);
+            let binding = Arc::new(accounts.resolve(&template).await?);
+            let scoped = original.for_openai_service(binding.manager()).await?;
+            let mut config = (*input.config).clone();
+            config.azrael_service_auth = binding.manager().auth().await;
+            observation.lock().unwrap().push((
+                config
+                    .azrael_service_auth
+                    .as_ref()
+                    .and_then(CodexAuth::get_account_id)
+                    .unwrap(),
+                Arc::downgrade(&binding.profile),
+                Arc::downgrade(&binding.manager()),
+            ));
+            config.azrael_service_network_policy = Some(scoped.application_network_policy.clone());
+            config.azrael_service_account = Some(binding);
+            input.codex_apps_tools_cache_key = config.apps_runtime_cache_key(None);
+            input.config = Arc::new(config);
+            input.startup_cancellation_token = CancellationToken::new();
+            Ok(input)
+        }) as futures::future::BoxFuture<'static, Result<McpRuntimeInput>>
+    });
+    let initial = build().await?;
+    let selection = codex_login::AzraelServiceAccountStore::new(fixture._home.path());
+    fixture
+        .runtime
+        .set_service_request_resolver(codex_mcp::McpServiceRequestResolver::new(move || build()));
+    fixture.runtime.replace(initial).await;
+    let resources = McpResourceClient::new(Arc::clone(&fixture.runtime));
+    let retained = resources.event_stream_opener()?;
+    let mut stream_a = retained.open("test.event", &json!({}), None).await?;
+    let remote_a = timeout(WAIT, fixture.opened.recv()).await?.unwrap();
+    assert_eq!(remote_a.headers["chatgpt-account-id"], "service-a");
+
+    let selected_b = selection.select(Some(profile_b_id))?;
+    fixture.runtime.retire_stale_service_runtime(&selected_b);
+    let expected_a = remote_a.notify("notifications/events/active");
+    assert_eq!(timeout(WAIT, stream_a.recv()).await??, Some(expected_a));
+    let mut stream_b = retained.open("test.event", &json!({}), None).await?;
+    let remote_b = timeout(WAIT, fixture.opened.recv()).await?.unwrap();
+    assert_eq!(remote_b.headers["chatgpt-account-id"], "service-b");
+    let direct_b = resources
+        .open_event_stream("test.event", &json!({}), None)
+        .await?;
+    let direct_remote_b = timeout(WAIT, fixture.opened.recv()).await?.unwrap();
+    assert_eq!(direct_remote_b.headers["chatgpt-account-id"], "service-b");
+
+    codex_login::AzraelProfileStore::new(fixture._home.path().join("azrael/accounts"))
+        .publish_removal(&profile_a_id)?;
+    fixture.runtime.poll_service_profile_retirement();
+    assert!(
+        timeout(WAIT, stream_a.recv()).await?.is_err(),
+        "explicit retirement cancels A"
+    );
+    timeout(WAIT, remote_a.notifications.closed()).await?;
+    let expected_b = remote_b.notify("notifications/events/active");
+    assert_eq!(timeout(WAIT, stream_b.recv()).await??, Some(expected_b));
+    timeout(WAIT, async {
+        while observed
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(account, _, _)| account == "service-a")
+            .any(|(_, profile, manager)| profile.upgrade().is_some() || manager.upgrade().is_some())
+        {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await?;
+    drop(direct_b);
+    drop(stream_b);
+    timeout(WAIT, direct_remote_b.notifications.closed()).await?;
+    timeout(WAIT, remote_b.notifications.closed()).await?;
+    timeout(WAIT, async {
+        while observed
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(account, _, _)| account == "service-b")
+            .any(|(_, profile, manager)| profile.upgrade().is_some() || manager.upgrade().is_some())
+        {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await?;
+    // The retained opener remains usable and owns no retired profile lease.
+    drop(retained);
     Ok(())
 }

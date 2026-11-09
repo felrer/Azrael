@@ -17,9 +17,8 @@ use codex_extension_api::ThreadLifecycleContributor;
 use codex_extension_api::ThreadOriginator;
 use codex_extension_api::ThreadStartInput;
 use codex_extension_api::ToolContributor;
-use codex_http_client::HttpClientFactory;
 use codex_login::AuthManager;
-use codex_model_provider::create_model_provider;
+use codex_login::AzraelServiceAccountStore;
 use codex_model_provider_info::ModelProviderInfo;
 use codex_protocol::config_types::WebSearchContextSize;
 use codex_protocol::config_types::WebSearchMode;
@@ -33,29 +32,18 @@ struct WebSearchExtension {
 
 #[derive(Clone)]
 struct WebSearchExtensionConfig {
-    available: bool,
-    http_client_factory: HttpClientFactory,
-    provider: ModelProviderInfo,
-    settings: SearchSettings,
+    config: Arc<Config>,
 }
 
 impl From<&Config> for WebSearchExtensionConfig {
     fn from(config: &Config) -> Self {
-        let web_search_mode = config.web_search_mode.value();
         Self {
-            // Core selects this executor per turn using the feature flag or model metadata.
-            available: (config.model_provider.is_openai()
-                || config.model_provider.uses_openai_actor_authorization()
-                || config.model_provider.supports_standalone_web_search)
-                && web_search_mode != WebSearchMode::Disabled,
-            http_client_factory: config.http_client_factory(),
-            provider: config.model_provider.clone(),
-            settings: search_settings(config, web_search_mode),
+            config: Arc::new(config.clone()),
         }
     }
 }
 
-fn search_settings(config: &Config, web_search_mode: WebSearchMode) -> SearchSettings {
+pub(crate) fn search_settings(config: &Config, web_search_mode: WebSearchMode) -> SearchSettings {
     let web_search_config = config.web_search_config.as_ref();
     SearchSettings {
         user_location: web_search_config
@@ -130,23 +118,30 @@ impl ToolContributor for WebSearchExtension {
         let Some(config) = thread_store.get::<WebSearchExtensionConfig>() else {
             return Vec::new();
         };
-        if !config.available {
+        let config = &config.config;
+        if config.web_search_mode.value() == WebSearchMode::Disabled
+            || (!uses_provider_search(&config.model_provider)
+                && !AzraelServiceAccountStore::new(config.codex_home.as_path())
+                    .snapshot()
+                    .is_ok_and(|selection| selection.profile_id.is_some()))
+        {
             return Vec::new();
         }
 
         vec![Arc::new(WebSearchTool {
             session_id: session_store.level_id().to_string(),
-            http_client_factory: config.http_client_factory.clone(),
-            provider: create_model_provider(
-                config.provider.clone(),
-                Some(self.auth_manager.clone()),
-            ),
-            settings: config.settings.clone(),
+            config: Arc::clone(config),
+            auth_manager: Arc::clone(&self.auth_manager),
             originator: thread_store
                 .get::<ThreadOriginator>()
                 .map(|originator| originator.0.clone()),
         })]
     }
+}
+
+/// Explicit custom standalone search remains owned by that provider.
+pub(crate) fn uses_provider_search(provider: &ModelProviderInfo) -> bool {
+    !provider.is_openai() && provider.supports_standalone_web_search
 }
 
 pub fn install(registry: &mut ExtensionRegistryBuilder<Config>, auth_manager: Arc<AuthManager>) {
@@ -158,22 +153,11 @@ pub fn install(registry: &mut ExtensionRegistryBuilder<Config>, auth_manager: Ar
 
 #[cfg(test)]
 mod tests {
-    use codex_extension_api::ExtensionData;
-    use codex_extension_api::ExtensionRegistryBuilder;
-    use codex_extension_api::ToolName;
-    use codex_http_client::HttpClientFactory;
-    use codex_http_client::OutboundProxyPolicy;
-    use codex_login::CodexAuth;
     use codex_model_provider_info::ModelProviderInfo;
     use pretty_assertions::assert_eq;
 
-    use super::AuthManager;
-    use super::Config;
-    use super::WebSearchExtensionConfig;
     use super::external_web_access_for_mode;
-    use super::install;
-    use crate::tool::RUN_TOOL_NAME;
-    use crate::tool::WEB_NAMESPACE;
+    use super::uses_provider_search;
     use codex_api::ExternalWebAccess;
     use codex_api::ExternalWebAccessMode;
     use codex_protocol::config_types::WebSearchMode;
@@ -198,32 +182,12 @@ mod tests {
     }
 
     #[test]
-    fn installed_extension_contributes_web_run_when_enabled() {
-        let mut builder = ExtensionRegistryBuilder::<Config>::new();
-        install(
-            &mut builder,
-            AuthManager::from_auth_for_testing(CodexAuth::from_api_key("dummy")),
-        );
-        let registry = builder.build();
-        let session_store = ExtensionData::new("session");
-        let thread_store = ExtensionData::new("11111111-1111-4111-8111-111111111111");
-        thread_store.insert(WebSearchExtensionConfig {
-            available: true,
-            http_client_factory: HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
-            provider: ModelProviderInfo::create_openai_provider(/*base_url*/ None),
-            settings: Default::default(),
-        });
-
-        let tool_names = registry
-            .tool_contributors()
-            .iter()
-            .flat_map(|contributor| contributor.tools(&session_store, &thread_store))
-            .map(|tool| (tool.tool_name(), tool.supports_parallel_tool_calls()))
-            .collect::<Vec<_>>();
-
-        assert_eq!(
-            tool_names,
-            vec![(ToolName::namespaced(WEB_NAMESPACE, RUN_TOOL_NAME), true)]
-        );
+    fn only_explicit_custom_standalone_search_uses_chat_provider() {
+        let mut provider = ModelProviderInfo::create_openai_provider(None);
+        assert!(!uses_provider_search(&provider));
+        provider.name = "Custom search".to_string();
+        assert!(uses_provider_search(&provider));
+        provider.supports_standalone_web_search = false;
+        assert!(!uses_provider_search(&provider));
     }
 }

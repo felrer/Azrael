@@ -46,6 +46,18 @@ macOS의 protected metadata 쓰기는 실제 filesystem의 case sensitivity와 w
 
 Azrael은 VS Code 확장 하나로 채팅, 계정, 모델, 사용량, 진단 화면을 제공한다. 설치된 공식 Codex 확장 또는 별도 Codex 실행 파일을 채팅 backend로 활성화하지 않는다. Azrael이 자체 빌드한 하나의 실행기 인스턴스가 모든 provider의 대화 진행, 공통 지침, 도구와 권한, 세션 기록, 큐, 압축, 취소, 재개를 소유한다. 최신 공개 Codex 소스는 이 실행기를 발전시키는 기준으로 사용하며, 소스 버전과 실행 파일의 출처를 기록한다. 소스 갱신과 모델 목록 갱신은 서로 다른 작업이다.
 
+### 선택 이식의 입력·MCP·모델 경계
+
+상태: `target`. `engine.selected-upstream`이 구현 소유자와 필수 검사를 연결한다. source·선택 테스트·설치 수용의 실제 범위는 [선택 이식 작업](../../../work/DO-01-codex-version-comparison/08-plan.md)이 소유한다.
+
+Prompt telemetry는 UserPromptSubmit hook이 수락한 입력에만 발행한다. 거부된 입력은 prompt telemetry에 남기지 않으며 queued·steered 입력과 Guardian 검토 prompt도 수락 뒤 한 번만 기록한다. 재개 설정 checkpoint는 같은 thread의 마지막 저장 설정과 현재 effective settings가 다르거나 저장값이 없을 때 기록한다. 초기 설정·권한 복원과 턴 없이 변경 설정을 저장하는 동작은 유지한다. 페이지형 재개는 기존 ID·경로·기록 모드·revision 검증과 실패 시 다시 읽기를 유지한다.
+
+MCP runtime overlay는 명시적 비활성화와 requirements 거부를 구분해 보존한다. 신뢰된 host-owned Apps 교체만 이전 등록의 requirements 거부를 무시할 수 있으며 명시적 비활성화, 후속 사용자 등록에 대한 거부, Azrael 환경 권한·SelectedPlugin·EMA 규칙은 유지한다. 선택적 network-policy provider가 있고 신뢰된 ChatGPT origin인 연결에서만 capability를 광고한다. 실제 session도 capability를 지원할 때만 호출의 `_meta`에 정책을 넣는다. 호출자가 넣은 예약 정책 metadata는 제거하고, 캡처한 permission profile·server environment에서 한 호출의 정책 snapshot을 한 번 결정해 연결 복구에도 유지한다. 정책 계산 실패 시 전송하지 않는다. provider가 없는 기존 호출과 metadata를 해석하지 않는 서버에 정책 강제를 새로 부여하지 않는다.
+
+지원되는 thread originator의 native 모델 목록은 요청 header·메모리 catalog·디스크 cache를 분리한다. 지원하지 않는 originator는 기본 manager를 사용하며 originator 결정·상속과 명시적 thread manager override가 우선한다. Managed·Devin wrapper는 scoped native manager를 감싸면서 provider 소유 모델 목록과 갱신 상태를 유지한다. HTTP(S) marketplace의 사용자 정보 영역에 리터럴 backslash가 있으면 허용 host 판단 전에 거절해 URL parser와 Git transport의 목적지 해석 차이를 막는다.
+
+Rust TUI의 연속된 visible 사용자 prompt는 하나의 배경으로 묶는다. 숨겨진 항목은 인접성 판정에서 건너뛰되 검색·상세 보기로 중간 항목이 보이면 분리한다. 줄바꿈·선택 source offset·layout cache를 보존한다. 이 계약은 VS Code webview 대화 화면의 변경을 포함하지 않는다.
+
 ### 분석 상태와 Code Mode trace
 
 상태: `target`, [선택 업데이트 작업](../../../work/DO-01-codex-version-comparison/02-plan.md)의 소스 구현 및 native 수락 범위를 따른다. 미완료 turn의 분석 상태는 최대 256개를 보관하고 새 turn 유입 시 가장 오래된 상태와 연결된 pending 분석 정보를 함께 버린다. 기존 turn 갱신은 보관 순서를 바꾸지 않는다. `ThreadClosed`는 해당 thread의 분석 상태를 정리하며 다른 thread와 정상 완료·한 번만 발행하는 이벤트 계약은 유지한다. 이 상한은 대화 기록·사용량 원장·사용자 큐를 삭제하는 정책이 아니다. 상한을 넘긴 오래된 background tool의 분석 정보도 폐기될 수 있다.

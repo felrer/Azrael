@@ -2925,6 +2925,103 @@
           "type": "object"
         },
         {
+          "description": "Host-owned HTTP services use an independent, request-bound OpenAI identity.",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/v2/RequestId"
+            },
+            "method": {
+              "enum": [
+                "azrael/service/auth"
+              ],
+              "title": "Azrael/service/authRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/v2/AzraelServiceAuthParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Azrael/service/authRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/v2/RequestId"
+            },
+            "method": {
+              "enum": [
+                "azrael/service/http"
+              ],
+              "title": "Azrael/service/httpRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/v2/AzraelServiceHttpParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Azrael/service/httpRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/v2/RequestId"
+            },
+            "method": {
+              "enum": [
+                "azrael/service/http/cancel"
+              ],
+              "title": "Azrael/service/http/cancelRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/v2/AzraelServiceRequestEndParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Azrael/service/http/cancelRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/v2/RequestId"
+            },
+            "method": {
+              "enum": [
+                "azrael/service/request/end"
+              ],
+              "title": "Azrael/service/request/endRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/v2/AzraelServiceRequestEndParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Azrael/service/request/endRequest",
+          "type": "object"
+        },
+        {
           "properties": {
             "id": {
               "$ref": "#/definitions/v2/RequestId"
@@ -7400,6 +7497,58 @@
             "type": "object"
           },
           {
+            "anyOf": [
+              {
+                "properties": {
+                  "image_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "image_url"
+                ],
+                "title": "ImageUrlAgentMessageInputContent",
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "file_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file_id"
+                ],
+                "title": "FileIdAgentMessageInputContent",
+                "type": "object"
+              }
+            ],
+            "properties": {
+              "detail": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/v2/ImageDetail"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": {
+                "enum": [
+                  "input_image"
+                ],
+                "title": "InputImageAgentMessageInputContentType",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "title": "InputImageAgentMessageInputContent",
+            "type": "object"
+          },
+          {
             "properties": {
               "encrypted_content": {
                 "type": "string"
@@ -8512,6 +8661,7 @@
           "loginCancel",
           "remove",
           "switch",
+          "serviceSelect",
           "cancelSwitch",
           "usage",
           "consumeResetCredit",
@@ -8652,6 +8802,16 @@
                 "format": "uint32",
                 "minimum": 0.0,
                 "type": "integer"
+              },
+              "serviceAccount": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/v2/AzraelServiceAccountState"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             },
             "required": [
@@ -8796,6 +8956,16 @@
             "format": "uint32",
             "minimum": 0.0,
             "type": "integer"
+          },
+          "serviceAccount": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/AzraelServiceAccountState"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -8858,6 +9028,214 @@
           "userId",
           "workspaceAccountId"
         ],
+        "type": "object"
+      },
+      "AzraelServiceAccountReadiness": {
+        "enum": [
+          "unconfigured",
+          "checking",
+          "ready",
+          "reauthRequired",
+          "unavailable",
+          "policyBlocked"
+        ],
+        "type": "string"
+      },
+      "AzraelServiceAccountState": {
+        "description": "Service identity is independent from the project's inference account.",
+        "properties": {
+          "profileId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/definitions/v2/AzraelServiceAccountReadiness"
+          }
+        },
+        "required": [
+          "revision",
+          "state"
+        ],
+        "type": "object"
+      },
+      "AzraelServiceAuthParams": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "profileId": {
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "refreshToken": {
+            "default": false,
+            "type": "boolean"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "revision": {
+            "default": null,
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "requestId"
+        ],
+        "title": "AzraelServiceAuthParams",
+        "type": "object"
+      },
+      "AzraelServiceAuthResponse": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "authMethod": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/AuthMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authToken": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "profileId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requiresOpenaiAuth": {
+            "type": "boolean"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "requiresOpenaiAuth",
+          "revision"
+        ],
+        "title": "AzraelServiceAuthResponse",
+        "type": "object"
+      },
+      "AzraelServiceHttpCancelResponse": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "AzraelServiceHttpCancelResponse",
+        "type": "object"
+      },
+      "AzraelServiceHttpParams": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "body": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "default": {},
+            "type": "object"
+          },
+          "method": {
+            "type": "string"
+          },
+          "profileId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "profileId",
+          "requestId",
+          "revision",
+          "url"
+        ],
+        "title": "AzraelServiceHttpParams",
+        "type": "object"
+      },
+      "AzraelServiceHttpResponse": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "bodyBase64": {
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "status": {
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "bodyBase64",
+          "headers",
+          "status"
+        ],
+        "title": "AzraelServiceHttpResponse",
+        "type": "object"
+      },
+      "AzraelServiceRequestEndParams": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId"
+        ],
+        "title": "AzraelServiceRequestEndParams",
+        "type": "object"
+      },
+      "AzraelServiceRequestEndResponse": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "AzraelServiceRequestEndResponse",
         "type": "object"
       },
       "AzraelUsageWindowSchedule": {

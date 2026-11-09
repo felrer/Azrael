@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use codex_config::CONFIG_TOML_FILE;
 use codex_config::ConfigLayerSource;
 use codex_config::McpServerConfig;
-use codex_config::McpServerDisabledReason;
 use codex_config::RequirementSource;
 use codex_config::RequirementsLayerEntry;
 use codex_config::compose_requirements_for_hostname;
@@ -163,10 +162,7 @@ impl Environment {
                         .get(&name)
                         .is_some_and(|requirement| server.matches_requirement(requirement))
                 {
-                    server.enabled = false;
-                    server.disabled_reason = Some(McpServerDisabledReason::Requirements {
-                        source: requirements.source.clone(),
-                    });
+                    server.disable_by_requirements(requirements.source.clone());
                 }
                 (name, server)
             })

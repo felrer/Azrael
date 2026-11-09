@@ -16,6 +16,17 @@ use tempfile::tempdir;
 
 const CODEX_APPS_MCP_SERVER_NAME: &str = "codex_apps";
 
+#[test]
+fn service_revision_partitions_runtime_identity_without_changing_native_identity() {
+    let native =
+        ConnectorRuntimeContextKey::personal(Some("account".to_string()), Some("user".to_string()));
+    assert_eq!(native.clone().with_service_revision(None), native);
+    assert_ne!(
+        native.clone().with_service_revision(Some(1)),
+        native.clone().with_service_revision(Some(2))
+    );
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct TestTool {
     server_name: String,
@@ -53,6 +64,7 @@ fn create_codex_apps_tools_cache_context(
     ConnectorRuntimeManager::<TestTool>::default().context(
         codex_home,
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: account_id.map(ToOwned::to_owned),
             chatgpt_user_id: chatgpt_user_id.map(ToOwned::to_owned),
             is_workspace_account: false,
@@ -352,6 +364,7 @@ fn codex_apps_tools_cache_publishes_newest_shared_snapshot() {
     let cache_context_1 = cache.context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-one".to_string()),
             chatgpt_user_id: Some("user-one".to_string()),
             is_workspace_account: false,
@@ -360,6 +373,7 @@ fn codex_apps_tools_cache_publishes_newest_shared_snapshot() {
     let cache_context_2 = cache.context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-one".to_string()),
             chatgpt_user_id: Some("user-one".to_string()),
             is_workspace_account: false,
@@ -397,6 +411,7 @@ fn codex_apps_tools_cache_keeps_live_publish_when_disk_persistence_fails() {
     let cache_context = ConnectorRuntimeManager::<TestTool>::default().context(
         codex_home_file,
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-one".to_string()),
             chatgpt_user_id: Some("user-one".to_string()),
             is_workspace_account: false,
@@ -427,6 +442,7 @@ fn connector_runtime_without_cache_ignores_disk_state() {
     let context = ConnectorRuntimeManager::<TestTool>::new_without_cache().context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-one".to_string()),
             chatgpt_user_id: Some("user-one".to_string()),
             is_workspace_account: false,
@@ -444,6 +460,7 @@ fn connector_runtime_without_cache_publishes_without_writing() {
     let context = ConnectorRuntimeManager::<TestTool>::new_without_cache().context(
         codex_home.clone(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-one".to_string()),
             chatgpt_user_id: Some("user-one".to_string()),
             is_workspace_account: false,
@@ -471,6 +488,7 @@ fn codex_apps_tools_cache_scopes_non_utf8_home_disk_paths() {
     let user_one_context = cache.context(
         codex_home.clone(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-one".to_string()),
             chatgpt_user_id: Some("user-one".to_string()),
             is_workspace_account: false,
@@ -479,6 +497,7 @@ fn codex_apps_tools_cache_scopes_non_utf8_home_disk_paths() {
     let user_two_context = cache.context(
         codex_home,
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-two".to_string()),
             chatgpt_user_id: Some("user-two".to_string()),
             is_workspace_account: false,
@@ -540,6 +559,7 @@ fn contexts_for_different_identities_keep_isolated_snapshots() {
     let context_a = manager.context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-a".to_string()),
             chatgpt_user_id: Some("user-a".to_string()),
             is_workspace_account: false,
@@ -557,6 +577,7 @@ fn contexts_for_different_identities_keep_isolated_snapshots() {
     let context_b = manager.context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-b".to_string()),
             chatgpt_user_id: Some("user-b".to_string()),
             is_workspace_account: false,
@@ -567,6 +588,7 @@ fn contexts_for_different_identities_keep_isolated_snapshots() {
     let same_context_a = manager.context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account-a".to_string()),
             chatgpt_user_id: Some("user-a".to_string()),
             is_workspace_account: false,
@@ -797,6 +819,7 @@ fn personal_and_workspace_contexts_are_distinct_even_with_matching_ids() {
     let personal_context = manager.context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account".to_string()),
             chatgpt_user_id: Some("user".to_string()),
             is_workspace_account: false,
@@ -812,6 +835,7 @@ fn personal_and_workspace_contexts_are_distinct_even_with_matching_ids() {
     let workspace_context = manager.context(
         codex_home.path().to_path_buf(),
         ConnectorRuntimeContextKey {
+            service_revision: None,
             account_id: Some("account".to_string()),
             chatgpt_user_id: Some("user".to_string()),
             is_workspace_account: true,

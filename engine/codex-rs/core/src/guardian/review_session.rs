@@ -108,6 +108,7 @@ pub(crate) struct GuardianReviewSessionParams {
     // Checkpoint selection and thread-owned prompt evidence must use the same history.
     pub(crate) parent_history: ContextManager,
     pub(crate) spawn_config: Config,
+    pub(super) service_reviewer: Option<Arc<super::reviewer_config::ServiceReviewer>>,
     pub(crate) node_repl_policy: GuardianNodeReplPolicy,
     pub(crate) request: GuardianApprovalRequest,
     pub(crate) category: GuardianScope,
@@ -194,6 +195,7 @@ pub struct GuardianReviewSessionReuseKey {
     root_review_version: Option<(crate::codex_thread::GuardianAuthorizationVersion, u64)>,
     node_repl_auto_review_required: bool,
     node_repl_policy: String,
+    service_identity: Option<(String, u64)>,
     model: Option<String>,
     model_provider_id: String,
     model_provider: ModelProviderInfo,
@@ -238,6 +240,7 @@ impl GuardianReviewSessionReuseKey {
             },
             node_repl_auto_review_required: false,
             node_repl_policy: String::new(),
+            service_identity: None,
             model: spawn_config.model.clone(),
             model_provider_id: spawn_config.model_provider_id.clone(),
             model_provider: spawn_config.model_provider.clone(),
@@ -336,10 +339,13 @@ async fn run_review_on_session(
     deadline: tokio::time::Instant,
 ) -> ReviewSessionResult {
     let review_model = &params.review_model;
-    let model_info = params
-        .parent_session
-        .services
-        .models_manager
+    let models = params
+        .service_reviewer
+        .as_ref()
+        .map_or(&params.parent_session.services.models_manager, |service| {
+            &service.models
+        });
+    let model_info = models
         .get_model_info(
             review_model.model.as_str(),
             &params.spawn_config.to_models_manager_config(),

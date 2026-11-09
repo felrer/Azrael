@@ -423,6 +423,14 @@ impl McpRequestProcessor {
                 }
                 None => self.load_latest_config(/*fallback_cwd*/ None).await?,
             };
+            let config = if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+                // Status includes ordinary MCP servers even when the independent Apps account is unavailable.
+                codex_core::connectors::service_request_config(&config, &self.auth_manager)
+                    .await
+                    .unwrap_or(config)
+            } else {
+                config
+            };
             let mcp_manager = self.thread_manager.mcp_manager();
             let auth = self.auth_manager.auth().await;
             let (mcp_config, runtime_context) = match thread.as_ref() {
@@ -623,6 +631,13 @@ impl McpRequestProcessor {
         }
 
         let config = self.load_latest_config(/*fallback_cwd*/ None).await?;
+        let config = if server == codex_mcp::CODEX_APPS_MCP_SERVER_NAME {
+            codex_core::connectors::service_request_config(&config, &self.auth_manager)
+                .await
+                .map_err(|error| internal_error(format!("Apps service unavailable: {error}")))?
+        } else {
+            config
+        };
         let mcp_manager = self.thread_manager.mcp_manager();
         let mcp_config = mcp_manager.runtime_config(&config).await;
         let codex_apps_tools_cache = mcp_manager.codex_apps_tools_cache();

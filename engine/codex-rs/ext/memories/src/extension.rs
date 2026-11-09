@@ -13,7 +13,6 @@ use codex_extension_api::PromptFragment;
 use codex_extension_api::ThreadLifecycleContributor;
 use codex_extension_api::ThreadStartInput;
 use codex_extension_api::ToolContributor;
-use codex_features::Feature;
 use codex_otel::MetricsClient;
 use codex_protocol::MemoryVersion;
 use codex_utils_absolute_path::AbsolutePathBuf;
@@ -45,7 +44,7 @@ pub(crate) struct MemoriesExtensionConfig {
 impl MemoriesExtensionConfig {
     fn from_config(config: &Config) -> Self {
         Self {
-            enabled: config.features.enabled(Feature::MemoryTool) && config.memories.use_memories,
+            enabled: config.long_term_memories_enabled() && config.memories.use_memories,
             dedicated_tools: config.memories.dedicated_tools,
             codex_home: config.codex_home.clone(),
             version: config.memories.version,

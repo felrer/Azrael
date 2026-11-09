@@ -194,6 +194,16 @@ impl Session {
             error!("MCP runtime refresh semaphore closed");
             return;
         };
+        // Resolve once at this logical-operation boundary. A policy-rejected
+        // service account must not keep the reconciliation loop dirty forever.
+        if !self
+            .services
+            .mcp_runtime
+            .current_service_account_matches(&self.services.auth_manager)
+            .await
+        {
+            self.mark_mcp_runtime_dirty();
+        }
         loop {
             // Compare and rebuild from current environments, not choices saved for a future turn.
             let environments = self.services.turn_environments.snapshot().await;
@@ -336,12 +346,14 @@ impl Session {
             )
             .await;
         let selected_plugins = mcp_projection.selected_plugins.clone();
-        let input = self.build_mcp_runtime_input(
-            &desired,
-            mcp_projection,
-            &ready_selected_capability_roots,
-            Some(self.mcp_elicitation_reviewer()),
-        );
+        let input = self
+            .build_mcp_runtime_input(
+                &desired,
+                mcp_projection,
+                &ready_selected_capability_roots,
+                Some(self.mcp_elicitation_reviewer()),
+            )
+            .await;
         anyhow::ensure!(
             input.mcp_servers.contains_key(CODEX_APPS_MCP_SERVER_NAME),
             "unknown MCP server '{CODEX_APPS_MCP_SERVER_NAME}'"

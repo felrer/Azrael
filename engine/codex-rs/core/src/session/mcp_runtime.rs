@@ -7,7 +7,6 @@
 use super::session::SessionConfiguration;
 use super::*;
 use crate::mcp::McpRuntimeProjection;
-use codex_config::McpServerDisabledReason;
 use codex_config::McpServerTransportConfig;
 use codex_file_system::WindowsSandboxSelection;
 use codex_mcp::CODEX_APPS_MCP_SERVER_NAME;
@@ -256,10 +255,7 @@ impl Session {
                             .get(&name)
                             .is_some_and(|requirement| server.matches_requirement(requirement))
                     {
-                        server.enabled = false;
-                        server.disabled_reason = Some(McpServerDisabledReason::Requirements {
-                            source: requirements.source.clone(),
-                        });
+                        server.disable_by_requirements(requirements.source.clone());
                     }
                     registered.insert(name.clone());
                     catalog
@@ -296,19 +292,21 @@ impl Session {
             )
             .await;
         let selected_plugins = mcp_projection.selected_plugins.clone();
-        let input = self.build_mcp_runtime_input(
-            desired,
-            mcp_projection,
-            ready_selected_capability_roots,
-            elicitation_reviewer,
-        );
+        let input = self
+            .build_mcp_runtime_input(
+                desired,
+                mcp_projection,
+                ready_selected_capability_roots,
+                elicitation_reviewer,
+            )
+            .await;
         AuthStorageOriginator::from_client_name(&desired.originator)
             .scope(self.services.mcp_runtime.replace(input))
             .await;
         self.services.thread_extension_data.insert(selected_plugins);
     }
 
-    pub(super) fn build_mcp_runtime_input(
+    pub(super) async fn build_mcp_runtime_input(
         &self,
         desired: &McpDesiredState,
         mcp_projection: McpRuntimeProjection,
@@ -321,6 +319,32 @@ impl Session {
             plugins_available,
             selected_plugins: _,
         } = mcp_projection;
+        if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+            match crate::connectors::service_request_config(
+                &desired.config,
+                &self.services.auth_manager,
+            )
+            .await
+            {
+                Ok(service_config) => {
+                    config.azrael_service_account = service_config.azrael_service_account.clone();
+                    config.azrael_service_auth = config
+                        .azrael_service_account
+                        .as_ref()
+                        .and_then(|binding| binding.manager().auth_cached());
+                    config.azrael_service_network_policy =
+                        Some(service_config.application_network_policy.clone());
+                }
+                Err(error) => {
+                    // A missing/expired service account only removes the hosted Apps server.
+                    // The conversation and all configured MCP/OAuth servers retain their auth.
+                    tracing::debug!(%error, "Apps service unavailable");
+                    config.azrael_service_account = None;
+                    config.azrael_service_auth = None;
+                    config.azrael_service_network_policy = None;
+                }
+            }
+        }
         config.approval_policy = desired.config.permissions.approval_policy.clone();
         config.permission_profile = desired.config.permissions.effective_permission_profile();
         config.approvals_reviewer = desired.config.approvals_reviewer;
@@ -376,11 +400,12 @@ impl Session {
             desired.environments.all_selections().into(),
             desired.environments.ready_environment_handles(),
         );
-        McpRuntimeInput {
+        let input = McpRuntimeInput {
+            network_policy_metadata: None,
             // Reuse compatible tool catalogs without starting an unused per-thread server.
             // Cold catalogs and explicitly selected plugin servers still start eagerly.
             startup_policy: McpStartupPolicy::LazyWhenCached,
-            config: mcp_config,
+            config: Arc::clone(&mcp_config),
             plugins_available,
             ready_selected_capability_roots: ready_selected_capability_roots.to_vec(),
             mcp_servers,
@@ -390,12 +415,58 @@ impl Session {
             runtime_context,
             codex_apps_tools_cache: self.services.mcp_manager.codex_apps_tools_cache(),
             tool_catalog_cache: self.services.mcp_manager.tool_catalog_cache(),
-            codex_apps_tools_cache_key: connector_runtime_context_key(auth.as_ref()),
+            codex_apps_tools_cache_key: mcp_config.apps_runtime_cache_key(auth.as_ref()),
             client_mcp_extensions: self.services.client_mcp_extensions.for_mcp_servers(),
             auth,
             auth_manager: Some(Arc::clone(&self.services.auth_manager)),
             elicitation_reviewer,
             elicitation_lifecycle: Some(self.mcp_elicitation_lifecycle()),
+        };
+        if std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some() {
+            let mut original = (*desired.config).clone();
+            original.azrael_service_account = None;
+            let mut base = input.clone();
+            let mut config = (*base.config).clone();
+            config.azrael_service_account = None;
+            config.azrael_service_auth = None;
+            config.azrael_service_network_policy = None;
+            base.config = Arc::new(config);
+            base.auth = None;
+            base.auth_manager = None;
+            // Retained request factories contain policy/route metadata only. In
+            // particular they never retain the turn's selected profile manager.
+            self.services.mcp_runtime.set_service_request_resolver(
+                codex_mcp::McpServiceRequestResolver::new(move || {
+                    let original = original.clone();
+                    let mut input = base.clone();
+                    Box::pin(async move {
+                        let template = AuthManager::azrael_service_template(&original);
+                        let binding = Arc::new(
+                            codex_login::AzraelServiceAccountStore::new(
+                                original.codex_home.as_path(),
+                            )
+                            .resolve(&template)
+                            .await?,
+                        );
+                        let scoped = original.for_openai_service(binding.manager()).await?;
+                        let mut config = (*input.config).clone();
+                        config.azrael_service_auth = binding.manager().auth().await;
+                        config.azrael_service_network_policy =
+                            Some(scoped.application_network_policy.clone());
+                        config.azrael_service_account = Some(binding);
+                        input.mcp_servers = effective_mcp_servers(&config, None);
+                        input
+                            .mcp_servers
+                            .retain(|name, _| name == CODEX_APPS_MCP_SERVER_NAME);
+                        input.codex_apps_tools_cache_key = config.apps_runtime_cache_key(None);
+                        input.config = Arc::new(config);
+                        input.startup_cancellation_token = CancellationToken::new();
+                        input.startup_policy = McpStartupPolicy::Eager;
+                        Ok(input)
+                    })
+                }),
+            );
         }
+        input
     }
 }

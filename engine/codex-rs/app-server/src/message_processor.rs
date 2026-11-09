@@ -1090,6 +1090,8 @@ impl MessageProcessor {
     ) {
         session_state.rpc_gate.close().await;
         self.account_processor
+            .service_http_connection_closed(connection_id);
+        self.account_processor
             .gateway_connection_closed(connection_id);
         self.request_serialization_queues.discard_closed().await;
         self.outgoing
@@ -2129,6 +2131,36 @@ impl MessageProcessor {
                 .map(|response| Some(response.into())),
             ClientRequest::GetAuthStatus { params, .. } => {
                 self.account_processor.get_auth_status(params).await
+            }
+            ClientRequest::AzraelServiceAuth { params, .. } => {
+                self.account_processor
+                    .service_auth_status(connection_id, &session.rpc_gate, &request_context, params)
+                    .await
+            }
+            ClientRequest::AzraelServiceHttp { params, .. } => {
+                self.account_processor
+                    .service_http(connection_id, &session.rpc_gate, &request_context, params)
+                    .await
+            }
+            ClientRequest::AzraelServiceHttpCancel { params, .. } => {
+                self.account_processor.service_request_end(
+                    connection_id,
+                    &session.rpc_gate,
+                    params,
+                )?;
+                Ok(Some(
+                    codex_app_server_protocol::AzraelServiceHttpCancelResponse {}.into(),
+                ))
+            }
+            ClientRequest::AzraelServiceRequestEnd { params, .. } => {
+                self.account_processor.service_request_end(
+                    connection_id,
+                    &session.rpc_gate,
+                    params,
+                )?;
+                Ok(Some(
+                    codex_app_server_protocol::AzraelServiceRequestEndResponse {}.into(),
+                ))
             }
             ClientRequest::AzraelAccount { params, .. } => {
                 self.account_processor

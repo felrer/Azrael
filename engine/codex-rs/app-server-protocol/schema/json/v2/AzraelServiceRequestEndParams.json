@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "requestId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "requestId"
+  ],
+  "title": "AzraelServiceRequestEndParams",
+  "type": "object"
+}

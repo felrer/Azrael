@@ -491,6 +491,22 @@ impl ConfigLayerStack {
         &self.requirements_toml
     }
 
+    /// Replaces already-composed requirements while retaining runtime layer
+    /// identity, project discovery state, warnings and policy bindings.
+    pub fn with_requirements(
+        &self,
+        requirements: ConfigRequirements,
+        requirements_toml: ConfigRequirementsToml,
+    ) -> std::io::Result<Self> {
+        let mut stack = self.clone();
+        stack.model_provider_requirements = Some(crate::model_provider_requirements::to_config(
+            &requirements_toml,
+        )?);
+        stack.requirements = requirements;
+        stack.requirements_toml = requirements_toml;
+        Ok(stack)
+    }
+
     /// Creates a new [ConfigLayerStack] using the specified values to inject one
     /// user layer into the stack. If such a layer already exists, it is replaced;
     /// otherwise, it is inserted into the stack at the appropriate position

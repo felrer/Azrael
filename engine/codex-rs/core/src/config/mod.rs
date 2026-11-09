@@ -43,7 +43,6 @@ use codex_config::types::AuthCredentialsStoreMode;
 use codex_config::types::AuthKeyringBackendKind;
 use codex_config::types::History;
 use codex_config::types::McpServerConfig;
-use codex_config::types::McpServerDisabledReason;
 use codex_config::types::MemoriesConfig;
 use codex_config::types::ModelAvailabilityNuxConfig;
 use codex_config::types::Notice;
@@ -177,6 +176,7 @@ mod permissions;
 mod requirements;
 mod resolved_permission_profile;
 mod runtime_refresh;
+mod service_policy;
 pub(crate) use runtime_refresh::RuntimeConfigRefresh;
 #[cfg(test)]
 mod schema;
@@ -611,6 +611,8 @@ pub enum ThreadStoreConfig {
 /// Application configuration loaded from disk and merged with overrides.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Config {
+    /// Request-scoped independent service credential and its usage lease.
+    pub azrael_service_account: Option<Arc<codex_login::AzraelServiceAccountBinding>>,
     pub role_profile: Option<codex_protocol::protocol::RoleProfilePolicy>,
     /// Validated harness catalog with eagerly captured behavior templates.
     pub harness_profiles: codex_config::harness_profiles::HarnessProfiles,
@@ -1867,6 +1869,9 @@ impl Config {
         }
 
         McpConfig {
+            azrael_service_account: self.azrael_service_account.clone(),
+            azrael_service_auth: self.azrael_service_account.as_ref().and_then(|binding| binding.manager().auth_cached()),
+            azrael_service_network_policy: self.azrael_service_account.as_ref().map(|_| self.application_network_policy.clone()),
             chatgpt_base_url: self.chatgpt_base_url.clone(),
             apps_mcp_product_sku: self.apps_mcp_product_sku.clone(),
             requires_read_only_mcp_tools: false,
@@ -2237,10 +2242,7 @@ fn filter_mcp_servers_by_requirements(
         if allowed {
             server.disabled_reason = None;
         } else {
-            server.enabled = false;
-            server.disabled_reason = Some(McpServerDisabledReason::Requirements {
-                source: source.clone(),
-            });
+            server.disable_by_requirements(source.clone());
         }
     }
 }
@@ -2273,10 +2275,7 @@ fn filter_plugin_mcp_servers_by_requirements(
         if allowed {
             server.disabled_reason = None;
         } else {
-            server.enabled = false;
-            server.disabled_reason = Some(McpServerDisabledReason::Requirements {
-                source: source.clone(),
-            });
+            server.disable_by_requirements(source.clone());
         }
     }
 }
@@ -4551,6 +4550,7 @@ impl Config {
             config_layer_stack,
             application_network_policy: Default::default(),
             application_auth_route_config: None,
+            azrael_service_account: None,
             history,
             ephemeral: ephemeral.unwrap_or_default(),
             extra_config: None,
@@ -4890,6 +4890,18 @@ impl Config {
 
     pub fn bundled_skills_enabled(&self) -> bool {
         codex_config::bundled_skills_enabled_from_stack(&self.config_layer_stack)
+    }
+
+    /// Azrael disables automatic long-term memory independently of user settings.
+    /// Ordinary CLI sessions retain the configured memory feature.
+    pub fn long_term_memories_enabled(&self) -> bool {
+        self.long_term_memories_enabled_for_host(
+            std::env::var_os("AZRAEL_EX_MANAGEMENT_SOCKET").is_some(),
+        )
+    }
+
+    fn long_term_memories_enabled_for_host(&self, azrael_host: bool) -> bool {
+        !azrael_host && self.features.enabled(Feature::MemoryTool)
     }
 
     /// Returns whether effective requirements allow selecting a concrete profile.

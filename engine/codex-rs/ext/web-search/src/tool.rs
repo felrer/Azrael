@@ -2,8 +2,8 @@ use codex_api::SearchClient;
 use codex_api::SearchCommands;
 use codex_api::SearchQuery;
 use codex_api::SearchRequest;
-use codex_api::SearchSettings;
 use codex_core::X_CODEX_TURN_METADATA_HEADER;
+use codex_core::config::Config;
 use codex_core::web_search_action_detail;
 use codex_extension_api::ExtensionTurnItem;
 use codex_extension_api::FunctionCallError;
@@ -18,10 +18,12 @@ use codex_extension_items::ExtensionItem;
 use codex_extension_items::web_search::WebSearchAction;
 use codex_extension_items::web_search::WebSearchItem;
 use codex_http_client::ClientRouteClass;
-use codex_http_client::HttpClientFactory;
+use codex_login::AuthManager;
+use codex_login::AzraelServiceAccountStore;
 use codex_login::default_client::add_originator_header;
 use codex_login::default_client::create_transport_for_routes_async;
-use codex_model_provider::SharedModelProvider;
+use codex_model_provider::create_model_provider;
+use codex_model_provider_info::ModelProviderInfo;
 use codex_protocol::models::WebSearchAction as CoreWebSearchAction;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::WebSearchBeginEvent;
@@ -32,8 +34,11 @@ use codex_tools::ToolExposure;
 use codex_tools::default_namespace_description;
 use http::HeaderMap;
 use http::HeaderValue;
+use std::sync::Arc;
 use url::Url;
 
+use crate::extension::search_settings;
+use crate::extension::uses_provider_search;
 use crate::history::recent_input;
 use crate::output::SearchOutput;
 use crate::schema::commands_schema;
@@ -45,9 +50,8 @@ const RESULTS_PAYLOAD_BYTES_METRIC: &str = "codex.web_search.results.payload_byt
 
 pub(crate) struct WebSearchTool {
     pub(crate) session_id: String,
-    pub(crate) http_client_factory: HttpClientFactory,
-    pub(crate) provider: SharedModelProvider,
-    pub(crate) settings: SearchSettings,
+    pub(crate) config: Arc<Config>,
+    pub(crate) auth_manager: Arc<AuthManager>,
     pub(crate) originator: Option<String>,
 }
 
@@ -100,18 +104,73 @@ impl WebSearchTool {
     ) -> Result<Box<dyn ToolOutput>, FunctionCallError> {
         let commands = parse_commands(&call)?;
         let command_action = command_action(&commands);
-        let provider = self
-            .provider
+        let mut request_config = self.config.as_ref().clone();
+        let (model_provider, model) = if uses_provider_search(&request_config.model_provider) {
+            (
+                create_model_provider(
+                    request_config.model_provider.clone(),
+                    Some(Arc::clone(&self.auth_manager)),
+                ),
+                call.model.clone(),
+            )
+        } else {
+            let binding = Arc::new(
+                AzraelServiceAccountStore::new(request_config.codex_home.as_path())
+                    .resolve(&self.auth_manager)
+                    .await
+                    .map_err(|err| FunctionCallError::RespondToModel(err.to_string()))?,
+            );
+            request_config.model_provider_id = "openai".to_string();
+            request_config.model_provider = ModelProviderInfo::create_openai_provider(None);
+            request_config.azrael_service_account = Some(Arc::clone(&binding));
+            request_config = request_config
+                .for_openai_service(binding.manager())
+                .await
+                .map_err(|err| FunctionCallError::RespondToModel(err.to_string()))?;
+            if request_config.model_provider != ModelProviderInfo::create_openai_provider(None)
+                || request_config.model_provider_id != "openai"
+            {
+                return Err(FunctionCallError::RespondToModel(
+                    "service policy does not permit the built-in OpenAI web executor".to_string(),
+                ));
+            }
+            let provider = create_model_provider(
+                request_config.model_provider.clone(),
+                Some(binding.manager()),
+            );
+            let models = provider
+                .models_manager_without_cache(None)
+                .try_list_models()
+                .map_err(|err| FunctionCallError::RespondToModel(err.to_string()))?;
+            let model = models
+                .iter()
+                .find(|model| model.is_default)
+                .or_else(|| models.first())
+                .map(|model| model.model.clone())
+                .filter(|model| !model.is_empty())
+                .ok_or_else(|| {
+                    FunctionCallError::RespondToModel(
+                        "OpenAI web service has no available default model".to_string(),
+                    )
+                })?;
+            (provider, model)
+        };
+        let web_search_mode = request_config.web_search_mode.value();
+        if web_search_mode == codex_protocol::config_types::WebSearchMode::Disabled {
+            return Err(FunctionCallError::RespondToModel(
+                "web search is disabled".to_string(),
+            ));
+        }
+        let provider = model_provider
             .api_provider()
             .await
             .map_err(|err| FunctionCallError::Fatal(err.to_string()))?;
-        let auth = self
-            .provider
+        let auth = model_provider
             .api_auth()
             .await
             .map_err(|err| FunctionCallError::Fatal(err.to_string()))?;
         let transport = create_transport_for_routes_async(
-            self.http_client_factory.clone(),
+            request_config.http_client_factory(),
             ClientRouteClass::Api,
         )
         .await
@@ -119,11 +178,11 @@ impl WebSearchTool {
         let client = SearchClient::new(transport, provider, auth);
         let request = SearchRequest {
             id: self.session_id.clone(),
-            model: call.model.clone(),
+            model,
             reasoning: None,
             input: recent_input(call.conversation_history.items()),
             commands: Some(commands),
-            settings: Some(self.settings.clone()),
+            settings: Some(search_settings(&request_config, web_search_mode)),
             max_output_tokens: Some(
                 u64::try_from(call.truncation_policy.token_budget()).unwrap_or(u64::MAX),
             ),

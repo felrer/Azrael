@@ -20,7 +20,7 @@ const guardedCargoWrappers = new Set([
   "check-capacity-recovery", "check-task-profile-skills", "check-project-maintenance", "check-error-classification-native",
   "check-task-recovery-native", "check-usage-window", "check-edit-message-native",
   "check-deletion-approval-native",
-  "check-executor-completion", "check-role-profiles-native", "check-task-memory", "check-find-names", "check-agent-image-attachments",
+  "check-executor-completion", "check-role-profiles-native", "check-service-auth-native", "check-task-memory", "check-find-names", "check-agent-image-attachments",
 ].map(name => `scripts/${name}.cjs`));
 
 function validateCargoPreflight(check) {

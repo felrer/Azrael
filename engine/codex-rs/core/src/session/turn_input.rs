@@ -551,9 +551,6 @@ async fn start_or_steer(
             session
                 .maybe_emit_model_warnings_for_turn(turn_context.as_ref())
                 .await;
-            if let SubmittedTurnInput::UserInput { content, .. } = &input {
-                turn_context.session_telemetry.user_prompt(content);
-            }
             let acceptance_order = session
                 .journal_user_input_with_root(
                     &input,
@@ -738,9 +735,6 @@ async fn start_if_idle(
     match kind {
         TurnStartKind::User => {
             session.clear_connector_selection().await;
-            if let SubmittedTurnInput::UserInput { content, .. } = &input {
-                turn_context.session_telemetry.user_prompt(content);
-            }
             task_input.push(with_acceptance_order(
                 pending_turn_input(session, input, &turn_context.sub_id, origin).await,
                 acceptance_order,
@@ -1014,20 +1008,14 @@ impl Session {
         }
 
         let input = match input {
-            SubmittedTurnInput::UserInput { content, client_id } => {
-                active_task
-                    .turn_context
-                    .session_telemetry
-                    .user_prompt(content);
-                TurnInput::UserInput {
-                    content: std::mem::take(content),
-                    client_id: client_id.clone(),
-                    metadata: super::UserInputMetadata {
-                        acceptance_order,
-                        origin,
-                    },
-                }
-            }
+            SubmittedTurnInput::UserInput { content, client_id } => TurnInput::UserInput {
+                content: std::mem::take(content),
+                client_id: client_id.clone(),
+                metadata: super::UserInputMetadata {
+                    acceptance_order,
+                    origin,
+                },
+            },
             input => pending_turn_input(self, input.clone(), active_turn_id, origin).await,
         };
         pending_input.push(input);
