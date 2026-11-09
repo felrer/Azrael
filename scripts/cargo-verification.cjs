@@ -17,7 +17,7 @@ const guardedCargoWrappers = new Set([
   "check-parent-requests", "check-api-context", "check-root-resume-reasoning", "check-model-harness-profiles",
   "check-task-work-time-native", "check-response-tps-native", "check-thread-auto-compaction", "check-devin-compaction",
   "check-capacity-recovery", "check-task-profile-skills", "check-project-maintenance", "check-error-classification-native",
-  "check-task-recovery-native", "check-usage-window",
+  "check-task-recovery-native", "check-usage-window", "check-edit-message-native",
   "check-deletion-approval-native",
   "check-executor-completion", "check-role-profiles-native", "check-task-memory", "check-find-names", "check-agent-image-attachments",
 ].map(name => `scripts/${name}.cjs`));

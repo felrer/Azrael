@@ -110,6 +110,12 @@ pub(super) async fn revert(
     )
     .await?;
 
+    // Accepted inputs can still be pending when a turn is interrupted before its user
+    // message reaches the rollout. Cutting the rollout alone would let resume recover
+    // those inputs into the replacement history.
+    let discarded_receipts =
+        pending_inputs_outside_prefix(store, thread_id, &lineage, history_base).await?;
+
     let forked_from_ordinal_exclusive =
         codex_rollout::forked_from_ordinal_exclusive(&source_meta, Some(source_path.as_path()))
             .map(|cutoff| {
@@ -125,12 +131,21 @@ pub(super) async fn revert(
         rollout_id,
         history_base,
         forked_from_ordinal_exclusive,
-        writer_lock,
+        writer_lock.clone(),
     )
     .await?;
     let replacement_path = recorder.rollout_path().to_path_buf();
     recorder.persist().await.map_err(thread_store_io_error)?;
     recorder.shutdown().await.map_err(thread_store_io_error)?;
+
+    // The queue and thread metadata use separate databases. Stage the exact receipts
+    // against the replacement identity before publishing it, and activate only after
+    // the cutover. Resume repeats activation under writer ownership after a crash.
+    state_db
+        .thread_queue()
+        .stage_user_input_revert(thread_id, rollout_id, &discarded_receipts)
+        .await
+        .map_err(thread_store_io_error)?;
 
     let replaced = state_db
         .replace_rollout_path_if_current(
@@ -143,12 +158,79 @@ pub(super) async fn revert(
             message: format!("failed to switch thread {thread_id} to reverted rollout: {err}"),
         })?;
     if !replaced {
+        state_db
+            .thread_queue()
+            .discard_user_input_revert(thread_id, rollout_id)
+            .await
+            .map_err(thread_store_io_error)?;
         let _ = tokio::fs::remove_file(replacement_path.as_path()).await;
         return Err(ThreadStoreError::Conflict {
             message: format!("thread {thread_id} changed while it was being reverted"),
         });
     }
+    state_db
+        .thread_queue()
+        .apply_user_input_revert(thread_id, rollout_id)
+        .await
+        .map_err(thread_store_io_error)?;
     Ok(())
+}
+
+async fn pending_inputs_outside_prefix(
+    store: &LocalThreadStore,
+    thread_id: ThreadId,
+    lineage: &super::rollout_lineage::RolloutLineage,
+    history_base: Option<codex_protocol::protocol::HistoryPosition>,
+) -> ThreadStoreResult<Vec<String>> {
+    let state_db = store
+        .state_db()
+        .await
+        .ok_or(ThreadStoreError::Unsupported {
+            operation: "revert_thread",
+        })?;
+    let pending = state_db
+        .thread_queue()
+        .pending_user_inputs(thread_id)
+        .await
+        .map_err(thread_store_io_error)?;
+    let pool = store.thread_history_db().await?;
+    let retained_segment = history_base.and_then(|base| {
+        lineage
+            .segments()
+            .iter()
+            .position(|segment| segment.rollout_id() == base.thread_id)
+    });
+    let mut discarded = Vec::new();
+    for receipt in pending {
+        // A missing persisted boundary is uncertain, not permission to drop an
+        // acknowledged input. Reject the edit instead of replaying or losing it.
+        let row = super::thread_history::find_source_turn(pool, lineage, &receipt.turn_id).await?;
+        let segment = lineage
+            .segments()
+            .iter()
+            .position(|segment| segment.rollout_id() == row.rollout_id)
+            .ok_or_else(|| ThreadStoreError::Internal {
+                message: "accepted input turn is outside revert lineage".to_string(),
+            })?;
+        let retained = match (history_base, retained_segment) {
+            (Some(base), Some(retained_segment)) => {
+                segment < retained_segment
+                    || (segment == retained_segment
+                        && u64::try_from(row.rollout_ordinal)
+                            .is_ok_and(|ordinal| ordinal < base.end_ordinal_exclusive))
+            }
+            (None, _) => false,
+            _ => {
+                return Err(ThreadStoreError::Internal {
+                    message: "revert prefix is outside source lineage".to_string(),
+                });
+            }
+        };
+        if !retained {
+            discarded.push(receipt.receipt_id);
+        }
+    }
+    Ok(discarded)
 }
 
 async fn create_replacement_recorder(
@@ -200,7 +282,7 @@ async fn create_replacement_recorder(
         })
 }
 
-fn thread_store_io_error(err: std::io::Error) -> ThreadStoreError {
+fn thread_store_io_error(err: impl std::fmt::Display) -> ThreadStoreError {
     ThreadStoreError::Internal {
         message: err.to_string(),
     }

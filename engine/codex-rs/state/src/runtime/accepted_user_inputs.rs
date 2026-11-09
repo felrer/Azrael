@@ -190,6 +190,85 @@ impl SqliteQueueStore {
             > 0)
     }
 
+    /// Stage retirement before selecting a replacement rollout, without consuming custody.
+    /// The caller must apply this intent only when that rollout is selected.
+    pub async fn stage_user_input_revert(
+        &self,
+        thread_id: ThreadId,
+        rollout_id: ThreadId,
+        receipt_ids: &[String],
+    ) -> anyhow::Result<()> {
+        let mut transaction = self.pool.begin_with("BEGIN IMMEDIATE").await?;
+        for receipt_id in receipt_ids {
+            let exists: bool = sqlx::query_scalar(
+                "SELECT EXISTS(SELECT 1 FROM accepted_user_inputs
+                 WHERE thread_id = ? AND receipt_id = ?)",
+            )
+            .bind(thread_id.to_string())
+            .bind(receipt_id)
+            .fetch_one(transaction.as_mut())
+            .await?;
+            anyhow::ensure!(exists, "reverted receipt does not belong to the thread");
+            sqlx::query(
+                "INSERT OR IGNORE INTO accepted_user_input_reverts
+                 (thread_id, rollout_id, receipt_id) VALUES (?, ?, ?)",
+            )
+            .bind(thread_id.to_string())
+            .bind(rollout_id.to_string())
+            .bind(receipt_id)
+            .execute(transaction.as_mut())
+            .await?;
+        }
+        transaction.commit().await?;
+        Ok(())
+    }
+
+    /// Atomically retire staged receipts for the selected rollout and clear its intent.
+    pub async fn apply_user_input_revert(
+        &self,
+        thread_id: ThreadId,
+        rollout_id: ThreadId,
+    ) -> anyhow::Result<()> {
+        let mut transaction = self.pool.begin_with("BEGIN IMMEDIATE").await?;
+        sqlx::query(
+            "UPDATE accepted_user_inputs SET state = 'consumed', payload_json = NULL
+             WHERE thread_id = ? AND state = 'pending' AND receipt_id IN (
+                 SELECT receipt_id FROM accepted_user_input_reverts
+                 WHERE thread_id = ? AND rollout_id = ?
+             )",
+        )
+        .bind(thread_id.to_string())
+        .bind(thread_id.to_string())
+        .bind(rollout_id.to_string())
+        .execute(transaction.as_mut())
+        .await?;
+        sqlx::query(
+            "DELETE FROM accepted_user_input_reverts WHERE thread_id = ? AND rollout_id = ?",
+        )
+        .bind(thread_id.to_string())
+        .bind(rollout_id.to_string())
+        .execute(transaction.as_mut())
+        .await?;
+        transaction.commit().await?;
+        Ok(())
+    }
+
+    /// Discard an intent whose replacement rollout was not selected.
+    pub async fn discard_user_input_revert(
+        &self,
+        thread_id: ThreadId,
+        rollout_id: ThreadId,
+    ) -> anyhow::Result<()> {
+        sqlx::query(
+            "DELETE FROM accepted_user_input_reverts WHERE thread_id = ? AND rollout_id = ?",
+        )
+        .bind(thread_id.to_string())
+        .bind(rollout_id.to_string())
+        .execute(self.pool.as_ref())
+        .await?;
+        Ok(())
+    }
+
     /// Include tombstones when seeding acceptance order after a restart.
     pub async fn max_user_input_order(&self, thread_id: ThreadId) -> anyhow::Result<Option<u64>> {
         let order: Option<i64> = sqlx::query_scalar(

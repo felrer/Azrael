@@ -198,6 +198,8 @@ The native timeline/page selection, latest-turn-first item budget, item cursor c
 
 ### Native history projection after revert
 
+Pending accepted-input retirement and restart behavior are owned by [accepted inputs after message editing](reload-recovery.md#accepted-inputs-after-message-editing). A visible history cut and delivery-journal custody must agree before the edited request is admitted.
+
 Status: `partial`: common thread-store implementation; focused Windows native checks verify derived projection repair independently of installed-host acceptance.
 
 Paginated history projection cursors and rows belong to the concrete immutable rollout ID. A same-thread revert can select a different rollout while retaining earlier segment references; appends to the replacement use its own cursor and preserve the earlier segment projections. An older derived projection version is rebuilt lazily from authoritative rollout data. A same-ID shortened rollout is rebuilt only after validating its complete prefix, and a transaction compares the original cursor before replacing derived rows. Changed cursors, malformed or incomplete shortened data fail without discarding the existing projection. Original rollout files are never rewritten by projection repair.

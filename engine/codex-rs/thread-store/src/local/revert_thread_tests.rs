@@ -27,6 +27,149 @@ use crate::ThreadPersistenceMetadata;
 use crate::ThreadStore;
 
 #[tokio::test]
+async fn revert_retires_only_pending_inputs_outside_retained_prefix() {
+    let home = TempDir::new().expect("temp dir");
+    let config = test_config(home.path());
+    let state_db = codex_state::StateRuntime::init(
+        config.sqlite.clone(),
+        config.default_model_provider_id.clone(),
+    )
+    .await
+    .expect("state");
+    let store = LocalThreadStore::new(config, Some(state_db.clone()));
+    let thread_id = ThreadId::new();
+    create_paginated_thread(&store, thread_id).await;
+    store
+        .append_items(AppendThreadItemsParams {
+            thread_id,
+            // Reproduce interruption after admission but before recording the user item.
+            items: vec![
+                turn_started("kept"),
+                turn_completed("kept"),
+                turn_started("edited"),
+                turn_completed("edited"),
+                turn_started("later"),
+                turn_completed("later"),
+            ],
+        })
+        .await
+        .expect("append turns");
+    for (order, turn) in ["kept", "edited", "later"].into_iter().enumerate() {
+        state_db
+            .thread_queue()
+            .accept_user_input(thread_id, Some(turn), turn, order as u64, "{}", turn)
+            .await
+            .expect("pending receipt");
+    }
+    shutdown_and_index_thread(&store, state_db.as_ref(), thread_id).await;
+    store
+        .revert_thread(RevertThreadParams {
+            thread_id,
+            before_turn_id: "edited".into(),
+            multi_agent_version: None,
+        })
+        .await
+        .expect("revert");
+    assert_eq!(turn_ids(&store, thread_id).await, vec!["kept"]);
+    let pending = state_db
+        .thread_queue()
+        .pending_user_inputs(thread_id)
+        .await
+        .expect("pending after revert");
+    assert_eq!(pending.len(), 1);
+    assert_eq!(pending[0].turn_id, "kept");
+    for turn in ["edited", "later"] {
+        let receipt = state_db
+            .thread_queue()
+            .user_input_receipt(thread_id, turn)
+            .await
+            .expect("lookup")
+            .expect("retry tombstone");
+        assert_eq!(receipt.state, codex_state::AcceptedUserInputState::Consumed);
+        assert_eq!(receipt.payload_json, None);
+        assert_eq!(receipt.payload_sha256, turn);
+    }
+}
+
+#[tokio::test]
+async fn resume_completes_selected_revert_intent_before_returning_history() {
+    let home = TempDir::new().expect("temp dir");
+    let config = test_config(home.path());
+    let state_db = codex_state::StateRuntime::init(
+        config.sqlite.clone(),
+        config.default_model_provider_id.clone(),
+    )
+    .await
+    .expect("state");
+    let store = LocalThreadStore::new(config.clone(), Some(state_db.clone()));
+    let thread_id = ThreadId::new();
+    create_paginated_thread(&store, thread_id).await;
+    store
+        .append_items(AppendThreadItemsParams {
+            thread_id,
+            items: vec![turn_started("edited"), turn_completed("edited")],
+        })
+        .await
+        .expect("append turn");
+    shutdown_and_index_thread(&store, state_db.as_ref(), thread_id).await;
+    store
+        .revert_thread(RevertThreadParams {
+            thread_id,
+            before_turn_id: "edited".into(),
+            multi_agent_version: None,
+        })
+        .await
+        .expect("select replacement");
+    let selected = super::super::thread_rollout_resolver::resolve_current(&store, thread_id)
+        .await
+        .expect("resolve")
+        .expect("selected rollout");
+    let codex_state::AcceptUserInputOutcome::Added(receipt) = state_db
+        .thread_queue()
+        .accept_user_input(thread_id, Some("old"), "edited", 0, "{}", "old-digest")
+        .await
+        .expect("receipt")
+    else {
+        panic!("new receipt");
+    };
+    // Recreate the durable state at a crash between path cutover and intent application.
+    state_db
+        .thread_queue()
+        .stage_user_input_revert(thread_id, selected.rollout_id, &[receipt.receipt_id])
+        .await
+        .expect("stage intent");
+    drop(store);
+    let store = LocalThreadStore::new(config, Some(state_db.clone()));
+    store
+        .resume_thread(ResumeThreadParams {
+            thread_id,
+            rollout_path: None,
+            history: None,
+            history_revision: None,
+            include_archived: false,
+            metadata: ThreadPersistenceMetadata {
+                cwd: Some(home.path().to_path_buf()),
+                model_provider: "test-provider".into(),
+                memory_mode: ThreadMemoryMode::Enabled,
+            },
+        })
+        .await
+        .expect("resume");
+    assert!(
+        state_db
+            .thread_queue()
+            .pending_user_inputs(thread_id)
+            .await
+            .expect("pending")
+            .is_empty()
+    );
+    store
+        .shutdown_thread(thread_id)
+        .await
+        .expect("shutdown resumed");
+}
+
+#[tokio::test]
 async fn revert_keeps_thread_id_and_hides_suffix_across_repeated_reverts() {
     let home = TempDir::new().expect("temp dir");
     let config = test_config(home.path());
@@ -340,6 +483,29 @@ async fn create_paginated_thread(store: &LocalThreadStore, thread_id: ThreadId) 
         })
         .await
         .expect("create paginated thread");
+}
+
+async fn shutdown_and_index_thread(
+    store: &LocalThreadStore,
+    state_db: &codex_state::StateRuntime,
+    thread_id: ThreadId,
+) {
+    let path = store
+        .live_rollout_path(thread_id)
+        .await
+        .expect("rollout path");
+    store.shutdown_thread(thread_id).await.expect("shutdown");
+    // Synthetic turn markers do not create the normal thread metadata row.
+    codex_rollout::state_db::reconcile_rollout(
+        Some(state_db),
+        path.as_path(),
+        "test-provider",
+        None,
+        &[],
+        Some(false),
+        None,
+    )
+    .await;
 }
 
 async fn turn_ids(store: &LocalThreadStore, thread_id: ThreadId) -> Vec<String> {

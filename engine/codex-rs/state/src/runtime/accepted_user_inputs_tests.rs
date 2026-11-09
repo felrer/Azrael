@@ -24,6 +24,147 @@ fn added(outcome: AcceptUserInputOutcome) -> AcceptedUserInputRecord {
 }
 
 #[tokio::test]
+async fn staged_revert_survives_restart_and_only_selected_rollout_consumes_once() {
+    let runtime = runtime().await;
+    let thread = ThreadId::new();
+    let rollout = ThreadId::new();
+    let record = added(
+        runtime
+            .thread_queue()
+            .accept_user_input_with_root(
+                thread,
+                Some("client"),
+                "turn",
+                Some("root"),
+                7,
+                r#"{"text":"removed"}"#,
+                "digest",
+            )
+            .await
+            .unwrap(),
+    );
+    for _ in 0..2 {
+        runtime
+            .thread_queue()
+            .stage_user_input_revert(thread, rollout, std::slice::from_ref(&record.receipt_id))
+            .await
+            .unwrap();
+    }
+    assert_eq!(
+        vec![record.clone()],
+        runtime
+            .thread_queue()
+            .pending_user_inputs(thread)
+            .await
+            .unwrap()
+    );
+    let config = runtime.sqlite().clone();
+    runtime.close().await;
+    let reopened = StateRuntime::init(config, "test-provider".to_string())
+        .await
+        .unwrap();
+    let queue = reopened.thread_queue();
+    queue
+        .apply_user_input_revert(thread, ThreadId::new())
+        .await
+        .unwrap();
+    assert_eq!(
+        vec![record.clone()],
+        queue.pending_user_inputs(thread).await.unwrap()
+    );
+    for _ in 0..2 {
+        queue
+            .apply_user_input_revert(thread, rollout)
+            .await
+            .unwrap();
+    }
+    assert!(queue.pending_user_inputs(thread).await.unwrap().is_empty());
+    assert_eq!(
+        Some(AcceptedUserInputRecord {
+            state: AcceptedUserInputState::Consumed,
+            payload_json: None,
+            ..record
+        }),
+        queue.user_input_receipt(thread, "client").await.unwrap()
+    );
+    let remaining: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM accepted_user_input_reverts")
+        .fetch_one(queue.pool.as_ref())
+        .await
+        .unwrap();
+    assert_eq!(0, remaining);
+}
+
+#[tokio::test]
+async fn revert_intents_validate_atomically_and_discard_only_the_named_thread_rollout() {
+    let runtime = runtime().await;
+    let queue = runtime.thread_queue();
+    let first = ThreadId::new();
+    let second = ThreadId::new();
+    let rollout = ThreadId::new();
+    let mut records = Vec::new();
+    for thread in [first, second] {
+        records.push(added(
+            queue
+                .accept_user_input(thread, Some("client"), "turn", 0, "{}", "digest")
+                .await
+                .unwrap(),
+        ));
+    }
+    for invalid in [records[1].receipt_id.clone(), "missing".to_string()] {
+        assert!(
+            queue
+                .stage_user_input_revert(first, rollout, &[records[0].receipt_id.clone(), invalid])
+                .await
+                .is_err()
+        );
+        queue.apply_user_input_revert(first, rollout).await.unwrap();
+        assert_eq!(
+            vec![records[0].clone()],
+            queue.pending_user_inputs(first).await.unwrap()
+        );
+    }
+    for record in &records {
+        queue
+            .stage_user_input_revert(
+                record.thread_id,
+                rollout,
+                std::slice::from_ref(&record.receipt_id),
+            )
+            .await
+            .unwrap();
+    }
+    queue
+        .discard_user_input_revert(first, rollout)
+        .await
+        .unwrap();
+    queue.apply_user_input_revert(first, rollout).await.unwrap();
+    assert_eq!(
+        vec![records[0].clone()],
+        queue.pending_user_inputs(first).await.unwrap()
+    );
+    assert_eq!(
+        vec![records[1].clone()],
+        queue.pending_user_inputs(second).await.unwrap()
+    );
+    queue
+        .apply_user_input_revert(second, rollout)
+        .await
+        .unwrap();
+    assert!(queue.pending_user_inputs(second).await.unwrap().is_empty());
+
+    queue
+        .stage_user_input_revert(first, rollout, &[records[0].receipt_id.clone()])
+        .await
+        .unwrap();
+    assert!(queue.delete_thread_queue(first).await.unwrap());
+    let remaining: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM accepted_user_input_reverts")
+        .fetch_one(queue.pool.as_ref())
+        .await
+        .unwrap();
+    assert_eq!(0, remaining);
+}
+
+#[tokio::test]
 async fn pending_receipt_survives_restart_with_complete_payload() {
     let runtime = runtime().await;
     let thread = ThreadId::new();

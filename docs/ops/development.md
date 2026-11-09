@@ -479,6 +479,8 @@ The Codex environment snapshot uses `scripts/sync-codex-environment.cjs` with `s
 
 ## Message editing and immediate stop
 
+Run `node scripts/check-edit-message-native.cjs <absolute frozen engine source root>` through the managed Cargo environment for accepted-input retirement and thread-store revert/resume checks. It executes nonempty state and thread-store test filters, including retained-prefix custody and restart completion of a selected retirement intent. These checks use isolated state and make no provider requests. Live edited-message inference and installed-host acceptance remain separate.
+
 Run `node --test scripts/test-paginated-history.cjs scripts/test-immediate-stop.cjs scripts/test-edit-stop-integration.cjs scripts/test-thread-branch.cjs` from the project root with the pinned pristine UI and installed TypeScript available. These checks execute transformed native functions, asynchronous cancellation fixtures and the asset-cache path without compiling or installing a package. The guarded transforms require one creation and one stop patch in prepared assets.
 
 New persistent conversations use paginated history and `thread/revert` for editing. Existing legacy conversations are not converted by this change. Verify send → immediate stop → edit → resend in a newly prepared host separately; source fixtures do not establish installed behavior.

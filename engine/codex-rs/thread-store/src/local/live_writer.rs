@@ -114,6 +114,25 @@ pub(super) async fn resume_thread(
         params.thread_id,
         history_mode,
     )?;
+    if let Some(state_db) = store.state_db().await
+        && super::thread_rollout_resolver::resolve_current_including_archived(
+            store,
+            params.thread_id,
+        )
+        .await?
+        .is_some_and(|current| current.rollout_id == rollout_id)
+    {
+        // An interrupted revert may have published this immutable rollout before
+        // retiring its old accepted inputs. Complete that intent before Core can
+        // recover pending receipts; an unselected rollout cannot activate it.
+        state_db
+            .thread_queue()
+            .apply_user_input_revert(params.thread_id, rollout_id)
+            .await
+            .map_err(|err| ThreadStoreError::Internal {
+                message: format!("failed to retire reverted user inputs before resume: {err}"),
+            })?;
+    }
     let recorder = RolloutRecorder::new_with_writer_lock(
         &config,
         RolloutRecorderParams::resume(rollout_path),
