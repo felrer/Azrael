@@ -7,9 +7,27 @@ const vm = require("node:vm");
 const { test } = require("node:test");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { ASSETS, HOST_ASSET, FRONTEND_ASSET, injectRequestState } = require("./inject-request-state.cjs");
+const { AUTH_SHELL_MARKER, SEND_REQUEST_ADMISSION_PREFIX, injectAuthShell } = require("./inject-auth-shell.cjs");
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434");
 const originals = new Map(ASSETS.map(asset => [asset, fs.readFileSync(path.join(root, asset), "utf8")]));
 const outputs = new Map(ASSETS.map(asset => [asset, injectRequestState(originals.get(asset), asset)]));
+
+// Preserve exact recognition when either transform's method prefix changes.
+test("request state recognizes complete auth-shell composition and rejects damaged admission", () => {
+  const requestState = outputs.get(FRONTEND_ASSET).text;
+  assert.deepEqual(injectRequestState(requestState, FRONTEND_ASSET), { text: requestState, count: 0 });
+  const composed = injectAuthShell(requestState, FRONTEND_ASSET).text;
+  assert.deepEqual(injectRequestState(composed, FRONTEND_ASSET), { text: composed, count: 0 });
+  for (const damaged of [
+    composed.replace(SEND_REQUEST_ADMISSION_PREFIX, "async sendRequest(e,t,n){if(this.dispatchMessage"),
+    composed.replace(SEND_REQUEST_ADMISSION_PREFIX, SEND_REQUEST_ADMISSION_PREFIX.replace("if(r)throw Error(r)", "if(r)throw Error('changed')")),
+    composed.replace(SEND_REQUEST_ADMISSION_PREFIX, SEND_REQUEST_ADMISSION_PREFIX + SEND_REQUEST_ADMISSION_PREFIX),
+    composed.replace(AUTH_SHELL_MARKER, ""),
+    composed + AUTH_SHELL_MARKER,
+    requestState + AUTH_SHELL_MARKER,
+  ]) assert.throws(() => injectRequestState(damaged, FRONTEND_ASSET), /Damaged request state transformation/);
+});
+
 const plain = value => JSON.parse(JSON.stringify(value));
 const tick = () => new Promise(resolve => setImmediate(resolve));
 test('ordinary host wrapper keeps strict mode and request state inside its process scope', () => {

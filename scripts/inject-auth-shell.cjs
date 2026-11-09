@@ -2,6 +2,7 @@
 
 const AUTH_SHELL_ASSET = "webview/assets/app-initial-7a199c66e670.js";
 const MARKER = "/*azrael-auth-shell-v1*/";
+const SEND_REQUEST_ADMISSION_PREFIX = "async sendRequest(e,t,n){if([`turn/start`,`thread/compact/start`].includes(e)){let r=__azraelProviderCatalog.admission(this.hostId,t?.model);if(r)throw Error(r)}if(this.dispatchMessage";
 
 // Keep the native editor, submit tooltip and picker components. Only their
 // availability changes; connection recovery never calls the submission callback.
@@ -45,11 +46,11 @@ function injectAuthShell(text, asset) {
   once('function Ypa(e){"use forget";', 'function Ypa(e){"use forget";e=__azraelUseModelAdmission(e);');
   once("function ewa(e){let t=", "function ewa(e){e=__azraelUseSubmitAdmission(e);let t=");
   once("function lCa(e){let t=", "function lCa(e){e=__azraelUsePickerAdmission(e);let t=");
-  once("async sendRequest(e,t,n){if(this.dispatchMessage", "async sendRequest(e,t,n){if([`turn/start`,`thread/compact/start`].includes(e)){let r=__azraelProviderCatalog.admission(this.hostId,t?.model);if(r)throw Error(r)}if(this.dispatchMessage");
+  once("async sendRequest(e,t,n){if(this.dispatchMessage", SEND_REQUEST_ADMISSION_PREFIX);
   // Preserve the native account UI and managed OAuth flow instead of exposing
   // the upstream root login page as another execution-authentication owner.
   text += `\nfunction __azraelUseModelAdmission(props){return (${useModelAdmission.toString()})(T5,__azraelProviderCatalog,props)}\nfunction __azraelUseSubmitAdmission(props){return (${useSubmitAdmission.toString()})(D7,__azraelProviderCatalog,props)}\nfunction __azraelUsePickerAdmission(props){let state=(${useSubmitAdmission.toString()})(G8,__azraelProviderCatalog,{...props,executionTargetHostId:props.models?.__azraelCatalogHost??props.modelOptions?.__azraelCatalogHost});return state.submitDisabled?{...props,disabled:true,reasoningEffortDisabled:true,reasoningEffortTooltip:state.disabledReason}:props}\n${MARKER}\n`;
   return { text, count: 1 };
 }
 
-module.exports = { AUTH_SHELL_ASSET, injectAuthShell, useModelAdmission, useSubmitAdmission };
+module.exports = { AUTH_SHELL_ASSET, AUTH_SHELL_MARKER: MARKER, SEND_REQUEST_ADMISSION_PREFIX, injectAuthShell, useModelAdmission, useSubmitAdmission };

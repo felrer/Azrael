@@ -1,5 +1,7 @@
 "use strict";
 
+const { AUTH_SHELL_MARKER, SEND_REQUEST_ADMISSION_PREFIX } = require("./inject-auth-shell.cjs");
+
 const HOST_ASSET = "out/extension.js";
 const FRONTEND_ASSET = "webview/assets/app-initial-7a199c66e670.js";
 const MARKER = "/*azrael-request-state-v1*/";
@@ -18,6 +20,7 @@ const SAVED_PATCHED = `async getUserSavedConfiguration(){let{config:e}=await ${H
 const UI_ORIGINAL = 'async sendRequest(e,t,n){if(this.dispatchMessage==null)throw Error(`AppServerRequestClient is missing a message dispatcher`);return e===`config/read`?this.sendConfigReadRequest(t,n):this.enqueueRequest(e,t,e===`plugin/list`&&n?.timeoutMs==null?{...n,timeoutMs:ntn}:n)}';
 const mutation = (method, params) => `(["config/value/write","config/batchWrite","config/mcpServer/reload","account/login/start","account/login/cancel","account/logout","account/gatewayOAuth/login","account/gatewayOAuth/cancel","account/bedrock/setup"].includes(${method})||${method}==="azrael/account"&&${params}?.action!=="list")`;
 const UI_PATCHED = `async sendRequest(e,t,n){if(this.dispatchMessage==null)throw Error(\`AppServerRequestClient is missing a message dispatcher\`);if(${mutation("e", "t")})${UI_PREFIX}Invalidate(this);if(e===\`azrael/account\`&&t?.action===\`list\`&&Object.keys(t).length===1&&Object.prototype.hasOwnProperty.call(t,"action")&&n==null)return ${UI_PREFIX}Read(this,"account-list",()=>this.enqueueRequest(e,t,n));return e===\`config/read\`?this.sendConfigReadRequest(t,n):this.enqueueRequest(e,t,e===\`plugin/list\`&&n?.timeoutMs==null?{...n,timeoutMs:ntn}:n)}`;
+const UI_COMPOSED = UI_PATCHED.replace("async sendRequest(e,t,n){if(this.dispatchMessage", SEND_REQUEST_ADMISSION_PREFIX);
 const PROVIDER_ORIGINAL = "sendProviderRequest(e,r,n,o,i,s){";
 const PROVIDER_PATCHED = `${PROVIDER_ORIGINAL}if(${mutation("n", "o")})${HOST_PREFIX}Invalidate(this);`;
 const ROUTE_ORIGINAL = "routeIncomingMessage(e,r=e){";
@@ -32,12 +35,21 @@ function injectRequestState(text, asset, ts) {
   const directive = host ? '"use strict";' : "";
   const prefix = host ? HOST_PREFIX : UI_PREFIX;
   const prelude = `${MARKER}${helper(prefix)}\n`;
-  const pairs = host
+  let pairs = host
     ? [[SAVED_ORIGINAL, SAVED_PATCHED], [PROVIDER_ORIGINAL, PROVIDER_PATCHED], [ROUTE_ORIGINAL, ROUTE_PATCHED]]
     : [[UI_ORIGINAL, UI_PATCHED], [VERSION_ORIGINAL, VERSION_PATCHED]];
   // Prefix hooks contain their original anchor. Check the remainder after
   // removing the complete patched forms, rather than counting that substring.
   if (count(text, MARKER)) {
+    // Auth-shell admission is inserted after request state in the namespace
+    // pipeline. Accept only that complete, unchanged composition on reentry.
+    if (!host) {
+      const authMarkers = count(text, AUTH_SHELL_MARKER);
+      if (authMarkers > 1 || count(text, SEND_REQUEST_ADMISSION_PREFIX) !== authMarkers) {
+        throw new Error("Damaged request state transformation");
+      }
+      if (authMarkers === 1) pairs = [[UI_ORIGINAL, UI_COMPOSED], [VERSION_ORIGINAL, VERSION_PATCHED]];
+    }
     let remainder = text;
     if (count(text, prelude) !== 1 || count(text, MARKER) !== 1 || pairs.some(([, patched]) => count(text, patched) !== 1)) {
       throw new Error("Damaged request state transformation");
