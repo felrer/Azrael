@@ -53,11 +53,7 @@ Preservation feature: `ui.question-withdrawal`.
 
 ## Approval waiting time
 
-Status: `partial` — 소스 변환과 Windows native React/CSS fixture의 시간 갱신·종료 고정·테마·좁은 폭·기존 승인 동작을 검증했다. 설치본 및 다른 OS 수용은 별도다. [작업 기록](../../work/EK-01-user-wait-time/01-plan.md)이 검증 범위를 소유한다.
-
-승인 카드의 기존 보조 텍스트·간격·테마 토큰을 재사용해 사용자 응답 대기를 표시한다. 대기 중에는 `응답 대기 2분 13초`, 처리 후에는 `응답까지 2분 13초`로 표시하며 거절·취소도 종료 경계에서 고정한다. 엔진의 요청 시각을 사용하고 화면 mount 시각으로 측정을 시작하지 않는다. 기록이 없는 과거 요청은 시간을 추정하지 않는다. [시간 계약](task-work-time.md#사용자-응답-대기-제외)이 작업 총계에서 제외하는 구간의 의미를 소유한다.
-
-대기 카드가 처리 후 사라지는 native 흐름에서는 해당 턴의 시간 내역에 요청 종류와 고정된 응답 시간을 남긴다. 새로고침 후에도 같은 요청 식별자를 사용한다. 사용자 대기가 구분되지 않은 과거 시간에는 `기록된` 표시와 설명을 붙인다. 보존 기능은 `ui.task-work-time`이다.
+[작업 시간 UI와 Host](features/task-work-time/ui.md#approval-waiting-time)가 승인 카드의 응답 대기 표시를 소유한다.
 
 ## Composer and feature surface
 
@@ -265,21 +261,19 @@ Instruction documents and Design use the native React Intl context for the activ
 
 ## Window Use settings
 
-Status: `target` for unified presentation.
+Status: `target` for unified presentation. Source implementation and installed UI acceptance have separate scopes below.
 
-Window Use is the single settings, panel, consent and notification identity for observation, isolated execution, current-window control and whole-desktop control. The page has a product enable switch and describes the four stages, individual app approvals and all-app approval. Observation needs no per-app/window consent when enabled. App grants apply from isolated execution onward, while task-stage requests identify scope, execution location, reason and user impact. The all-app setting is described as skipping app consent rather than authorizing every stage.
+Window Use is the single settings, panel, consent and notification identity for window observation, selected-window control and whole-screen control. The page has one product enable switch, a Security App list and a control whitelist. Discovery, window capture and bounded inspection are allowed while enabled except that Security Apps require explicit observation approval; whole-screen capture masks those apps. Individual control automatically requests app approval unless whitelisted or covered by conversation-only desktop authority. Security Apps are blocked from all control, including when whitelisted or previously approved. Observation approval neither unmasks whole-screen images nor permits control.
 
-Existing grants and disabled scopes survive settings conversion without implicit elevation. Current stage, execution location, pending elevation, user stop and recoverable failures remain visible. Browser tasks use the existing Chrome route. Child-session capability and prerequisite failures are shown from actual evidence; Home support is not assumed. The page, requests and remote-view ownership controls reuse native OpenAI-style components, tokens and accessible keyboard behavior, with light/dark rendered acceptance required. The policy owner is [Window Use](window-use.md#stage-authority-and-recovery).
+Consent identifies the requested app or conversation desktop scope, purpose and shared-foreground effects. The UI distinguishes semantic window actions, Switched mouse collaboration and whole-screen coordinate input according to [input modes](window-use.md#input-modes-and-virtualization-boundaries). Separate logical cursors do not imply independent OS keyboard streams. Existing grants and disabled scopes survive settings conversion without implicit elevation; numbered-stage flags and global all-app approval cannot become new app authority. The current scope, pending approval, user Stop and recoverable failures remain visible. Browser tasks use the existing Chrome route. Settings and consent reuse native OpenAI-style components, semantic theme tokens and accessible keyboard behavior, with light/dark rendered acceptance required. The policy owner is [Window Use permissions](window-use.md#permissions).
 
-### Current settings implementation
+### Implementation and acceptance boundary
 
-Status: `partial` — the production settings section passes actual pinned React/component/CSS light/dark rendering and interaction checks, and the exact package passes host acceptance and installation. Full installed VS Code navigation after reload remains separate.
+Status: `partial` ? the app-based Window Use policy and consent changes are implemented in source. Their host/policy and rendered UI evidence does not establish installed-package or live desktop input acceptance. The [owning work record](../../work/EZ-01-window-use-multipointer-review/01-plan.md) separates source checks, retained prototype packages and real-app outcomes.
 
-The existing Computer Use page contains separate Computer Use and Window Use sections. Computer Use has an enabled switch, initially on. Window Use has an allow-all switch, initially off, and an always-approved app list with add-from-running-window and remove actions. Settings use the pinned native rows, switches, buttons, spacing and semantic theme tokens. Loading, saving, empty-list and failed-save states are visible; a failed save does not display the proposed value as saved. User actions supersede quiet background reads; late replies cannot replace the acknowledged result. Keyboard interaction and both themes require actual rendered acceptance.
+Settings use native rows, switches, buttons, spacing and semantic theme tokens. Loading, saving, empty-list and failed-save states are visible; a failed save does not display the proposed value as saved. User actions supersede quiet background reads; late replies cannot replace the acknowledged result. Keyboard interaction and both themes require actual rendered acceptance. Earlier package/host evidence does not establish acceptance of this settings contract; installed navigation after reload remains separately unverified. The [migration contract](window-use.md#migration-and-retirement) prevents those settings from supplying new authority. Generic approval-management UI remains a separate responsibility under [Computer Use retirement](computer-use.md).
 
-Window Use settings use its separate approval owner. The existing Computer Use approval-management surface remains available. The runtime authorization contract is owned by [Window Use](window-use.md#app-authorization-settings) and [Computer Use](computer-use.md#control-enable-setting).
-
-Window Use consent reuses the native in-conversation elicitation card with the app name, Window Use identity and existing permission scopes. The dedicated Window Use panel presents consent within its own view using semantic theme tokens. Waiting, expiry, denial and cancellation remain visible states; a terminal request cannot retain active approval buttons. Source light/dark rendering and interaction acceptance pass at normal and narrow widths. The exact package passed six isolated host acceptance stages and is installed; real-user consent after reload remains unverified. Its authority and model-visible result contract is owned by [in-app consent](window-use.md#in-app-consent).
+Window Use consent reuses native in-conversation elicitation cards and presents consent within the dedicated Window Use panel using semantic theme tokens. App cards name the verified app; desktop cards name the conversation scope without fabricating an app identity. Whitelist and Security App settings entry points belong to the trusted current request; opening settings does not accept it. Waiting, expiry, denial and cancellation remain visible states; terminal requests cannot retain active approval buttons. Source light/dark rendering and interaction acceptance at normal and narrow widths remain distinct from the exact consent package's six isolated host acceptance stages and installation; real-user consent after reload remains unverified. Those package checks do not accept the revised app-based settings and consent scope. The model-visible permission and result contract is owned by [Window Use permissions](window-use.md#permissions).
 
 ## Design settings
 

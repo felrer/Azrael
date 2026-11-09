@@ -10,11 +10,11 @@ Common behavior targets local Windows x64, glibc Linux x64 and macOS ARM64. Actu
 
 ## Retrieval units and provenance
 
-Index the immediate architecture Markdown files, excluding tool sources and generated evidence. A unit is an ATX heading and its directly owned text until the next heading; a document preamble is also addressable. Nested headings retain their parent context and inherited state. Fenced code cannot introduce headings. Duplicate headings and explicit HTML anchors retain unambiguous identifiers.
+Index architecture Markdown files recursively, excluding tool sources and generated evidence. A unit is an ATX heading and its directly owned text until the next heading; a document preamble is also addressable. Nested headings retain their parent context and inherited state. Fenced code cannot introduce headings. Duplicate headings and explicit HTML anchors retain unambiguous identifiers.
 
-Each result identifies the relative file, section/heading, source line range, content digest and state provenance. State may be current, partial, target, draft, a declared reference state or unknown. A document with implemented and target portions cannot be summarized as fully current. State prose and its scope remain available in the source; labels do not prove installed-host acceptance.
+Default navigation identifies candidates by stable ID, title and feature/layer classification. Detail and reads expose the relative file, section/heading, source line range, content digest and state provenance. State may be current, partial, target, draft, conflict, a declared reference state or unknown. Known conflicts remain visible in compact discovery; a bounded document summary reports conflicted descendants without changing unaffected sections. A document with implemented and target portions cannot be summarized as fully current. State prose and its scope remain available in the source; labels do not prove installed-host acceptance.
 
-Search returns compact ranked candidates with matching terms and a short source excerpt. The caller can read a selected unit with bounded pagination and expand related units. Required exceptions and permissions stay discoverable through heading context and related sections. Truncation is explicit; a partial excerpt never represents complete contract coverage. An optional expected digest rejects a stale selection instead of reading a changed unit as if it were unchanged. Each invocation derives its index from current files; there is no independently maintained persistent cache.
+Search ranks candidates internally; matching terms, score, parent context and a short source excerpt require explicit detail. The caller can read a selected unit with bounded pagination and expand related units. Required exceptions and permissions stay discoverable through heading context and related sections. Truncation is explicit; a partial excerpt never represents complete contract coverage. An optional expected digest rejects a stale selection instead of reading a changed unit as if it were unchanged. Each invocation derives its index from current files; there is no independently maintained persistent cache.
 
 ## Terms and relationships
 
@@ -30,7 +30,7 @@ Agents handling an authorized change review the affected owning sections, update
 
 ## Faceted navigation and feature ownership
 
-Status: `target` — this section defines the agreed document/navigation design. The current CLI still indexes immediate architecture Markdown files and returns its existing metadata and excerpts; nested discovery, facets and compact navigation are not implemented by this declaration.
+Status: `partial` — nested discovery, source-local classification, stable IDs, compact navigation and direct reverse links are implemented in the local CLI and verified on Windows. The work record owns document rollout and model evaluation; other-platform execution remains unverified.
 
 A feature groups content that shares a behavior contract and tends to change together. Its boundary can widen or narrow when independent responsibilities, lifetimes, failure handling or retrieval needs justify it. A layer or a fixed document-size threshold does not determine that boundary. Each feature has one physical home and one owning end-to-end contract. Layer-specific detail is split only when it has a useful independent responsibility; short features need no empty detail files. Shared policies retain a single owner outside individual feature folders.
 
@@ -42,7 +42,7 @@ Outgoing and incoming document/section links are derived from source. File-only 
 
 ## Design precedence and conflict state
 
-Status: `target` — conflict metadata and navigation behavior require implementation. The existing CLI does not yet recognize conflict as a first-class state.
+Status: `partial` — the local CLI recognizes declared/metadata conflict state, preserves prior-state context and exposes bounded conflict summaries. Semantic conflict discovery and user resolution remain review responsibilities, not automated truth judgments.
 
 Agreed design governs intended behavior. Implementation observations cannot authorize changing that design. When applicable contracts contradict each other, or observed implementation contradicts an applicable agreed contract, the affected unit's effective state becomes `conflict`; retain its prior declared implementation state and scope separately. Preserve both claims and their source links in the owning work record, and link that conflict from the affected unit. A known conflict is visible even in compact navigation and cannot be hidden by inherited parent state. This does not make every unaffected section of the document conflicted.
 

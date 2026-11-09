@@ -1421,7 +1421,7 @@
         "engine/codex-rs/core/src/agent/control/api.rs",
         "engine/codex-rs/codex-mcp/src/elicitation.rs"
       ],
-      "contract": "docs/architecture/task-work-time.md",
+      "contract": "docs/architecture/features/task-work-time/README.md",
       "checks": [
         {
           "id": "engine.task-work-time.protocol",
@@ -1501,7 +1501,7 @@
         "scripts/test-user-wait-time.cjs",
         "scripts/verify-user-wait-time-render.mjs"
       ],
-      "contract": "docs/architecture/task-work-time.md",
+      "contract": "docs/architecture/features/task-work-time/README.md",
       "checks": [
         {
           "id": "ui.task-work-time.behavior",

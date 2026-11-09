@@ -103,6 +103,23 @@ function parseDocument(file, text) {
   const sourceLines = text.match(/[^\n]*\n|[^\n]+$/g) || [];
   const visible = visibleLines(text);
   const headings = [];
+  const metadataFindings = [];
+  const declarations = new Map();
+  for (let i = 0; i < visible.length; i++) {
+    const match = /^\s*<!--\s*architecture:\s*(.*?)\s*-->\s*$/.exec(visible[i]);
+    if (!match) continue;
+    visible[i] = '';
+    try {
+      const value = JSON.parse(match[1]);
+      if (!value || Array.isArray(value) || typeof value !== 'object') throw new Error('Expected metadata object');
+      if ('id' in value && (typeof value.id !== 'string' || !value.id.trim() || /[\s#]/.test(value.id))) throw new Error('id must be a nonempty stable identifier without spaces or #');
+      if ('feature' in value && value.feature !== null && (typeof value.feature !== 'string' || !value.feature.trim())) throw new Error('feature must be a nonempty string or null');
+      if ('layers' in value && (!Array.isArray(value.layers) || value.layers.some(layer => !['ui', 'host', 'engine', 'tooling'].includes(layer)))) throw new Error('layers must contain ui, host, engine or tooling');
+      if ('status' in value && !['current', 'partial', 'target', 'draft', 'reference', 'unknown', 'conflict'].includes(value.status)) throw new Error('Invalid status');
+      if (value.status === 'conflict' && (typeof value.priorStatus !== 'string' || !value.priorStatus || typeof value.conflict !== 'string' || !value.conflict)) throw new Error('conflict requires priorStatus and conflict reference');
+      declarations.set(i + 1, value);
+    } catch (error) { metadataFindings.push({ kind: 'invalid-metadata', file, line: i + 1, message: error.message }); }
+  }
   const counts = new Map([['preamble', 0]]);
   for (let i = 0; i < visible.length; i++) {
     const match = /^ {0,3}(#{1,6})\s+(.*?)(?:\s+#+\s*)?$/.exec(visible[i]);
@@ -128,9 +145,12 @@ function parseDocument(file, text) {
       : parent ? { ...parent.state, provenance: parent.state.value === 'unknown' && !parent.state.source ? 'unknown' : 'inherited' }
         : { value: 'unknown', provenance: 'unknown' };
     const body = sourceLines.slice(start - 1, end).join('');
+    const ownDeclarations = [...declarations].filter(([line]) => line >= start && line <= end);
+    if (ownDeclarations.length > 1) metadataFindings.push({ kind: 'duplicate-metadata', file, line: ownDeclarations[1][0] });
+    const classification = ownDeclarations[0]?.[1] || {};
     const section = { id: `${file}#${heading.anchor}`, file, ...heading, startLine: start, endLine: end,
       parents: stack.map(item => ({ id: item.id, title: item.title })), parent: parent?.id || null,
-      state, body, visible: visible.slice(start - 1, end).join('\n'), children: [], anchors: [heading.anchor] };
+      state, classification, body, visible: visible.slice(start - 1, end).join('\n'), children: [], anchors: [heading.anchor] };
     section.sha = digest(JSON.stringify([heading.title, body, section.parents, state]));
     if (parent) parent.children.push({ id: section.id, title: section.title, headingLine: section.headingLine });
     sections.push(section);
@@ -152,13 +172,21 @@ function parseDocument(file, text) {
       else { anchors.set(match[1], owner.id); if (!owner.anchors.includes(match[1])) owner.anchors.push(match[1]); }
     }
   }
-  return { file, sections, anchors, duplicateAnchors, visible };
+  return { file, sections, anchors, duplicateAnchors, visible, metadataFindings };
 }
 
 function architectureFiles(root) {
-  const directory = safePath(root, 'docs/architecture');
-  return fs.readdirSync(directory).filter(name => name.endsWith('.md')).sort()
-    .map(name => { const file = `docs/architecture/${name}`; safePath(root, file); return file; });
+  const files = [];
+  const visit = directory => {
+    for (const item of fs.readdirSync(safePath(root, directory), { withFileTypes: true })) {
+      if (item.isSymbolicLink()) continue;
+      const file = `${directory}/${item.name}`;
+      if (item.isDirectory() && item.name !== 'tools') visit(file);
+      else if (item.isFile() && item.name.endsWith('.md')) files.push(file);
+    }
+  };
+  visit('docs/architecture');
+  return files.sort();
 }
 
 function validateTerms(terms) {
@@ -190,6 +218,56 @@ function createIndex(root, options = {}) {
   if (!Array.isArray(inventory.features)) fail('INVALID_INVENTORY', 'Expected feature inventory features array');
   const index = { root, files, documents, sections: documents.flatMap(document => document.sections),
     terms, features: inventory.features, observations };
+  index.metadataFindings = documents.flatMap(document => document.metadataFindings);
+  index.ids = new Map();
+  const remap = new Map();
+  for (const document of documents) {
+    document.entry = document.sections.find(section => section.level === 1) || document.sections[0];
+    document.classification = document.entry.classification;
+  }
+  for (const document of documents) {
+    let directory = path.posix.dirname(document.file), folderFeature;
+    while (directory.startsWith('docs/architecture')) {
+      const owner = documents.find(item => item.file === `${directory}/README.md`);
+      if (owner && Object.hasOwn(owner.classification, 'feature')) { folderFeature = owner.classification.feature; break; }
+      if (directory === 'docs/architecture') break;
+      directory = path.posix.dirname(directory);
+    }
+    const base = { feature: folderFeature, layers: [], ...document.classification };
+    for (const section of document.sections) {
+      const parent = document.sections.find(item => (item.legacyId || item.id) === section.parent);
+      const inherited = parent?.effectiveClassification || base;
+      section.effectiveClassification = { ...inherited, ...section.classification };
+      const effective = section.effectiveClassification;
+      section.feature = effective.feature;
+      section.layers = effective.layers;
+      section.legacyId = section.id;
+      const stable = section.classification.id || (section === document.entry ? base.id : base.id && `${base.id}#${section.anchor}`);
+      section.id = stable || section.id;
+      remap.set(section.legacyId, section.id);
+      if (index.ids.has(section.id)) index.metadataFindings.push({ kind: 'duplicate-id', id: section.id, file: section.file, otherFile: index.ids.get(section.id).file });
+      else index.ids.set(section.id, section);
+      // Conflict is sticky within its subtree even when a child declares a status.
+      if (parent?.state.value === 'conflict' || effective.status === 'conflict') {
+        const ownConflict = section.classification.status === 'conflict';
+        const conflict = ownConflict ? section.classification : parent?.state.value === 'conflict' ? parent.state : effective;
+        section.state = { value: 'conflict', priorStatus: conflict.priorStatus, conflict: conflict.conflict,
+          provenance: ownConflict ? 'declared' : 'inherited', source: ownConflict ? section.id : conflict.source || section.id };
+      } else if (section.classification.status) section.state = { value: section.classification.status, provenance: 'declared', source: section.id };
+      else if (section.state.provenance !== 'declared' && parent) section.state = { ...parent.state,
+        provenance: parent.state.value === 'unknown' && !parent.state.source ? 'unknown' : 'inherited' };
+    }
+  }
+  for (const document of documents) {
+    for (const [anchor, id] of document.anchors) document.anchors.set(anchor, remap.get(id));
+    for (const section of document.sections) {
+      section.parent = remap.get(section.parent) || null;
+      section.parents = section.parents.map(parent => ({ ...parent, id: remap.get(parent.id) }));
+      section.children = section.children.map(child => ({ ...child, id: remap.get(child.id) }));
+      if (section.state.source) section.state.source = remap.get(section.state.source) || section.state.source;
+      section.sha = digest(JSON.stringify([section.title, section.body, section.parents, section.state, section.effectiveClassification]));
+    }
+  }
   verifyObservations(index);
   return index;
 }
@@ -209,10 +287,32 @@ function metadata(section) {
     compactState.declaration = compactState.declaration.slice(0, 240);
     compactState.declarationTruncated = true;
   }
-  return { id, file, title, headingLine, startLine, endLine, sha, state: compactState, parents, parent };
+  return { ...candidate(section), id, file, title, headingLine, startLine, endLine, sha, state: compactState, parents, parent };
+}
+
+function candidate(section) {
+  return { id: section.id, title: section.title, feature: section.feature === undefined ? 'unknown' : section.feature,
+    layers: section.layers || [], ...(section.state.value === 'conflict' ? { status: 'conflict', priorStatus: section.state.priorStatus, conflict: section.state.conflict } : {}) };
+}
+
+function matchesFacets(section, options) {
+  const features = options.feature || [], layers = options.layer || [];
+  if (layers.some(layer => !['ui', 'host', 'engine', 'tooling'].includes(layer))) fail('INVALID_ARGUMENT', 'Unknown layer');
+  return (!features.length || features.includes(section.feature === undefined ? 'unknown' : section.feature === null ? 'null' : section.feature)) &&
+    (!layers.length || layers.some(layer => section.layers.includes(layer)));
+}
+
+function map(index, options = {}) {
+  const items = index.documents.filter(document => matchesFacets(document.entry, options)).map(document => {
+    const conflicts = document.sections.filter(section => section.state.value === 'conflict').map(section => section.id);
+    return { ...candidate(document.entry), ...(conflicts.length ? { conflicts: {
+      total: conflicts.length, ids: conflicts.slice(0, 8), truncated: conflicts.length > 8 } } : {}) };
+  });
+  return { command: 'map', ...page(items, options) };
 }
 
 function getSection(index, id) {
+  if (index.ids.has(id)) return index.ids.get(id);
   if (typeof id !== 'string' || !id.includes('#')) fail('INVALID_ID', 'Section ID must be repository-file#anchor');
   const separator = id.indexOf('#');
   const file = id.slice(0, separator), anchor = id.slice(separator + 1);
@@ -237,6 +337,7 @@ function search(index, query, options = {}) {
   const exactFeatures = index.features.filter(feature => normalize(feature.id) === needle || equivalents.some(concept => concept.features.includes(feature.id)));
   const hits = [];
   for (const section of index.sections) {
+    if (!matchesFacets(section, options)) continue;
     const title = normalize(section.title), context = normalize(section.parents.map(parent => parent.title).join(' '));
     const text = normalize(section.visible), identity = normalize(section.id);
     const matchedTerms = [...new Set([...tokens, ...expanded].filter(term => `${identity}\n${title}\n${context}\n${text}`.includes(term)))];
@@ -255,8 +356,8 @@ function search(index, query, options = {}) {
       excerptTruncated: excerpt.length > 320 || line > 0 || line + 3 < lines.length });
   }
   hits.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
-  return { command: 'search', query, expansion: concepts.map(({ id, label, aliases, legacy, related, matchKind }) => ({ id, label, aliases, legacy, related, matchKind })),
-    ...page(hits, options) };
+  return { command: 'search', query, ...(options.detail ? { expansion: concepts.map(({ id, label, aliases, legacy, related, matchKind }) => ({ id, label, aliases, legacy, related, matchKind })) } : {}),
+    ...page(options.detail ? hits : hits.map(hit => candidate(index.ids.get(hit.id))), options) };
 }
 
 function read(index, id, options = {}) {
@@ -315,15 +416,25 @@ function featureRelations(index, feature) {
 
 function related(index, id, options = {}) {
   const items = [];
+  const direction = options.direction || 'both';
+  if (!['incoming', 'outgoing', 'both'].includes(direction)) fail('INVALID_ARGUMENT', 'direction must be incoming, outgoing or both');
   const feature = index.features.find(item => item.id === id);
   const concept = index.terms.find(item => item.id === id);
   let features = feature ? [feature] : [];
   if (!feature && !concept) {
     const section = getSection(index, id);
-    if (section.parent) items.push({ type: 'parent', id: section.parent });
-    items.push(...section.children.map(child => ({ type: 'child', ...child })));
-    items.push(...links(section).map(link => ({ type: 'link', source: section.id, line: link.line, ...resolveLink(index, section.file, link.href) })));
-    features = index.features.filter(item => item.contract === section.file);
+    if (direction !== 'outgoing' && section.parent) items.push({ type: 'parent', direction: 'incoming', id: section.parent });
+    if (direction !== 'incoming') {
+      items.push(...section.children.map(child => ({ type: 'child', direction: 'outgoing', ...child })));
+      items.push(...links(section).map(link => ({ type: 'link', direction: 'outgoing', source: section.id, sourceFile: section.file, line: link.line, ...resolveLink(index, section.file, link.href) })));
+    }
+    if (direction !== 'outgoing') for (const source of index.sections) for (const link of links(source)) {
+      const target = resolveLink(index, source.file, link.href);
+      if (target.id === section.id || (!target.anchor && target.file === section.file && section === index.documents.find(document => document.file === section.file).entry)) {
+        items.push({ type: 'link', direction: 'incoming', source: source.id, sourceFile: source.file, line: link.line, ...target });
+      }
+    }
+    if (options.detail) features = index.features.filter(item => item.contract === section.file);
   }
   const concepts = concept ? [concept] : index.terms.filter(item => features.some(feature => item.features.includes(feature.id)));
   for (const item of concepts) {
@@ -333,7 +444,9 @@ function related(index, id, options = {}) {
     features.push(...index.features.filter(feature => item.features.includes(feature.id)));
   }
   for (const item of [...new Map(features.map(feature => [feature.id, feature])).values()]) items.push(...featureRelations(index, item));
-  return { command: 'related', id, ...page(items, options) };
+  return { command: 'related', id, direction, coverage: feature || concept || options.detail
+    ? 'direct source links, hierarchy and inventory relationships; no transitive expansion'
+    : 'direct source links and hierarchy only; no transitive expansion', ...page(items, options) };
 }
 
 function check(index, options = {}) {
@@ -343,19 +456,37 @@ function check(index, options = {}) {
     (feature.owners || []).some(owner => normalized.includes(owner)));
   const scopedFiles = new Set(affected.map(feature => feature.contract));
   for (const file of normalized) if (index.files.includes(file)) scopedFiles.add(file);
+  const initialScope = new Set([...scopedFiles, ...normalized]);
+  const incomingFiles = new Set();
+  if (normalized.length) for (const section of index.sections) for (const link of links(section)) {
+    const target = resolveLink(index, section.file, link.href);
+    if (initialScope.has(target.file) && !initialScope.has(section.file)) incomingFiles.add(section.file);
+  }
+  for (const file of incomingFiles) scopedFiles.add(file);
   const documents = index.documents.filter(document => !normalized.length || scopedFiles.has(document.file));
-  const findings = [], references = [];
+  const findings = index.metadataFindings.slice(), references = [];
   const unmappedChanged = normalized.filter(file => !index.files.includes(file) &&
     !affected.some(feature => feature.contract === file || (feature.owners || []).includes(file)));
   for (const file of unmappedChanged) findings.push({ kind: 'unmapped-change', file,
     message: 'No registered contract or owner maps this changed path; owning architecture coverage is unknown' });
   for (const document of documents) {
     findings.push(...document.duplicateAnchors.map(anchor => ({ kind: 'duplicate-anchor', file: document.file, ...anchor })));
-    for (const section of document.sections) for (const link of links(section)) {
-      const resolved = resolveLink(index, document.file, link.href);
-      const item = { source: section.id, line: link.line, ...resolved };
-      if (['external', 'unknown-anchor'].includes(resolved.kind)) references.push(item);
-      else if (!['local', 'section'].includes(resolved.kind)) findings.push(item);
+    for (const section of document.sections) {
+      if (section.state.value === 'conflict') findings.push({ kind: 'conflict', source: section.id, file: section.file, ...section.state });
+      const folderOwner = index.documents.find(item => item.file === `${path.posix.dirname(section.file)}/README.md`);
+      if (Object.hasOwn(section.classification, 'feature') && folderOwner?.classification.feature !== undefined && section.classification.feature !== folderOwner.classification.feature) {
+        findings.push({ kind: 'feature-override', source: section.id, file: section.file, feature: section.classification.feature, folderFeature: folderOwner.classification.feature });
+      }
+      if (section.classification.conflict) {
+        const target = resolveLink(index, section.file, section.classification.conflict);
+        if (!['local', 'section', 'external'].includes(target.kind)) findings.push({ kind: 'invalid-conflict-reference', source: section.id, target });
+      }
+      for (const link of links(section)) {
+        const resolved = resolveLink(index, document.file, link.href);
+        const item = { source: section.id, line: link.line, ...resolved };
+        if (['external', 'unknown-anchor'].includes(resolved.kind)) references.push(item);
+        else if (!['local', 'section'].includes(resolved.kind)) findings.push(item);
+      }
     }
   }
   for (const feature of affected) {
@@ -376,10 +507,23 @@ function check(index, options = {}) {
   return { command: 'check', clean: findings.length === 0, findingCount: findings.length,
     coverage: unmappedChanged.length ? 'incomplete' : 'complete', unmappedChanged,
     changed: normalized, affectedFeatures: affected.map(feature => feature.id), scannedFiles: documents.map(document => document.file),
+    scope: { incomingHops: normalized.length ? 1 : 0, incomingFiles: [...incomingFiles].sort(), metadata: 'global' },
     references: { total: references.length, items: references.slice(0, 8), truncated: references.length > 8 }, ...page(findings, options) };
 }
 
-const HELP = `Local architecture retrieval (JSON, no source writes)\n  node docs/architecture/tools/architecture.cjs [--root ROOT] COMMAND\n  search <query> [--limit 1..100] [--offset N]\n  read <file#anchor> [--limit 1..24000] [--offset N] [--sha HASH]\n  related <file#anchor|feature|concept> [--limit 1..100] [--offset N]\n  check [--changed repository-path ...] [--limit 1..100] [--offset N]\n  --help\nDefaults: 8 results, read 6000 UTF-16 code units. check exit 0 means\ncompleted; inspect clean/findingCount. IDs and SHA come from search.\n`;
+const HELP = `Local architecture retrieval (JSON, no source writes)
+  node docs/architecture/tools/architecture.cjs [--root ROOT] COMMAND
+  map [--feature ID|null|unknown] [--layer ui|host|engine|tooling]
+  search <query> [--feature ID|null|unknown] [--layer LAYER] [--detail]
+  read <stable-id|file#anchor> [--limit 1..24000] [--offset N] [--sha HASH]
+  related <stable-id|file#anchor|feature|concept> [--direction incoming|outgoing|both] [--detail]
+  check [--changed repository-path ...]
+  --help
+All result lists accept --limit 1..100 and --offset N; default 8 results.
+Repeat --feature/--layer for OR within a facet, AND between facets.
+Read defaults to 6000 UTF-16 code units. check exit 0 means completed;
+inspect clean/findingCount. Detailed search/read expose source SHA.
+`;
 
 function run(argv, defaultRoot = path.resolve(__dirname, '../../..')) {
   const positional = [], options = {}, changed = [];
@@ -388,22 +532,26 @@ function run(argv, defaultRoot = path.resolve(__dirname, '../../..')) {
   for (let i = 0; i < argv.length; i++) {
     const argument = argv[i];
     if (argument.startsWith('--')) {
-      if (!['--root', '--limit', '--offset', '--sha', '--changed'].includes(argument)) fail('INVALID_ARGUMENT', `Unknown option: ${argument}`);
+      if (argument === '--detail') { options.detail = true; continue; }
+      if (!['--root', '--limit', '--offset', '--sha', '--changed', '--feature', '--layer', '--direction'].includes(argument)) fail('INVALID_ARGUMENT', `Unknown option: ${argument}`);
       const value = argv[++i];
       if (value === undefined || value.startsWith('--')) fail('INVALID_ARGUMENT', `Missing value: ${argument}`);
       if (argument === '--root') root = value;
       else if (argument === '--changed') changed.push(value);
       else if (argument === '--sha') options.sha = value;
+      else if (argument === '--direction') options.direction = value;
+      else if (['--feature', '--layer'].includes(argument)) (options[argument.slice(2)] ||= []).push(value);
       else { if (!/^\d+$/.test(value)) fail('INVALID_RANGE', `${argument} must be a nonnegative integer`); options[argument.slice(2)] = Number(value); }
     } else positional.push(argument);
   }
   const [command, ...args] = positional;
-  if (!['search', 'read', 'related', 'check'].includes(command)) fail('INVALID_ARGUMENT', 'Expected search, read, related or check; use --help');
-  if (args.length !== (command === 'check' ? 0 : 1)) fail('INVALID_ARGUMENT', `Unexpected arguments for ${command}; quote search queries`);
+  if (!['map', 'search', 'read', 'related', 'check'].includes(command)) fail('INVALID_ARGUMENT', 'Expected map, search, read, related or check; use --help');
+  if (args.length !== (['map', 'check'].includes(command) ? 0 : 1)) fail('INVALID_ARGUMENT', `Unexpected arguments for ${command}; quote search queries`);
   if (changed.length && command !== 'check' || options.sha !== undefined && command !== 'read') fail('INVALID_ARGUMENT', 'Option is not valid for this command');
+  if (options.detail && !['search', 'related'].includes(command) || (options.feature || options.layer) && !['map', 'search'].includes(command) || options.direction && command !== 'related') fail('INVALID_ARGUMENT', 'Option is not valid for this command');
   const index = createIndex(root);
   const result = command === 'check' ? check(index, { ...options, changed })
-    : ({ search, read, related })[command](index, args[0], options);
+    : command === 'map' ? map(index, options) : ({ search, read, related })[command](index, args[0], options);
   verifyObservations(index);
   return result;
 }
@@ -414,4 +562,4 @@ if (require.main === module) {
 }
 
 module.exports = { normalize, slug, parseDocument, validateTerms, rootPath, safePath, readStable,
-  verifyObservations, createIndex, search, read, related, check, run, page, resolveLink };
+  verifyObservations, createIndex, map, search, read, related, check, run, page, resolveLink };

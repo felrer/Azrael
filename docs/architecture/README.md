@@ -15,7 +15,7 @@ For section-level keyword/alias search and related contract/implementation/check
 - [Root resume scheduling](root-resume.md): durable reservations, completion signals, defer clocks and work-segment presentation.
 - [Root coordination](root-coordination.md): root-only investigation, scheduling, resource ownership, waiting and intervention policy.
 - [Task memory](task-memory.md): work-scoped root/subagent records, immutable revisions, explicit context reads and optional role-profile instruction components.
-- [Task work time](task-work-time.md): continuous work time and turn count below the initial user message, user-wait exclusions and partial-history display.
+- [Task work time](features/task-work-time/README.md): continuous work time and turn count below the initial user message, user-wait exclusions and partial-history display.
 - [Side questions with /btw](side-questions.md): tool-free side execution, main-task isolation and explicit result delivery.
 - [Work orchestration](work-orchestration.md): draft/target Lead and Team design, Team/Direct profile-based creation and approval routing, isolated worktrees and handoff boundaries.
 
@@ -43,9 +43,9 @@ For section-level keyword/alias search and related contract/implementation/check
 
 - [Project maintenance](project-maintenance.md): project-owned test bundles, separate build execution, artifact/backup inventory and model-directed cleanup.
 
-- [Computer Use backend](computer-use.md): package-owned desktop runtime, selected-window backend, tool ceiling, consent and lifetime.
+- [Computer Use retirement](computer-use.md): retired desktop/child-session routes, retained generic Node support and package transition boundaries.
 - [Window Use](window-use.md): app-based observation/control permissions, masked desktop capture, current-window control, task macros and collaboration boundaries.
-- [Window Use visualization](window-use-visualization.md): overlays, visible stop/recovery and target-specific observation/control presentation.
+- [Window Use documentation](window-use-visualization.md): route to active input modes, permissions and multi-pointer collaboration presentation.
 - [Auto-Review](auto-review.md): OpenAI permission policy, turn admission and reviewer boundary.
 - [Diagnostic logging](diagnostic-logging.md): default-on diagnostic controls, optional instrumentation and mandatory evidence preservation.
 

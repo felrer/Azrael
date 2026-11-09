@@ -54,11 +54,12 @@ The registry links below identify registered acceptance scope, not every current
 | [azrael-runtime](azrael-runtime.md) | `engine.selected-upstream` |
 | [ui-presentation](ui-presentation.md) | `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics` |
 | [managed-providers](managed-providers.md) | `engine.managed-tool-identities`, `ui.provider-model-picker`, `ui.max-reasoning` |
-| [task-work-time](task-work-time.md) | `ui.task-work-time` |
+| [task-work-time](features/task-work-time/README.md) | `ui.task-work-time`, `engine.task-work-time` |
 | [accounts](accounts.md) | `ui.account-settings`, `ui.account-switch-queue`, `engine.auto-account-switch` |
 | [instructions](instructions.md) | `ui.instruction-settings` |
 | [reload-recovery](reload-recovery.md) | `ui.recovery`, `ui.fetch-response`, `ui.immediate-stop`, `engine.recovery`, `engine.accepted-input` |
-| [computer-use](computer-use.md) | `ui.url-safety-transport`, `ui.computer-use`, `ui.window-control` |
+| [computer-use](computer-use.md) | `ui.url-safety-transport`, `ui.computer-use` |
+| [window-use](window-use.md) | `ui.window-control`, `engine.window-approval` |
 | [auto-review](auto-review.md) | `ui.auto-review` |
 | [context-policy](context-policy.md) | `ui.provider-context`, `engine.provider-context`, `engine.thread-auto-compaction-integration` |
 | [root-resume](root-resume.md) | `ui.deferred-turn`, `ui.work-segment-folding` |

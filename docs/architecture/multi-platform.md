@@ -44,7 +44,7 @@ Account selection uses VS Code's workspace/global storage paths. Local desktop s
 
 ## Desktop features
 
-Window Use is temporarily Windows-only under the [availability policy](window-use.md#platform-availability). Linux and macOS do not activate its host binding or advertise its MCP tools; non-Windows relay calls are rejected. The retained Linux selected-window backend below describes implementation and earlier evidence, not current product availability. Current packages omit the retired Computer Use/Sky desktop-input payload. Backend absence must not prevent core host activation. Capability, OS permission, Azrael approval and execution failure are different states. Unsupported or permission-required states must remain consistent in UI and model tool registration.
+Window Use is temporarily Windows-only under the [availability policy](window-use.md#product-and-platform-scope). Linux and macOS do not activate its host binding or advertise its MCP tools; non-Windows relay calls are rejected. The retained Linux selected-window backend below describes implementation and earlier evidence, not current product availability. Current packages omit the retired Computer Use/Sky desktop-input payload. Backend absence must not prevent core host activation. Capability, OS permission, Azrael approval and execution failure are different states. Unsupported or permission-required states must remain consistent in UI and model tool registration.
 
 Injected request, notification, approval and disconnect hooks check the validated runtime's Window Use availability before requiring its backend. With no backend, native core dispatch continues, desktop routes report unavailable, and reserved local consent responses remain suppressed.
 

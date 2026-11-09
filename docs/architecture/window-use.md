@@ -18,6 +18,18 @@ Security App (시큐리티 앱) is the displayed name for the existing observati
 
 Selected-window semantic operations show the adopted model cursor at the actual element location without duplicating physical input. Whole-screen input can choose another verified app between operations. Each gesture remains pinned to its authorized root/popup; cross-app drag is not claimed. Same-user/session/desktop/integrity and Stop checks remain effective.
 
+### Input modes and virtualization boundaries
+
+| Mode | Input and authority | Boundary |
+| --- | --- | --- |
+| Selected-window semantic control | App control approval, or inherited conversation desktop authority; fresh references inside the explicit `windowId` | Supported UI Automation patterns; a cursor overlay does not inject a second physical action |
+| Selected-window Switched input | App control authority with shared-foreground effects disclosed; exact process lifetime and selected root revalidated | Physical screen coordinates inside the root client; explicit collaboration preparation before claiming isolated relative-mouse motion |
+| Whole-screen coordinate input | Explicit conversation-only desktop authority; live hit target and occupancy checked per operation | Shared Windows input stream across verified apps; Security Apps remain blocked |
+
+Switched collaboration virtualizes logical user/model pointer positions and schedules bounded gestures over one physical input stream. It may activate the authorized target and recover permitted foreground/occlusion changes. It is not independent background input, simultaneous OS keyboard streams, or a grant to manipulate unrelated covering windows. Physical user keyboard/IME input stops model input; unsupported mouse routing fails open. The [multi-pointer contract](multi-pointer.md) owns capability preparation, FIFO ordering, cursor presentation and bounded recovery. Dedicated selected-window conversations retain their immutable tool ceiling; neither an app approval nor a backend failure expands it.
+
+The DLL-based process-hook prototype is not an active Window Use backend; its design and scoped outcomes belong to the [historical work record](../../work/EZ-01-window-use-multipointer-review/01-plan.md#중단한-dll-경로와-보존할-검증-한계). Retained adapters or older installed packages do not grant current authority. Backend failure cannot silently switch to another input path, replay ambiguous delivery or claim unverified cleanup.
+
 ## Permissions
 
 | Capability | Default while enabled | App exception |
@@ -63,4 +75,4 @@ Read-only geometry failures may use bounded observation recovery. Explicit Stop 
 
 Settings schema 3 stores the master, Security App list, control whitelist, revision and policy generation. Schema-2 master is preserved; schema 1 preserves its established implicit Window Use master. Retired stage flags and global all-app approval never become new app authority. Exact persisted Window Use approvals remain control-only; observation approval never silently removes a blacklist entry.
 
-Windows child-session execution and Computer Use/Sky full-desktop input are retired. [Historical source/tests and shared snapshots](../../archive/window-use-stages-v1/README.md) are excluded from active packaging. Generic Node REPL and shared approval UI remain separate retained responsibilities. Environment sync retires only unchanged receipt-owned legacy skills; unmanaged/edited copies require conflict resolution. Source changes neither replace the installed app nor terminate existing Windows child sessions.
+Windows child-session execution and Computer Use/Sky full-desktop input are retired from the active Window Use design and excluded from its active packaging scope. Generic Node REPL and shared approval UI remain separate retained responsibilities. Environment sync retires only unchanged receipt-owned legacy skills; unmanaged/edited copies require conflict resolution. Source changes neither replace the installed app nor terminate existing Windows child sessions. Package transition and installed-version scope remain owned by [Computer Use retirement](computer-use.md).

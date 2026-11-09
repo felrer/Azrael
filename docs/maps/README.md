@@ -33,7 +33,7 @@ Follow the relevant row from code to contract to verification. A row does not re
 
 ## Entry Inventory
 
-연속 작업 시간은 `scripts/inject-task-work-time.cjs`의 native 대화 요약 mount에서 시작한다. `task-work-time-history.cjs`가 전체 턴 메타데이터와 live 상태를 결합하고, `task-work-time.cjs`가 실행·자동 재개 대기 구간을 집계한다. 계약은 [연속 작업 시간](../architecture/task-work-time.md), 반복 검증은 [개발 운영](../ops/development.md#feature-checks)이 소유한다.
+연속 작업 시간은 `scripts/inject-task-work-time.cjs`의 native 대화 요약 mount에서 시작한다. `task-work-time-history.cjs`가 전체 턴 메타데이터와 live 상태를 결합하고, `task-work-time.cjs`가 실행·자동 재개 대기 구간을 집계한다. 계약은 [연속 작업 시간](../architecture/features/task-work-time/README.md), 반복 검증은 [개발 운영](../ops/development.md#feature-checks)이 소유한다.
 
 Generic Node REPL staging is owned by `scripts/computer-use-runtime.cjs`; its historical internal name does not expose Computer Use/Sky desktop control. Window Use app permissions are owned by `scripts/window-use-approvals.cjs` and `use-control-settings.cjs`, with shared native approval UI hooks in `inject-computer-use.cjs`. See [Window Use](../architecture/window-use.md).
 
