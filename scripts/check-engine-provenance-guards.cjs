@@ -14,7 +14,7 @@ const checks = [
     "ImportedEngineProvenanceTests.test_imported_snapshot_long_path_keeps_identity_and_source_guards",
     "EngineProvenanceTests.test_release_reuse_rejects_dev_and_legacy_receipts",
     "EngineProvenanceTests.test_release_profile_keeps_source_binary_and_host_guards",
-    "NativeTargetProvenanceTests.test_unix_source_build_binds_target_three_hashes_and_source"],
+    "NativeTargetProvenanceTests.test_unix_source_build_binds_target_four_hashes_and_source"],
 ];
 
 for (const [file, ...cases] of checks) {
