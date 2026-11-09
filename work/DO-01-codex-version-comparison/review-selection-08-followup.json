@@ -1,0 +1,16 @@
+{
+  "repository": "openai/codex",
+  "scope": "세 번째 20개 PR 설명·호환성 조사 및 반영 목록 갱신. 코드 이식·빌드·설치 없이 선택 상태만 기록한다.",
+  "decisions": [
+    { "number": 56234, "status": "selected", "reason": "사용자가 4번을 반영하기로 결정했다. hook이 입력을 수락한 뒤 prompt telemetry를 기록하는 수정을 다음 묶음 반영 목록에 추가한다." },
+    { "number": 56247, "status": "excluded", "reason": "사용자가 7번 Rust 단위 테스트 전용 모듈 통합을 반영하지 않기로 결정했다." },
+    { "number": 56274, "status": "selected", "reason": "사용자가 15번 클라우드 설정 refresh 취소 완료 대기를 반영하도록 요청했다. 다음 묶음 반영 목록에 추가한다." },
+    { "number": 56280, "status": "selected", "reason": "사용자가 18번 연속 transcript prompt 배경 묶음을 Azrael과 호환되게 반영하도록 요청했다. TUI 변경이며 VS Code 대화 UI 변경과 구분한다." },
+    { "number": 56284, "status": "selected", "reason": "사용자가 19번 thread originator별 모델 목록·캐시 분리를 Azrael과 호환되게 반영하도록 요청했다. 기존 originator 결정·상속·provider 경로를 보존한다." }
+  ],
+  "preservedSelection": { "number": 56278, "status": "selected", "implementation": "none", "reason": "사용자가 17번 반영 의사를 재확인했다. 기존 선택과 고정 evidence를 유지한다." },
+  "unsettled": [56222, 56224, 56233, 56236, 56246, 56248, 56250, 56261, 56263, 56265, 56266, 56272, 56277, 56286],
+  "linkedDecision": { "number": 56246, "follows": 56222, "reason": "사용자가 6번을 1번과 동일하게 처리할 예정이라고 했다. 1번 선택이 미정이므로 임의로 selected/excluded 처리하지 않는다." },
+  "implementation": "none",
+  "evidenceScope": "GitHub PR 본문·변경 파일 및 선택한 patch, 현 engine 소스 정적 비교. 제품 실행·Rust 컴파일·설치본 검증은 수행하지 않았다."
+}

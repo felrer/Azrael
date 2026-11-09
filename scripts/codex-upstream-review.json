@@ -1444,6 +1444,156 @@
         "evidence": [],
         "verification": null
       }
+    },
+    "pr:56234": {
+      "id": "pr:56234",
+      "kind": "pr",
+      "number": 56234,
+      "mergeCommit": "8c7affbe1b8a912e92dbfd75b8d0cceb9ca34507",
+      "title": "Emit prompt telemetry only after hooks accept input",
+      "url": "https://github.com/openai/codex/pull/56234",
+      "commits": [
+        "8c7affbe1b8a912e92dbfd75b8d0cceb9ca34507"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 4번을 반영하기로 결정했다. hook이 입력을 수락한 뒤 prompt telemetry를 기록하는 수정을 다음 묶음 반영 목록에 추가한다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-followup.json",
+            "sha256": "ba0670043643873429464958a3a6e4d81626355e7b83e7188efd93e1ea5b7a9b"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56247": {
+      "id": "pr:56247",
+      "kind": "pr",
+      "number": 56247,
+      "mergeCommit": "c227654800307e23f440efaaa86131fabbd9388c",
+      "title": "Consolidate Rust unit tests under dedicated test modules",
+      "url": "https://github.com/openai/codex/pull/56247",
+      "commits": [
+        "c227654800307e23f440efaaa86131fabbd9388c"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 7번 Rust 단위 테스트 전용 모듈 통합을 반영하지 않기로 결정했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-followup.json",
+            "sha256": "ba0670043643873429464958a3a6e4d81626355e7b83e7188efd93e1ea5b7a9b"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56274": {
+      "id": "pr:56274",
+      "kind": "pr",
+      "number": 56274,
+      "mergeCommit": "ca87ef86e101c4e0b18847116fadcff078abaeaa",
+      "title": "Wait for cloud config refresh cancellation in loader lifetime tests",
+      "url": "https://github.com/openai/codex/pull/56274",
+      "commits": [
+        "ca87ef86e101c4e0b18847116fadcff078abaeaa"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 15번 클라우드 설정 refresh 취소 완료 대기를 반영하도록 요청했다. 다음 묶음 반영 목록에 추가한다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-followup.json",
+            "sha256": "ba0670043643873429464958a3a6e4d81626355e7b83e7188efd93e1ea5b7a9b"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56280": {
+      "id": "pr:56280",
+      "kind": "pr",
+      "number": 56280,
+      "mergeCommit": "35e21028080ccbda9de04d2239b0a0b2336d868f",
+      "title": "Group consecutive transcript prompts into one background block",
+      "url": "https://github.com/openai/codex/pull/56280",
+      "commits": [
+        "35e21028080ccbda9de04d2239b0a0b2336d868f"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 18번 연속 transcript prompt 배경 묶음을 Azrael과 호환되게 반영하도록 요청했다. TUI 변경이며 VS Code 대화 UI 변경과 구분한다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-followup.json",
+            "sha256": "ba0670043643873429464958a3a6e4d81626355e7b83e7188efd93e1ea5b7a9b"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56284": {
+      "id": "pr:56284",
+      "kind": "pr",
+      "number": 56284,
+      "mergeCommit": "2326a3f74b4b7dd79de063ef20685b6ccad7da12",
+      "title": "Scope model catalogs and caches by thread originator",
+      "url": "https://github.com/openai/codex/pull/56284",
+      "commits": [
+        "2326a3f74b4b7dd79de063ef20685b6ccad7da12"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 19번 thread originator별 모델 목록·캐시 분리를 Azrael과 호환되게 반영하도록 요청했다. 기존 originator 결정·상속·provider 경로를 보존한다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-followup.json",
+            "sha256": "ba0670043643873429464958a3a6e4d81626355e7b83e7188efd93e1ea5b7a9b"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
     }
   },
   "ranges": []
