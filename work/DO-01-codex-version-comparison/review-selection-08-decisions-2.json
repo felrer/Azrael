@@ -1,0 +1,33 @@
+{
+  "repository": "openai/codex",
+  "scope": "묶음 반영 목록의 추가 선택·제외 및 반영 검토. 제품 코드 이식은 아직 실행하지 않는다.",
+  "decisions": [
+    { "number": 56222, "status": "excluded", "reason": "사용자가 Bazel CI 관련을 이번 반영에서 보류하며 1번을 excluded 처리하도록 명시했다." },
+    { "number": 56246, "status": "excluded", "reason": "사용자가 1번과 함께 6번 Bazelisk 갱신도 excluded 처리하도록 명시했다." },
+    { "number": 56248, "status": "excluded", "reason": "사용자가 CI·릴리스 uv 갱신인 8번도 1·6번과 함께 excluded 처리하도록 명시했다. Bazel 전용 PR이라는 기술 판단은 아니다." },
+    { "number": 56261, "status": "excluded", "reason": "사용자가 10번 V8 소스 의존성과 C++ runtime 분리를 excluded 처리하도록 명시했다." },
+    { "number": 56265, "status": "excluded", "reason": "사용자가 12번 Google Cloud Vertex AI provider 추가를 excluded 처리하도록 명시했다." },
+    { "number": 56277, "status": "excluded", "reason": "사용자가 16번 AWS SigV4 bounded request body 지원을 excluded 처리하도록 명시했다." },
+    { "number": 56233, "status": "selected", "reason": "사용자가 3번 Opus 인코더 테스트 sample time timestamp 수정을 묶음 반영 대상으로 선택했다." },
+    { "number": 56236, "status": "selected", "reason": "사용자가 5번 Code Mode yield/resume 테스트 명시적 yield 수정을 묶음 반영 대상으로 선택했다." },
+    { "number": 56250, "status": "selected", "reason": "사용자가 9번 재개 시 불필요한 설정 checkpoint 생성 방지를 묶음 반영 대상으로 선택했다." },
+    { "number": 56263, "status": "selected", "reason": "사용자가 11번 HTTP(S) marketplace URL userinfo의 backslash 거절을 묶음 반영 대상으로 선택했다." },
+    { "number": 56266, "status": "deferred", "reason": "사용자가 13번 반영 검토를 요청했다. 현 catalog의 명시 차단·requirements 원인 혼합 및 materialization 시 차단 상태 유실 경로가 있어 반영을 권고한다. Azrael environment authority·SelectedPlugin·EMA 처리 보존을 포함한 이식 선택은 미확정이다.", "retryWhen": "사용자가 검토 결과에 따라 호환 이식 대상으로 선택하거나 제외할 때" },
+    { "number": 56272, "status": "deferred", "reason": "사용자가 14번 반영 검토를 요청했다. generator 갱신과 schema annotation 수정·현 schema 재생성을 함께 하는 조건부 반영을 권고한다. 실행 기능 직접 개선보다 Python SDK 생성 호환성 유지가 목적이며 아직 선택 미확정이다.", "retryWhen": "사용자가 Python SDK 생성기·호환 처리·현 schema 재생성을 묶어 반영하도록 선택할 때" },
+    { "number": 56284, "status": "deferred", "reason": "사용자의 최신 요청이 19번 반영 검토이므로 기존 selected를 검토 대기로 전환한다. Azrael ManagedModelsManager·DevinModelsManager와 per-thread manager override가 있어 upstream의 OpenAiModelsManager 변경만으로는 부족하다. 래퍼와 기존 provider catalog를 보존하는 호환 이식을 조건으로 권고한다.", "retryWhen": "사용자가 managed·Devin 래퍼 및 thread manager override 보존을 포함한 호환 이식 대상으로 확정할 때" },
+    { "number": 56286, "status": "deferred", "reason": "사용자가 20번 반영 검토를 요청했다. registry의 1.32.0 존재와 Node >=18, zod ^3.25 또는 ^4.0 요건을 확인했고 현 SDK 선언·lock과 명백한 버전 충돌은 발견하지 못했다. root resolution·lock 동기화 및 TS/conformance 검증을 조건으로 반영 권고하며 선택은 미확정이다.", "retryWhen": "사용자가 root resolution·lock 갱신과 TypeScript SDK/conformance 검증 범위로 반영을 확정할 때" }
+  ],
+  "preserve": [56234, 56247, 56274, 56278, 56280],
+  "comparison56224": {
+    "conclusion": "목적과 재사용 실패 시 fresh read 원칙은 같지만 구현 범위·API·통합 테스트가 다르다. 중복 이식보다 Azrael 구현 유지 및 필요한 페이지형 재개 통합 검증 보완을 권고한다. equivalent 원장 확정은 하지 않는다.",
+    "upstream": "PreparedResumeConfig에 paginated ResumedHistory를 보관하고 ThreadStore::is_model_context_current(thread_id, include_archived, revision)가 현재 경로를 재해석해 검증한다.",
+    "azrael": "PreparedResumeHistory를 config와 분리해 Legacy/Paginated 모두 재사용한다. 최신 StoredThread의 ID·경로·모드를 비교하고 validate_history_revision(path, revision)으로 exact path를 검사한다. revision 누락·불일치·오류 시 fresh load한다.",
+    "testDifference": "Azrael에는 재사용·fallback·ID/경로/모드 변경 단위 테스트와 local revision 파일 변경 테스트가 있다. upstream mcp_resource.rs가 추가한 paginated lifecycle/config concurrency 및 실제 모델 요청의 saved user message 확인은 현 통합 테스트에 그대로 없다.",
+    "scope": "소스와 테스트 정의 비교. 이번 작업에서 Rust 테스트 실행·설치본 검증은 하지 않았다."
+  },
+  "externalVerification": {
+    "sdkRegistry": "https://registry.npmjs.org/@modelcontextprotocol%2fsdk/1.32.0",
+    "sdkRegistryResult": "HTTP 200; version 1.32.0; Node >=18; zod ^3.25 || ^4.0",
+    "sdkGitHubReleaseLookup": "v1.32.0 release tag와 v1.26.0...v1.32.0 compare는 gh API에서 404였다. registry 확인은 성공했으나 전체 release 변경 비교·실행 호환성은 미검증이다."
+  }
+}

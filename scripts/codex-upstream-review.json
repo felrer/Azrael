@@ -1576,16 +1576,406 @@
         "2326a3f74b4b7dd79de063ef20685b6ccad7da12"
       ],
       "decision": {
-        "status": "selected",
-        "reason": "사용자가 19번 thread originator별 모델 목록·캐시 분리를 Azrael과 호환되게 반영하도록 요청했다. 기존 originator 결정·상속·provider 경로를 보존한다.",
+        "status": "deferred",
+        "reason": "사용자의 최신 요청이 19번 반영 검토이므로 기존 selected를 검토 대기로 전환한다. Azrael ManagedModelsManager·DevinModelsManager와 per-thread manager override가 있어 upstream의 OpenAiModelsManager 변경만으로는 부족하다. 래퍼와 기존 provider catalog를 보존하는 호환 이식을 조건으로 권고한다.",
         "evidence": [
           {
-            "path": "work/DO-01-codex-version-comparison/review-selection-08-followup.json",
-            "sha256": "ba0670043643873429464958a3a6e4d81626355e7b83e7188efd93e1ea5b7a9b"
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": "사용자가 managed·Devin 래퍼 및 thread manager override 보존을 포함한 호환 이식 대상으로 확정할 때"
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56222": {
+      "id": "pr:56222",
+      "kind": "pr",
+      "number": 56222,
+      "title": "Consolidate Bazel CI setup into `prepare-bazel-ci`",
+      "url": "https://github.com/openai/codex/pull/56222",
+      "mergeCommit": "9cb547349e7b16d7b00738e7a11b1a1dd28e6366",
+      "commits": [
+        "9cb547349e7b16d7b00738e7a11b1a1dd28e6366"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 Bazel CI 관련을 이번 반영에서 보류하며 1번을 excluded 처리하도록 명시했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
           }
         ],
         "dependsOn": [],
         "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56246": {
+      "id": "pr:56246",
+      "kind": "pr",
+      "number": 56246,
+      "title": "Bump Bazelisk to 1.30.0 in the Bazel CI setup action",
+      "url": "https://github.com/openai/codex/pull/56246",
+      "mergeCommit": "22db5847c834266986a53b782f2de21e8e834e0a",
+      "commits": [
+        "22db5847c834266986a53b782f2de21e8e834e0a"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 1번과 함께 6번 Bazelisk 갱신도 excluded 처리하도록 명시했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56248": {
+      "id": "pr:56248",
+      "kind": "pr",
+      "number": 56248,
+      "title": "Bump uv to 0.13.5 in CI and release workflows",
+      "url": "https://github.com/openai/codex/pull/56248",
+      "mergeCommit": "8eaf5fd115f036d207be236009938261758e30f2",
+      "commits": [
+        "8eaf5fd115f036d207be236009938261758e30f2"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 CI·릴리스 uv 갱신인 8번도 1·6번과 함께 excluded 처리하도록 명시했다. Bazel 전용 PR이라는 기술 판단은 아니다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56261": {
+      "id": "pr:56261",
+      "kind": "pr",
+      "number": 56261,
+      "title": "Isolate V8 source dependencies and their C++ runtime settings",
+      "url": "https://github.com/openai/codex/pull/56261",
+      "mergeCommit": "85de07048c21c349f491e24b4eb4e5b674fd5a28",
+      "commits": [
+        "85de07048c21c349f491e24b4eb4e5b674fd5a28"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 10번 V8 소스 의존성과 C++ runtime 분리를 excluded 처리하도록 명시했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56265": {
+      "id": "pr:56265",
+      "kind": "pr",
+      "number": 56265,
+      "title": "Add a built-in Google Cloud Vertex AI provider",
+      "url": "https://github.com/openai/codex/pull/56265",
+      "mergeCommit": "3fd148a20c18cfc72beb7dedfa52951b1f9c4cb1",
+      "commits": [
+        "3fd148a20c18cfc72beb7dedfa52951b1f9c4cb1"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 12번 Google Cloud Vertex AI provider 추가를 excluded 처리하도록 명시했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56277": {
+      "id": "pr:56277",
+      "kind": "pr",
+      "number": 56277,
+      "title": "Support bounded request bodies in AWS SigV4 signing",
+      "url": "https://github.com/openai/codex/pull/56277",
+      "mergeCommit": "129220bf057daf978e097d5395295d0a2f2f07c8",
+      "commits": [
+        "129220bf057daf978e097d5395295d0a2f2f07c8"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "사용자가 16번 AWS SigV4 bounded request body 지원을 excluded 처리하도록 명시했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56233": {
+      "id": "pr:56233",
+      "kind": "pr",
+      "number": 56233,
+      "title": "Make Opus encoder test timestamps follow sample time",
+      "url": "https://github.com/openai/codex/pull/56233",
+      "mergeCommit": "7ace9c6aa2e30b2381364d640930fe99c7b534ef",
+      "commits": [
+        "7ace9c6aa2e30b2381364d640930fe99c7b534ef"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 3번 Opus 인코더 테스트 sample time timestamp 수정을 묶음 반영 대상으로 선택했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56236": {
+      "id": "pr:56236",
+      "kind": "pr",
+      "number": 56236,
+      "title": "Make the code mode yield/resume test yield explicitly between phases",
+      "url": "https://github.com/openai/codex/pull/56236",
+      "mergeCommit": "a3d93e1e692f1144cf8685175a5d1f6bf7294f57",
+      "commits": [
+        "a3d93e1e692f1144cf8685175a5d1f6bf7294f57"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 5번 Code Mode yield/resume 테스트 명시적 yield 수정을 묶음 반영 대상으로 선택했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56250": {
+      "id": "pr:56250",
+      "kind": "pr",
+      "number": 56250,
+      "title": "Avoid redundant settings checkpoints when resuming threads",
+      "url": "https://github.com/openai/codex/pull/56250",
+      "mergeCommit": "40db507eeca2ff778c040c325449eb72e90c0590",
+      "commits": [
+        "40db507eeca2ff778c040c325449eb72e90c0590"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 9번 재개 시 불필요한 설정 checkpoint 생성 방지를 묶음 반영 대상으로 선택했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56263": {
+      "id": "pr:56263",
+      "kind": "pr",
+      "number": 56263,
+      "title": "Reject backslashes in HTTP(S) marketplace URL userinfo",
+      "url": "https://github.com/openai/codex/pull/56263",
+      "mergeCommit": "61a991990fa4fd0c511ccaaab3875371796be956",
+      "commits": [
+        "61a991990fa4fd0c511ccaaab3875371796be956"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 11번 HTTP(S) marketplace URL userinfo의 backslash 거절을 묶음 반영 대상으로 선택했다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56266": {
+      "id": "pr:56266",
+      "kind": "pr",
+      "number": 56266,
+      "title": "Preserve MCP disable reasons across runtime overlays",
+      "url": "https://github.com/openai/codex/pull/56266",
+      "mergeCommit": "cb2581dae8de14ca5282332ec329c335bf04195f",
+      "commits": [
+        "cb2581dae8de14ca5282332ec329c335bf04195f"
+      ],
+      "decision": {
+        "status": "deferred",
+        "reason": "사용자가 13번 반영 검토를 요청했다. 현 catalog의 명시 차단·requirements 원인 혼합 및 materialization 시 차단 상태 유실 경로가 있어 반영을 권고한다. Azrael environment authority·SelectedPlugin·EMA 처리 보존을 포함한 이식 선택은 미확정이다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": "사용자가 검토 결과에 따라 호환 이식 대상으로 선택하거나 제외할 때"
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56272": {
+      "id": "pr:56272",
+      "kind": "pr",
+      "number": 56272,
+      "title": "Upgrade Python SDK model generation to datamodel-code-generator 0.64.0",
+      "url": "https://github.com/openai/codex/pull/56272",
+      "mergeCommit": "0eb98b46176fd41fc285e5e2f82218bf0ccd70f5",
+      "commits": [
+        "0eb98b46176fd41fc285e5e2f82218bf0ccd70f5"
+      ],
+      "decision": {
+        "status": "deferred",
+        "reason": "사용자가 14번 반영 검토를 요청했다. generator 갱신과 schema annotation 수정·현 schema 재생성을 함께 하는 조건부 반영을 권고한다. 실행 기능 직접 개선보다 Python SDK 생성 호환성 유지가 목적이며 아직 선택 미확정이다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": "사용자가 Python SDK 생성기·호환 처리·현 schema 재생성을 묶어 반영하도록 선택할 때"
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56286": {
+      "id": "pr:56286",
+      "kind": "pr",
+      "number": 56286,
+      "title": "Bump `@modelcontextprotocol/sdk` to `1.32.0`",
+      "url": "https://github.com/openai/codex/pull/56286",
+      "mergeCommit": "e0fdd608e8d255f8b4b2c8fa5eecc855efb89fb9",
+      "commits": [
+        "e0fdd608e8d255f8b4b2c8fa5eecc855efb89fb9"
+      ],
+      "decision": {
+        "status": "deferred",
+        "reason": "사용자가 20번 반영 검토를 요청했다. registry의 1.32.0 존재와 Node >=18, zod ^3.25 또는 ^4.0 요건을 확인했고 현 SDK 선언·lock과 명백한 버전 충돌은 발견하지 못했다. root resolution·lock 동기화 및 TS/conformance 검증을 조건으로 반영 권고하며 선택은 미확정이다.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08-decisions-2.json",
+            "sha256": "58bc4918efc15654c5079bbd5d17adb6453719bfb0a6cffa18a8b4b389e1598c"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": "사용자가 root resolution·lock 갱신과 TypeScript SDK/conformance 검증 범위로 반영을 확정할 때"
       },
       "implementation": {
         "status": "none",
