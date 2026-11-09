@@ -31,3 +31,6 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Private work plans, discussions and development evidence.
+/work/
