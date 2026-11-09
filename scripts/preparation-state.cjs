@@ -6,6 +6,7 @@ const crypto = require("node:crypto");
 const { createRequire } = require("node:module");
 const { getDirectoryState } = require("./directory-state.cjs");
 const { getUiSourceState } = require("./ui-source-state.cjs");
+const { key: semanticKey } = require("./verification-reuse-policy.cjs");
 
 const digest = value => crypto.createHash("sha256").update(value).digest("hex");
 const readJson = file => JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, ""));
@@ -47,7 +48,7 @@ function crcToolFiles(toolDirectory) {
 async function inputs(config, uiSourceObservation) {
   const scripts = [
     "persisted-atoms.cjs",
-    "preparation-state.cjs", "module-cache-consumers.cjs", "directory-state.cjs", "ui-source-state.cjs", "project-source-state.cjs", "source-observation.cjs", "engine-source-metadata.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
+    "preparation-state.cjs", "verification-reuse-policy.cjs", "module-cache-consumers.cjs", "directory-state.cjs", "ui-source-state.cjs", "project-source-state.cjs", "source-observation.cjs", "engine-source-metadata.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
     "ordinary-runtime.cjs", "shared-engine-host.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",
@@ -81,10 +82,14 @@ async function inputs(config, uiSourceObservation) {
 async function initialize(output, config, resume, uiSourceObservation) {
   const file = path.join(output, "preparation-state.json");
   const current = await inputs(config, uiSourceObservation);
-  const inputSha256 = digest(JSON.stringify(current));
+  const inputSha256 = semanticKey(current);
   if (resume) {
     const previous = readJson(file);
-    if (previous.schema !== 1 || previous.inputSha256 !== inputSha256) {
+    // Existing schema-1 checkpoints used insertion-order JSON hashes. Validate
+    // their stored inputs before comparing semantic identities; arrays stay ordered.
+    const validStoredHash = previous.inputs && [semanticKey(previous.inputs),
+      digest(JSON.stringify(previous.inputs))].includes(previous.inputSha256);
+    if (previous.schema !== 1 || !validStoredHash || semanticKey(previous.inputs) !== inputSha256) {
       throw new Error("Preparation inputs changed. Use a new OutputDirectory.");
     }
     return previous;

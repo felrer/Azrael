@@ -155,6 +155,23 @@ test("unchanged preparation resumes and absent stages are explicit", async t => 
   assert.deepEqual(await state.load(output, "complete"), { found: false });
 });
 
+// Packaging policy objects may cross PowerShell/JSON boundaries with different key order.
+test("preparation checkpoint ignores object order but preserves arrays and stored integrity", async t => {
+  const { config, output, write } = fixture(t);
+  config.sourceTestPolicy = { changedPaths: ["a", "b"], exhaustive: false };
+  const initial = await state.initialize(output, config, false);
+  const reordered = { ...config, sourceTestPolicy: { exhaustive: false, changedPaths: ["a", "b"] } };
+  assert.deepEqual(await state.initialize(output, reordered, true), initial);
+  await assert.rejects(state.initialize(output, { ...config, sourceTestPolicy: { changedPaths: ["b", "a"], exhaustive: false } }, true), /Preparation inputs changed/);
+  const file = path.join(output, "preparation-state.json");
+  const legacy = { ...initial, inputSha256: crypto.createHash("sha256").update(JSON.stringify(initial.inputs)).digest("hex") };
+  write(file, JSON.stringify(legacy));
+  assert.deepEqual(await state.initialize(output, reordered, true), legacy);
+  legacy.inputs.config.skipSnapshot = false;
+  write(file, JSON.stringify(legacy));
+  await assert.rejects(state.initialize(output, config, true), /Preparation inputs changed/);
+});
+
 // Attempt-local observations must not enter semantic checkpoint configuration.
 test("UI observation forwarding preserves checkpoint identity across fresh Resume attempts", async t => {
   const { config, output } = fixture(t);
