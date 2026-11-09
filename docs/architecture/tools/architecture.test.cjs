@@ -211,7 +211,8 @@ test('nested map/facets use owning metadata, stable IDs and exact source reads',
   assert.equal(tool.read(index, 'arch.clock.ui#detail').content, 'clock display\r\n');
   assert.equal(tool.read(index, 'arch.shared.override').feature, null);
   assert.equal(tool.search(index, 'original').items[0].id, 'arch.clock.ui');
-  assert.deepEqual(Object.keys(tool.search(index, 'original').items[0]).sort(), ['feature', 'id', 'layers', 'title']);
+  assert.deepEqual(Object.keys(tool.search(index, 'original').items[0]).sort(), ['excerpt', 'excerptTruncated', 'feature', 'id', 'layers', 'title']);
+  assert.deepEqual(Object.keys(tool.search(index, 'original', { compact: true }).items[0]).sort(), ['feature', 'id', 'layers', 'title']);
   assert.equal('expansion' in tool.search(index, 'original'), false);
   assert.equal(tool.search(index, 'original', { detail: true }).items[0].excerpt.includes('architecture:'), false);
   assert.equal(tool.search(index, 'layers').total, 0);
@@ -223,6 +224,66 @@ test('nested map/facets use owning metadata, stable IDs and exact source reads',
   assert.equal(tool.run(['map', '--limit', '1'], root).truncated, true);
   assert.throws(() => tool.run(['map', '--layer', 'database'], root), { code: 'INVALID_ARGUMENT' });
   assert.throws(() => tool.run(['map', '--detail'], root), { code: 'INVALID_ARGUMENT' });
+});
+
+test('search modes default to five with source-derived bounded excerpts and identical ranked pages', () => {
+  const body = `needle ${'😀'.repeat(170)}`;
+  const root = fixture({ 'docs/architecture/a.md': Array.from({ length: 9 }, (_, i) =>
+    `# Needle ${i}\n<!-- architecture: {"id":"arch.n${i}","feature":"sample","layers":["engine"]} -->\n${body}\n`).join('') });
+  const index = tool.createIndex(root);
+  const all = tool.search(index, 'needle', { limit: 100 });
+  for (const mode of [[], ['--compact'], ['--detail']]) {
+    const first = tool.run(['search', 'needle', ...mode], root);
+    assert.equal(first.limit, 5);
+    assert.equal(first.items.length, 5);
+    assert.equal(first.nextOffset, 5);
+    assert.deepEqual(first.items.map(item => item.id), all.items.slice(0, 5).map(item => item.id));
+    assert.deepEqual(tool.run(['search', 'needle', ...mode, '--offset', '5', '--limit', '100'], root).items.map(item => item.id),
+      all.items.slice(5).map(item => item.id));
+  }
+  const brief = all.items[0], detail = detailedSearch(index, 'needle').items[0];
+  assert.equal(brief.excerpt, body.slice(0, 160));
+  assert.equal(brief.excerpt.length, 160);
+  assert.equal(brief.excerptTruncated, true);
+  assert.ok(detail.excerpt.length <= 320 && detail.excerpt.length > 160);
+  assert.equal('score' in brief, false);
+  assert.equal('parent' in brief, false);
+  assert.equal('expansion' in all, false);
+  assert.ok('score' in detail && 'sha' in detail);
+  assert.throws(() => tool.search(index, 'needle', { compact: true, detail: true }), { code: 'INVALID_ARGUMENT' });
+});
+
+test('read adds at most three indexed contract documents without shared or arbitrary-link expansion', () => {
+  const doc = (id, feature, body = 'body') => `# ${id}\n<!-- architecture: ${JSON.stringify({ id, feature, layers: [] })} -->\n${body}\n`;
+  const documents = {
+    'docs/architecture/README.md': doc('arch.shared', null),
+    'docs/architecture/f/README.md': doc('arch.owner', 'sample'),
+    'docs/architecture/f/a.md': doc('arch.a', 'sample', '[Other](../other.md)\n## Child\nexact 😀 body\r\n'),
+    'docs/architecture/other.md': doc('arch.other', 'other'),
+    'docs/architecture/shared.md': doc('arch.shared2', null),
+    'docs/architecture/unknown.md': '# Unknown\nno metadata\n',
+    'docs/architecture/unknown2.md': '# Unknown Two\nno metadata\n',
+    'external.md': '# External',
+    'docs/architecture/router.md': '# Router\n<!-- architecture: {"id":"arch.router","feature":null,"layers":[],"status":"reference","redirect":"arch.a"} -->\n'
+  };
+  for (let i = 0; i < 4; i++) documents[`docs/architecture/c${i}.md`] = doc(`arch.c${i}`, 'sample');
+  const contracts = ['f/a', ...Array.from({ length: 4 }, (_, i) => `c${i}`), 'other', 'shared', 'unknown', 'unknown2', 'router'];
+  const features = contracts.map((name, i) => ({ id: `registry.${i}`, contract: `docs/architecture/${name}.md` }));
+  features.push({ id: 'external', contract: 'external.md' });
+  const root = fixture(documents, undefined, features), index = tool.createIndex(root);
+  const read = tool.read(index, 'arch.a#child', { offset: 6, limit: 2 });
+  assert.equal(read.content, '😀');
+  assert.equal(read.characterUnit, 'UTF-16 code units');
+  assert.equal(read.contracts.total, 6);
+  assert.equal(read.contracts.items.length, 3);
+  assert.equal(read.contracts.truncated, true);
+  assert.equal(read.contracts.items[0].id, 'arch.owner');
+  assert.ok(read.contracts.items.every(item => item.feature === 'sample' && !('file' in item)));
+  assert.equal('owners' in read, false);
+  assert.deepEqual(tool.read(index, 'arch.shared2').contracts.items.map(item => item.id), ['arch.shared2']);
+  assert.deepEqual(tool.read(index, 'docs/architecture/unknown.md#unknown').contracts.items.map(item => item.id), ['docs/architecture/unknown.md#unknown']);
+  assert.deepEqual(tool.read(index, 'arch.other').contracts.items.map(item => item.id), ['arch.other']);
+  assert.equal(tool.read(index, 'arch.router').contracts.total, 0);
 });
 
 test('metadata diagnostics expose duplicate IDs, invalid types, and feature overrides', () => {
@@ -382,6 +443,56 @@ test('related preserves section links and inventory contract, owners/checks with
   assert.equal(expanded.truncated, true);
   assert.equal(expanded.items.length, 1);
   assert.ok(tool.run(['related', 'docs/architecture/a.md#a', '--detail', '--limit', '100'], root).items.some(item => item.type === 'check'));
+  for (const kind of ['contract', 'owner', 'check']) {
+    const selected = tool.run(['related', 'docs/architecture/a.md#a', '--kind', kind], root);
+    assert.equal(selected.items.length, 1);
+    assert.ok(selected.items.every(item => item.type === kind && item.feature === 'engine.test'));
+    assert.match(selected.coverage, /file-level registered/);
+    assert.match(selected.coverage, /not exact-section/);
+    assert.equal(selected.limit, 8);
+  }
+  assert.equal(tool.related(index, 'primary', { kind: 'check' }).items[0].id, 'test.check');
+  assert.equal(tool.related(index, 'engine.test', { kind: 'owner' }).items[0].available, true);
+});
+
+test('kind uses only same classified feature or exact registered file, never related concepts or links', () => {
+  const doc = (id, feature) => `# ${id}\n<!-- architecture: ${JSON.stringify({ id, feature, layers: [] })} -->\n`;
+  const docs = {
+    'docs/architecture/a.md': doc('arch.a', 'sample') + '[Unrelated](b.md)\n## Child\nbody\n',
+    'docs/architecture/b.md': doc('arch.b', 'other'),
+    'docs/architecture/shared.md': doc('arch.shared', null),
+    'docs/architecture/shared2.md': doc('arch.shared2', null),
+    'docs/architecture/unknown.md': '# Unknown\n',
+    'docs/architecture/unknown2.md': '# Unknown Two\n'
+  };
+  const features = Array.from({ length: 10 }, (_, i) => {
+    docs[`docs/architecture/s${i}.md`] = doc(`arch.s${i}`, 'sample');
+    return { id: `feature.${i}`, contract: `docs/architecture/s${i}.md`, owners: [`owner${i}.js`],
+      checks: [{ id: `check.${i}`, executable: 'node', args: ['not-executed'] }] };
+  });
+  for (const name of ['b', 'shared', 'shared2', 'unknown', 'unknown2']) features.push({ id: name, contract: `docs/architecture/${name}.md`, owners: ['unrelated.js'] });
+  features.push({ id: 'external', contract: 'external.md', owners: ['external.js'] });
+  const root = fixture(docs, { schema: 1, concepts: [
+    { id: 'one', label: 'One', features: ['feature.0'], related: ['two'] },
+    { id: 'two', label: 'Two', features: ['b'] }
+  ] }, features), index = tool.createIndex(root);
+  const owners = tool.related(index, 'arch.a#child', { kind: 'owner' });
+  assert.equal(owners.total, 10);
+  assert.equal(owners.items.length, 8);
+  assert.equal(owners.nextOffset, 8);
+  assert.deepEqual(tool.related(index, 'arch.a#child', { kind: 'owner', offset: 8 }).items.map(item => item.feature), ['feature.8', 'feature.9']);
+  assert.deepEqual(tool.related(index, 'one', { kind: 'contract' }).items.map(item => item.feature), ['feature.0']);
+  assert.deepEqual(tool.related(index, 'feature.0', { kind: 'owner' }).items.map(item => item.feature), ['feature.0']);
+  assert.deepEqual(tool.related(index, 'arch.shared', { kind: 'owner' }).items.map(item => item.feature), ['shared']);
+  assert.deepEqual(tool.related(index, 'docs/architecture/unknown.md#unknown', { kind: 'owner' }).items.map(item => item.feature), ['unknown']);
+  assert.equal(tool.related(index, 'external', { kind: 'contract' }).items[0].available, false);
+  for (const args of [
+    ['search', 'x', '--kind', 'owner'], ['read', 'arch.a', '--kind', 'contract'], ['map', '--kind', 'check'], ['check', '--kind', 'check'],
+    ['related', 'arch.a', '--kind', 'all'], ['related', 'arch.a', '--kind', 'owner', '--kind', 'check'],
+    ['related', 'arch.a', '--kind', 'owner', '--detail'], ['related', 'arch.a', '--kind', 'owner', '--direction', 'both'],
+    ['related', 'arch.a', '--compact'], ['read', 'arch.a', '--compact'], ['map', '--compact'], ['check', '--compact'],
+    ['search', 'x', '--compact', '--detail']
+  ]) assert.throws(() => tool.run(args, root), { code: 'INVALID_ARGUMENT' }, args.join(' '));
 });
 
 test('check diagnoses links/owners/terms, distinguishes findings and scopes changed paths', () => {

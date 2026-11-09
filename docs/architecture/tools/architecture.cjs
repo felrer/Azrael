@@ -369,6 +369,7 @@ function getSection(index, id) {
 }
 
 function search(index, query, options = {}) {
+  if (options.compact && options.detail) fail('INVALID_ARGUMENT', 'compact and detail are mutually exclusive');
   if (typeof query !== 'string' || !query.trim() || query.length > 2048) fail('INVALID_QUERY', 'Query must contain 1..2048 characters');
   const needle = normalize(query.trim());
   const tokens = [...new Set(needle.split(/\s+/).filter(Boolean))];
@@ -423,7 +424,9 @@ function search(index, query, options = {}) {
   }
   hits.sort((a, b) => priorities.get(a.id) - priorities.get(b.id) || b.score - a.score || a.id.localeCompare(b.id));
   return { command: 'search', query, ...(options.detail ? { expansion: concepts.map(({ id, label, aliases, legacy, related, matchKind }) => ({ id, label, aliases, legacy, related, matchKind })) } : {}),
-    ...page(options.detail ? hits : hits.map(hit => candidate(index.ids.get(hit.id))), options) };
+    ...page(options.detail ? hits : hits.map(hit => ({ ...candidate(index.ids.get(hit.id)),
+      ...(!options.compact ? { excerpt: hit.excerpt.slice(0, 160),
+        excerptTruncated: hit.excerptTruncated || hit.excerpt.length > 160 } : {}) })), { ...options, limit: options.limit ?? 5 }) };
 }
 
 function read(index, id, options = {}) {
@@ -437,7 +440,26 @@ function read(index, id, options = {}) {
     nextOffset: offset + limit < section.body.length ? offset + limit : null, content,
     contentStartLine: section.startLine + section.body.slice(0, offset).split('\n').length - 1,
     contentEndLine: content ? section.startLine + section.body.slice(0, offset + content.length).split('\n').length - 1 : null,
-    characterUnit: 'UTF-16 code units' };
+    characterUnit: 'UTF-16 code units', contracts: contractNavigation(index, section) };
+}
+
+function contractNavigation(index, section) {
+  const documents = [];
+  if (typeof section.feature === 'string') {
+    let directory = path.posix.dirname(section.file);
+    while (directory.startsWith('docs/architecture')) {
+      const owner = index.documents.find(document => document.file === `${directory}/README.md` &&
+        !document.redirect && document.classification.feature === section.feature);
+      if (owner) { documents.push(owner); break; }
+      if (directory === 'docs/architecture') break;
+      directory = path.posix.dirname(directory);
+    }
+  }
+  const registered = new Set(sectionFeatures(index, section).map(feature => feature.contract));
+  documents.push(...index.documents.filter(document => !document.redirect && registered.has(document.file)));
+  const candidates = [...new Map(documents.map(document => [document.entry.id, candidate(document.entry)])).values()];
+  return { total: candidates.length, items: candidates.slice(0, 3), truncated: candidates.length > 3,
+    coverage: 'indexed architecture contract candidates; file-level mapping, not semantic dependency completeness' };
 }
 
 function links(section) {
@@ -480,12 +502,28 @@ function featureRelations(index, feature) {
       level: check.level, executable: check.executable, args: check.args }))];
 }
 
+function sectionFeatures(index, section) {
+  return index.features.filter(feature => feature.contract === section.file ||
+    typeof section.feature === 'string' && index.documents.some(document =>
+      !document.redirect && document.file === feature.contract && document.entry.feature === section.feature));
+}
+
 function related(index, id, options = {}) {
   const items = [];
   const direction = options.direction || 'both';
   if (!['incoming', 'outgoing', 'both'].includes(direction)) fail('INVALID_ARGUMENT', 'direction must be incoming, outgoing or both');
   const feature = index.features.find(item => item.id === id);
   const concept = index.terms.find(item => item.id === id);
+  if (options.kind !== undefined) {
+    if (!['contract', 'owner', 'check'].includes(options.kind) || options.detail || options.direction !== undefined) {
+      fail('INVALID_ARGUMENT', 'kind must be contract, owner or check and cannot be combined with detail or direction');
+    }
+    const selected = feature ? [feature] : concept
+      ? index.features.filter(item => concept.features.includes(item.id)) : sectionFeatures(index, getSection(index, id));
+    return { command: 'related', id, kind: options.kind,
+      coverage: 'file-level registered inventory relationships; not exact-section coverage or evidence that checks passed',
+      ...page(selected.flatMap(item => featureRelations(index, item)).filter(item => item.type === options.kind), options) };
+  }
   let features = feature ? [feature] : [];
   if (!feature && !concept) {
     const section = getSection(index, id);
@@ -582,12 +620,14 @@ function check(index, options = {}) {
 const HELP = `Local architecture retrieval (JSON, no source writes)
   node docs/architecture/tools/architecture.cjs [--root ROOT] COMMAND
   map [--feature ID|null|unknown] [--layer ui|host|engine|tooling] [--group-by feature|layer]
-  search <query> [--feature ID|null|unknown] [--layer LAYER] [--detail]
+  search <query> [--feature ID|null|unknown] [--layer LAYER] [--compact|--detail]
   read <stable-id|file#anchor> [--limit 1..24000] [--offset N] [--sha HASH]
-  related <stable-id|file#anchor|feature|concept> [--direction incoming|outgoing|both] [--detail]
+  related <stable-id|file#anchor|feature|concept> [--direction incoming|outgoing|both] [--detail] [--kind contract|owner|check]
   check [--changed repository-path ...]
   --help
-All result lists accept --limit 1..100 and --offset N; default 8 results.
+All result lists accept --limit 1..100 and --offset N; search defaults to 5, other lists to 8.
+Search defaults to brief source excerpts (160 UTF-16 code units); compact omits excerpts.
+Related kind cannot combine with detail or direction.
 Repeat --feature/--layer for OR within a facet, AND between facets.
 Read defaults to 6000 UTF-16 code units. check exit 0 means completed;
 inspect clean/findingCount. Detailed search/read expose source SHA.
@@ -600,14 +640,18 @@ function run(argv, defaultRoot = path.resolve(__dirname, '../../..')) {
   for (let i = 0; i < argv.length; i++) {
     const argument = argv[i];
     if (argument.startsWith('--')) {
-      if (argument === '--detail') { options.detail = true; continue; }
-      if (!['--root', '--limit', '--offset', '--sha', '--changed', '--feature', '--layer', '--direction', '--group-by'].includes(argument)) fail('INVALID_ARGUMENT', `Unknown option: ${argument}`);
+      if (['--detail', '--compact'].includes(argument)) { options[argument.slice(2)] = true; continue; }
+      if (!['--root', '--limit', '--offset', '--sha', '--changed', '--feature', '--layer', '--direction', '--group-by', '--kind'].includes(argument)) fail('INVALID_ARGUMENT', `Unknown option: ${argument}`);
       const value = argv[++i];
       if (value === undefined || value.startsWith('--')) fail('INVALID_ARGUMENT', `Missing value: ${argument}`);
       if (argument === '--root') root = value;
       else if (argument === '--changed') changed.push(value);
       else if (argument === '--sha') options.sha = value;
       else if (argument === '--direction') options.direction = value;
+      else if (argument === '--kind') {
+        if (options.kind !== undefined) fail('INVALID_ARGUMENT', 'kind accepts only one value');
+        options.kind = value;
+      }
       else if (argument === '--group-by') options.groupBy = value;
       else if (['--feature', '--layer'].includes(argument)) (options[argument.slice(2)] ||= []).push(value);
       else { if (!/^\d+$/.test(value)) fail('INVALID_RANGE', `${argument} must be a nonnegative integer`); options[argument.slice(2)] = Number(value); }
@@ -619,6 +663,8 @@ function run(argv, defaultRoot = path.resolve(__dirname, '../../..')) {
   if (changed.length && command !== 'check' || options.sha !== undefined && command !== 'read') fail('INVALID_ARGUMENT', 'Option is not valid for this command');
   if (options.detail && !['search', 'related'].includes(command) || (options.feature || options.layer) && !['map', 'search'].includes(command) || options.direction && command !== 'related') fail('INVALID_ARGUMENT', 'Option is not valid for this command');
   if (options.groupBy !== undefined && command !== 'map') fail('INVALID_ARGUMENT', 'group-by is valid only for map');
+  if (options.compact && (command !== 'search' || options.detail)) fail('INVALID_ARGUMENT', 'compact is valid only for search and cannot combine with detail');
+  if (options.kind !== undefined && (command !== 'related' || options.detail || options.direction !== undefined || !['contract', 'owner', 'check'].includes(options.kind))) fail('INVALID_ARGUMENT', 'kind is valid only for related, accepts contract, owner or check, and cannot combine with detail or direction');
   const index = createIndex(root);
   const result = command === 'check' ? check(index, { ...options, changed })
     : command === 'map' ? map(index, options) : ({ search, read, related })[command](index, args[0], options);
