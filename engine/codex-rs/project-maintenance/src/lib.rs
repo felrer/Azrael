@@ -5,6 +5,7 @@ mod apply;
 pub mod cli;
 mod coordination;
 mod decision_history;
+mod deleted_claim_retirement;
 mod directory_delete;
 mod disk_budget;
 mod duplicate_claims;
@@ -324,17 +325,18 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             "project config changed while request was queued; fresh review required".into(),
         );
     }
-    let mutate = matches!(
-        operation,
-        "register"
-            | "begin_run"
-            | "finish_step"
-            | "validate_step"
-            | "recover_run"
-            | "apply"
-            | "reconcile_duplicate_groups"
-            | "compact_decision_history"
-    );
+    let mutate = !deleted_claim_retirement::review_request(&request)
+        && matches!(
+            operation,
+            "register"
+                | "begin_run"
+                | "finish_step"
+                | "validate_step"
+                | "recover_run"
+                | "apply"
+                | "reconcile_duplicate_groups"
+                | "compact_decision_history"
+        );
     let wait = authorize.lock_wait.get();
     // Retry only transaction acquisition. A failed catalog acquisition drops all
     // partial leases before sleeping; every attempt reads fresh state and policy.
@@ -354,7 +356,28 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             if mutate {
                 store.authorize_save(authorize)?;
             }
-            let lock_request = if operation == "reconcile_duplicate_groups" {
+            let lock_request = if operation == "register"
+                && request.get("retire_deleted_claim").is_some()
+            {
+                deleted_claim_retirement::guard_registration(&store.state, &request)?;
+                if deleted_claim_retirement::review_request(&request) {
+                    json!({"operation":"review"})
+                } else {
+                    let descriptor = &request["retire_deleted_claim"];
+                    let mut decisions = Vec::new();
+                    for key in ["historical_group_id", "replacement_group_id"] {
+                        let group = store
+                            .state
+                            .groups
+                            .get(string(descriptor, key)?)
+                            .ok_or("unknown claim lifecycle group")?;
+                        for id in group["members"].as_array().ok_or("invalid claim members")? {
+                            decisions.push(json!({"id":id}));
+                        }
+                    }
+                    json!({"operation":"apply","decisions":decisions})
+                }
+            } else if operation == "reconcile_duplicate_groups" {
                 json!({"operation":"apply","decisions":store.state.items.keys().map(|id| json!({"id":id})).collect::<Vec<_>>()})
             } else {
                 request.clone()
@@ -386,6 +409,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     }
     // Long payload work uses scoped fences between short state/catalog transactions.
     reservations::check_request(&root, &request, &store.state, authorize)?;
+    if operation == "register" {
+        deleted_claim_retirement::guard_registration(&store.state, &request)?;
+    }
     *authorize.retirement.borrow_mut() =
         retirement::validate(&root, config.as_ref(), &store.state, &request, authorize)?;
     *authorize.nested_retirement.borrow_mut() =
@@ -414,6 +440,7 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     if operation == "register"
         && request.get("refresh_group").is_none()
         && request.get("retire_group_source").is_none()
+        && request.get("retire_deleted_claim").is_none()
     {
         return registration::register(
             &root,
@@ -547,6 +574,18 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
                 })
                 .collect::<Vec<_>>();
             json!({"project_id":config.project_id,"project_root":root,"items":items,"groups":groups,"bundles":bundles,"runs":runs,"decisions":decisions,"pagination":{"offset":offset,"limit":limit,"total":state.items.len(),"groups_total":state.groups.len(),"runs_total":state.runs.len(),"decisions_total":state.decisions.len(),"bundles_total":config.bundles.len()},"logical_bytes":total,"measurement":"cached logical bytes; not reclaimed physical space","policy":config.metadata})
+        }
+        "register" if request.get("retire_deleted_claim").is_some() => {
+            let result = deleted_claim_retirement::retire(
+                &root,
+                config.as_ref().ok_or("valid project config required")?,
+                &config_identity,
+                &request["retire_deleted_claim"],
+                state,
+                authorize,
+            )?;
+            refresh_unchanged = deleted_claim_retirement::review_request(&request);
+            result
         }
         "register" if request.get("retire_group_source").is_some() => {
             if ["item", "group", "refresh_group"]
@@ -968,6 +1007,23 @@ fn review_contents(
                     Ok(_) => {}
                 }
             }
+            if !source_overlap {
+                if let Some(proof) = deleted_claim_retirement::pair(
+                    root,
+                    config,
+                    config_identity,
+                    state,
+                    item,
+                    other,
+                    auth,
+                )? {
+                    // Fresh native absence above needs no overlap exception.
+                    // For a present root, observe every receipt pin afresh and
+                    // include it outside TokenCache in the related-item token.
+                    related.push(json!({"id":other["id"],"retired_claim":proof}));
+                    continue;
+                }
+            }
             if groups::id(other).is_some()
                 && groups::id(other) != groups::id(item)
                 && !nested_retirement::pair(auth, item, other)
@@ -1070,6 +1126,12 @@ fn review_single(
     drop(measurement_detail);
     let protection_detail = timing::detail("single.protection");
     let mut blockers = Vec::new();
+    if groups::id(item)
+        .and_then(|id| state.groups.get(id))
+        .is_some_and(|group| group.get("deleted_claim_retirement").is_some())
+    {
+        blockers.push("retired historical claim cannot authorize payload cleanup");
+    }
     if measured["presence"] == "unknown" {
         blockers.push("target observation unavailable");
     }

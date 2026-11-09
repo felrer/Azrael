@@ -4436,6 +4436,7 @@
         "engine/codex-rs/prompts/src/lib.rs",
         "scripts/test-project-maintenance.cjs",
         "engine/codex-rs/project-maintenance/src/groups.rs",
+        "engine/codex-rs/project-maintenance/src/deleted_claim_retirement.rs",
         "engine/codex-rs/project-maintenance/src/review_relations.rs",
         "engine/codex-rs/project-maintenance/src/review_reuse.rs",
         "engine/codex-rs/project-maintenance/tests/groups.rs",

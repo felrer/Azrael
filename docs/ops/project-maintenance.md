@@ -301,6 +301,18 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 ## 작업·버전 묶음 연결과 이전
 
+### 삭제 완료된 과거 경로 claim 정합화
+
+상태: Windows x64 후보 실행기의 library·실제 CLI 수용 완료. 기본 설치 실행기의 지원이나 실제 캐시 이관 완료를 의미하지 않는다. 선택 실행기의 `capabilities.register_scopes.terminal_deleted_historical_path_claim`이 `retire_deleted_claim` descriptor와 `review`·`apply`를 공개하고 같은 실행파일의 회귀·CLI 수용을 마친 경우에만 사용한다.
+
+`operation:"register"`의 `retire_deleted_claim`에 `mode:"review"`, `scope:"terminal_deleted_historical_path_claim"`, 정확한 `historical_group_id`, `replacement_group_id`, `reason`을 전달한다. 두 그룹은 각각 단일 구성원이며 다른 소유자가 같은 경로를 가리켜야 한다. 과거 그룹의 원래 native 삭제 결과·잔여 없음·참조와 보존 사유 없음·원본 producer 부재, 현재 producer의 종료·완결·생성 소유권·참조·lease·물리 root 및 등록 측정을 검증한다. 과거 물리 identity/generation이나 직접 부재 관측을 복원했다고 간주하지 않는다.
+
+외부 Cargo 캐시는 생산 영수증이 지정한 실제 target과 entry 양쪽의 lease를 해당 Cargo 소유자로 별도 확인한다. native 예약 검사는 임의 외부 Cargo lease 검사를 대신하지 않는다. native JSON의 Windows volume 등 u64는 JavaScript의 안전 정수 범위를 넘을 수 있으므로 Node 26의 `JSON.parse` reviver `context.source`와 `JSON.rawJSON` 또는 임의 정밀도 정수 처리로 원래 숫자를 보존한다. 일반 `JSON.parse`·`stringify` 왕복으로 snapshot이나 근거를 반올림하지 않는다.
+
+검토가 반환한 `required_evidence`를 변경 없이 프로젝트 `artifacts/maintenance/evidence/`의 새 소유 증거로 보존하고 SHA-256을 고정한다. 같은 descriptor의 `mode:"apply"`에 검토의 정확한 `expected_snapshot`, `evidence_ref`, `evidence_sha256`을 전달한다. 오래된 snapshot·변경된 증거·예약·현재 소유권/보호 변화는 거부하며 검토 결과만으로 재시도하지 않는다. 원래 삭제 이력과 현재 측정은 유지하고 과거 그룹에 receipt 하나만 기록한다. claim 검토는 claim·item·group·decision·payload를 바꾸지 않으며 기존 CLI admission queue 기록은 유지한다.
+
+이 전이는 payload 이동·삭제 권한을 부여하지 않는다. 이후 fresh review와 기존 소유자 이관 절차를 별도로 통과해야 한다. 예외는 고정한 replacement 관계에서만 유효하고 source·generation·측정·root·참조/보호·과거 원본 재등장에 따라 무효화된다. claim 전이에는 예약 부재가 필요하며, ordinary cleanup apply의 재검증은 기존 fence가 확인한 현재 요청의 정확한 replacement 예약만 허용한다. 외부·미확정 예약, 제3자 경로 claim과 나머지 보호는 계속 차단한다. [현재 작업](../../work/FT-01-periodic-system-freeze/04-plan.md)이 실제 실행기 수용과 이관 결과를 소유한다.
+
 ### 확인된 legacy 로그의 보관 이관
 
 일반 `record`는 `generated:false`나 `protection_known:false`를 승격하지 않는다. 생성 근거를 확인한 legacy 로그는 `node scripts/artifact-lifecycle.cjs transfer-custody --project-root <absolute-root> --id <custody-id> --request-file <absolute-json>`로 명시적으로 이관한다. 요청은 보관 `owner`, `expected_revision`, `reason`, `evidence_ref`, `evidence_sha256`, 새 `target:{id,kind:"work",owner,version?}`와 정확한 절대 `paths`를 가진다. source에 선택되지 않은 member가 남는 부분 이관을 지원한다.

@@ -212,7 +212,7 @@ impl RelationIndex {
 pub(crate) struct ReviewRelations {
     root: PathBuf,
     items: BTreeMap<String, [Option<Value>; 3]>,
-    groups: BTreeMap<String, Option<Value>>,
+    groups: BTreeMap<String, [Option<Value>; 2]>,
     members: BTreeMap<String, MemberRelations>,
 }
 
@@ -236,7 +236,15 @@ impl ReviewRelations {
             groups: state
                 .groups
                 .iter()
-                .map(|(key, group)| (key.clone(), group.get("membership_source").cloned()))
+                .map(|(key, group)| {
+                    (
+                        key.clone(),
+                        [
+                            group.get("membership_source").cloned(),
+                            group.get("deleted_claim_retirement").cloned(),
+                        ],
+                    )
+                })
                 .collect(),
             members: members
                 .iter()
@@ -270,8 +278,12 @@ impl ReviewRelations {
                 .groups
                 .iter()
                 .zip(&state.groups)
-                .all(|((key, source), (current_key, group))| {
-                    key == current_key && group.get("membership_source") == source.as_ref()
+                .all(|((key, fields), (current_key, group))| {
+                    key == current_key
+                        && ["membership_source", "deleted_claim_retirement"]
+                            .iter()
+                            .zip(fields)
+                            .all(|(field, value)| group.get(*field) == value.as_ref())
                 })
     }
 

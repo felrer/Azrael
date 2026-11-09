@@ -254,6 +254,12 @@ pub fn capabilities() -> Value {
         "request_file_policy": "outside-maintenance-state",
         "deletion_scopes": ["exact_tree", "entire_directory"],
         "verification_modes": ["registered", "full", "directory"],
+        "register_scopes": {
+            "terminal_deleted_historical_path_claim": {
+                "descriptor": "retire_deleted_claim",
+                "modes": ["review", "apply"]
+            }
+        },
         "max_lock_wait_ms": 600000,
         "request_queue_v1": true,
         "max_queued_requests": 256,
@@ -520,6 +526,10 @@ mod tests {
             serde_json::json!(["file", "stdin"])
         );
         assert_eq!(value["request_file_policy"], "outside-maintenance-state");
+        assert_eq!(
+            value["register_scopes"]["terminal_deleted_historical_path_claim"],
+            serde_json::json!({"descriptor":"retire_deleted_claim","modes":["review","apply"]})
+        );
         assert_eq!(value["request_queue_v1"], true);
         assert_eq!(value["max_queued_requests"], 256);
         assert_eq!(value["max_session_queued_requests"], 32);

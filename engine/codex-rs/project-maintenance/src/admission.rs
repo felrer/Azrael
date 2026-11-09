@@ -178,6 +178,35 @@ pub(crate) fn scopes(
             }
         }
         "register" => {
+            if let Some(retirement) = request.get("retire_deleted_claim") {
+                let exclusive = match string(retirement, "mode")? {
+                    "review" => false,
+                    "apply" => true,
+                    _ => return Err("invalid claim retirement mode".into()),
+                };
+                for key in ["historical_group_id", "replacement_group_id"] {
+                    let id = string(retirement, key)?;
+                    let group = state
+                        .groups
+                        .get(id)
+                        .ok_or("unknown claim lifecycle group")?;
+                    add(&mut scopes, group_scope(root, id)?, exclusive);
+                    for member in group["members"].as_array().ok_or("invalid claim members")? {
+                        let item = state
+                            .items
+                            .get(member.as_str().ok_or("invalid claim member id")?)
+                            .ok_or("claim member missing")?;
+                        item_scopes(root, item, exclusive, &mut scopes, auth)?;
+                    }
+                }
+                if exclusive {
+                    let evidence =
+                        paths::resolve(root, Path::new(string(retirement, "evidence_ref")?))?;
+                    paths::check(root, &evidence, auth)?;
+                    auth(&evidence, AccessMode::Read)?;
+                    add(&mut scopes, evidence, false);
+                }
+            }
             if let Some(item) = request.get("item") {
                 item_scopes(root, item, true, &mut scopes, auth)?;
                 if let Some(old) = state.items.get(string(item, "id")?) {
