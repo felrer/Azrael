@@ -17,6 +17,7 @@
     "artifacts/verification",
     "artifacts/logs",
     "artifacts/build",
+    "artifacts/cargo",
     "artifacts/c3",
     "artifacts/cx22r",
     "artifacts/e",
