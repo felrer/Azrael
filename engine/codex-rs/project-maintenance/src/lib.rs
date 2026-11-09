@@ -27,6 +27,7 @@ mod review_relations;
 mod review_reuse;
 mod run_measurement;
 mod storage;
+mod terminal_history;
 mod timing;
 #[cfg(unix)]
 mod unix_delete;
@@ -336,6 +337,7 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
                 | "apply"
                 | "reconcile_duplicate_groups"
                 | "compact_decision_history"
+                | "compact_terminal_history"
         );
     let wait = authorize.lock_wait.get();
     // Retry only transaction acquisition. A failed catalog acquisition drops all
@@ -377,6 +379,19 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
                     }
                     json!({"operation":"apply","decisions":decisions})
                 }
+            } else if operation == "compact_terminal_history" {
+                let mut decisions = Vec::new();
+                for id in request["group_ids"].as_array().ok_or("missing group_ids")? {
+                    let group = store
+                        .state
+                        .groups
+                        .get(id.as_str().ok_or("invalid group ID")?)
+                        .ok_or("unknown lifecycle group")?;
+                    for member in group["members"].as_array().ok_or("invalid group members")? {
+                        decisions.push(json!({"id":member}));
+                    }
+                }
+                json!({"operation":"apply","decisions":decisions})
             } else if operation == "reconcile_duplicate_groups" {
                 json!({"operation":"apply","decisions":store.state.items.keys().map(|id| json!({"id":id})).collect::<Vec<_>>()})
             } else {
@@ -475,6 +490,26 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     let state = &mut store.state;
     let mut refresh_unchanged = false;
     let result = match operation {
+        "review_terminal_history" => terminal_history::review(
+            &root,
+            config.as_ref().ok_or("valid project config required")?,
+            &config_identity,
+            state,
+            &request,
+            authorize,
+        )?,
+        "compact_terminal_history" => {
+            let result = terminal_history::compact(
+                &root,
+                config.as_ref().ok_or("valid project config required")?,
+                &config_identity,
+                state,
+                &request,
+                authorize,
+            )?;
+            refresh_unchanged = result["status"] == "unchanged";
+            result
+        }
         "review_decision_history" => decision_history::review(state)?,
         "compact_decision_history" => {
             let result = decision_history::compact(state, &request)?;
@@ -843,8 +878,22 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
                 | "recover_run"
                 | "apply"
                 | "compact_decision_history"
+                | "compact_terminal_history"
         )
     {
+        if operation == "compact_terminal_history" {
+            paths::check(&root, &config_path, authorize)?;
+            authorize(&config_path, AccessMode::Read)?;
+            if authorize.cancelled()
+                || hash(&std::fs::read(&config_path).map_err(|error| error.to_string())?)?
+                    != config_identity
+            {
+                return Err(
+                    "terminal history configuration changed or request cancelled before save"
+                        .into(),
+                );
+            }
+        }
         store.save(authorize)?;
     }
     Ok(result)

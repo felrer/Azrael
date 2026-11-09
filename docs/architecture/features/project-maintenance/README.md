@@ -18,6 +18,18 @@
 
 `review_decision_history`는 최상위 이력의 후보와 현재 revision·순서별 전체 record identity를 token에 결부한다. 명시적 `compact_decision_history`는 해당 token과 이유를 요구하고 기존 exclusive state transaction에서 legacy/stable-ID 기록의 상세만 요약한 뒤 집계 감사 영수증 하나를 저장한다. 행 삭제·순서 변경·저장 형식 이관은 하지 않는다. 일반 suspended writer의 CAS와 legacy 변경 금지 검사는 유지하며 stale review와 동일 record 동시 수정은 실패한다. 변경할 후보가 없으면 revision과 저장을 생략한다. 정리 이전의 source-retirement snapshot은 새 검토가 필요하다. 요약은 사용자 승인에 따른 상세 삭제이며 원래 파일별 목록을 복원할 수 없다.
 
+## 완료 그룹의 실행 이력 회수
+
+상태: `partial` (공통 소스·Windows x64 standalone 검증 완료). 기능 보존 ID는 `tool.project-maintenance`이며 구현·실제 CLI 수용은 [현재 작업](../../../../work/FT-01-periodic-system-freeze/04-plan.md)에서 확인한다. 운영 저장소 적용·기본 설치 실행기 교체와 Linux/macOS 실기기 검증은 별도다. 기존 설치 실행기의 상세 속성 요약과 구분한다.
+
+명시적으로 선택한 그룹의 모든 멤버가 정식 삭제 완료이고 실제 경로와 종료한 producer 소스가 부재일 때, 성공한 decision 상세는 개수·원문 직렬화 SHA-256·바이트 수를 포함한 그룹별 감사 요약으로 회수한다. 반복 회수는 이전 요약 해시와 새 상세의 해시를 결합하며 무한한 영수증 배열을 만들지 않는다. 새 상세가 없으면 저장과 revision 변경을 생략한다. 원래 상세는 복원할 수 없으며 요약은 원문을 대신하는 재생성 자료가 아니다.
+
+`review_terminal_history`는 정확한 그룹 선택·구성·관련 decision과 현재 config/state revision·물리 부재·보호 관측을 검토 토큰에 고정한다. `compact_terminal_history`는 같은 선택과 토큰·이유로 기존 exclusive state transaction에서 다시 검사한다. 하나라도 실패·보류·unknown·미완료·오류 이력이 있거나 실행·예약·복구·활성 소비 참조가 남으면 선택 전체를 보존한다. 특수 source-retirement·중복 정합화·deleted-claim pair가 상세를 필요로 하는 그룹도 회수하지 않는다. 파일 payload를 삭제하거나 source·참조를 해제하는 기능은 아니다.
+
+기존 item/group의 경로·소유·멤버·세대·source 보호 정보는 유지한다. 따라서 삭제된 경로 재등장과 겹치는 소유권을 검사할 수 있으며, 상세 회수로 그 경로의 새 파일 삭제 권한을 얻지 않는다. 그룹 재등록은 기존 감사 요약을 삭제하거나 위조할 수 없다. 이 단계는 상세 decision 누적을 줄이며 terminal item/group 개수의 상한을 구현하지 않는다. 시간 경과·용량 초과만으로 자동 실행하지 않는다. 공통 Rust 의미는 지원 플랫폼에 적용하고 실제 검증 환경과 설치 실행기의 수용은 별도로 기록한다.
+
+첫 구현은 관련 decision의 `group_status`가 모두 `deleted`인 경우만 허용한다. 다중 멤버 삭제 과정의 정상 중간 `deleting` 행도 보수적으로 차단하며, item의 비어 있지 않은 provenance 객체도 회수하지 않는다. 최종 그룹 완료만을 근거로 이 제한을 해제하지 않는다.
+
 ## Windows 대량 I/O와 측정 메모리
 
 상태: `current` (소스·Windows x64 native 검증). 근거는 [FW-01 작업](../../../../work/FW-01-volsnap-io-safety/01-plan.md)이 소유한다. 보존 기능은 `tool.project-maintenance`이며 실사용 설치·VSS 재발 관측과 다른 OS 검증은 별도다.

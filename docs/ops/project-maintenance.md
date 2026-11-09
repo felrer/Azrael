@@ -10,6 +10,14 @@
 
 상태: `partial`. Windows Rust51(debug/release)·native core8/prompt1, 프로젝트 어댑터·지침·Windows 정리 및 모의 배포 검사를 확인했다. 실제 수용 범위와 한계는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)에 기록한다. 실행 중인 설치본의 도구 가용성은 소스 변경과 구분한다.
 
+## 완료 그룹 이력의 명시적 회수
+
+상태: `partial` — 소스·Windows x64 standalone CLI 검증을 완료했으며 운영 저장소 적용·기본 실행기 교체는 별도다. `review_terminal_history`와 `compact_terminal_history` capability를 실제 실행기에서 확인한 뒤 사용한다. 공통 보호 계약은 [완료 그룹 이력 회수](../architecture/features/project-maintenance/README.md#완료-그룹의-실행-이력-회수)가 소유한다.
+
+정확한 `group_ids`를 선택해 `review_terminal_history`를 호출하고 그룹별 차단 사유와 후보 상세 수·바이트를 확인한다. 회수가 필요한 후보에만 동일한 `group_ids`, 현재 `review_token`, 비어 있지 않은 `reason`으로 `compact_terminal_history`를 호출한다. 호출 후 실제 집계·변경 여부를 확인하고 stale token은 새 검토 없이 재사용하지 않는다. 원문 상세는 복원되지 않으므로 필요한 외부 소비·복구 근거를 먼저 인계해야 한다.
+
+이 기능은 파일 삭제·consumer 해제·producer 종료·저장 형식 이관을 대신하지 않는다. 실패·unknown·예약·복구 의존성이 있는 그룹은 기존 owner에서 먼저 해결하며, 차단을 피하려고 원본 상태나 참조를 편집하지 않는다. 원래 item/group의 소유·경로 guard는 유지하고 성공 decision 상세만 그룹별 해시 집계로 회수한다. `compact_decision_history`의 파일별 속성 배열 요약과는 별개이며, terminal item/group 개수 상한이나 자동 실행을 제공하지 않는다.
+
 ## 개인 맞춤 설정 운영
 
 상태: `partial` — [FE-01 작업](../../work/FE-01-maintenance-preferences/01-plan.md)의 소스 및 검증 범위다. 아래 설정 명령은 `capabilities.preferences: true`인 실행기에서 지원하며 현재 설치 실행기의 지원 여부와 구분한다.

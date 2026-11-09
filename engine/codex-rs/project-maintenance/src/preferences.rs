@@ -282,7 +282,11 @@ pub fn enter(home: &Path, operation: &str) -> Result<Admission, String> {
         }
         if matches!(
             operation,
-            "apply" | "reserve_producers" | "lifecycle.cleanup" | "compact_decision_history"
+            "apply"
+                | "reserve_producers"
+                | "lifecycle.cleanup"
+                | "compact_decision_history"
+                | "compact_terminal_history"
         ) && !p.deletion_enabled()
         {
             return Err("maintenance deletion is disabled; review again after enabling".into());

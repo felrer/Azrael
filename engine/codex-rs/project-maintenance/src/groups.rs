@@ -95,6 +95,13 @@ pub(crate) fn register(
         }
     }
     let mut prepared = BTreeMap::new();
+    if let Some(incoming) = group.get("terminal_history_summary") {
+        if previous.and_then(|old| old.get("terminal_history_summary")) != Some(incoming) {
+            return Err(
+                "terminal history summary cannot be supplied or changed by registration".into(),
+            );
+        }
+    }
     let mut newly_absent = BTreeSet::new();
     let producer_source = group
         .get("membership_source_format")
@@ -168,6 +175,9 @@ pub(crate) fn register(
     // The immutable members borrow ends with preparation above.
     if let Some(history) = previous.and_then(|old| old.get("source_retirements")) {
         group["source_retirements"] = history.clone();
+    }
+    if let Some(summary) = previous.and_then(|old| old.get("terminal_history_summary")) {
+        group["terminal_history_summary"] = summary.clone();
     }
     if let Some(old) = previous {
         for member_id in live_ids(root, state, old, auth)? {

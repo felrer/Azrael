@@ -107,6 +107,8 @@ fn request_mode_with_home(
                 | "compact_storage"
                 | "review_decision_history"
                 | "compact_decision_history"
+                | "review_terminal_history"
+                | "compact_terminal_history"
                 | "reconcile_duplicate_groups"
         )
     ) {
@@ -271,7 +273,8 @@ pub fn capabilities() -> Value {
             "request_status", "request_cancel", "request_ack", "request_recover", "request_recover_pending", "recover_lock",
             "recover_reservation", "recover_refresh_pending", "recover_lifecycle_pending",
             "partition_storage", "compact_storage", "reconcile_duplicate_groups",
-            "review_decision_history", "compact_decision_history"
+            "review_decision_history", "compact_decision_history",
+            "review_terminal_history", "compact_terminal_history"
         ],
         "storage_formats": ["legacy", "partitioned-v1"]
     })
@@ -555,7 +558,9 @@ mod tests {
                 "compact_storage",
                 "reconcile_duplicate_groups",
                 "review_decision_history",
-                "compact_decision_history"
+                "compact_decision_history",
+                "review_terminal_history",
+                "compact_terminal_history"
             ])
         );
         assert_eq!(
