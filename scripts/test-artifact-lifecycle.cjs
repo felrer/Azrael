@@ -1177,7 +1177,8 @@ test("cleanup recovery permits complete cleanup membership while preserving pend
     assert.deepEqual(preserved.cleanup_recovery, recovered.cleanup_recovery);
     for (const change of [{ state: "complete" }, { producer: { status: "stopped", outcome: "success", exit_code: 0 } },
       { generation: "replacement-generation", state: "pending", membership_complete: false },
-      { members: [...recovered.members, { path: f.at("outputs/extra"), role: "output", generated: true, protection_known: true }] }]) {
+      { members: [...recovered.members, { path: f.at("outputs/extra"), role: "output", generated: true, protection_known: true }] },
+      { references: [{ id: "run:replacement-consumer", reason: "late consumer", kind: "dependency" }] }]) {
       assert.throws(() => f.record(recovered.id, [], { ...preserved, ...change }));
     }
     assert.deepEqual(lifecycle.catalog(f.root).find(record => record.id === recovered.id).producer ?? null, f.source.producer ?? null);

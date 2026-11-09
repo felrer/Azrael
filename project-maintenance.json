@@ -154,7 +154,7 @@
       "purpose": "retained",
       "cwd": ".",
       "argv": ["node", "--test", "scripts/test-shared-engine-host.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-ordinary-runtime-node.cjs", "scripts/test-recovery-state.cjs", "scripts/test-preparation-state.cjs", "scripts/test-ui-source-state.cjs", "scripts/test-check-shared-engine.mjs"],
-      "inputs": ["scripts/shared-engine-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/ordinary-runtime.cjs", "scripts/platform-runtime.cjs", "scripts/recovery-state.cjs", "scripts/preparation-state.cjs", "scripts/ui-source-state.cjs", "scripts/project-source-state.cjs", "scripts/source-observation.cjs", "scripts/test-ui-source-state.cjs", "scripts/directory-state.cjs", "scripts/engine-source-metadata.cjs", "scripts/check-shared-engine.mjs", "scripts/test-shared-engine-host.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-ordinary-runtime-node.cjs", "scripts/test-recovery-state.cjs", "scripts/test-preparation-state.cjs", "scripts/test-check-shared-engine.mjs"]
+      "inputs": ["scripts/module-cache-dotnet-lease.cjs", "scripts/module-cache-consumers.cjs", "scripts/artifact-lifecycle.cjs", "scripts/maintenance-lock-owner.cjs", "scripts/shared-engine-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/ordinary-runtime.cjs", "scripts/platform-runtime.cjs", "scripts/recovery-state.cjs", "scripts/preparation-state.cjs", "scripts/ui-source-state.cjs", "scripts/project-source-state.cjs", "scripts/source-observation.cjs", "scripts/test-ui-source-state.cjs", "scripts/directory-state.cjs", "scripts/engine-source-metadata.cjs", "scripts/check-shared-engine.mjs", "scripts/test-shared-engine-host.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-ordinary-runtime-node.cjs", "scripts/test-recovery-state.cjs", "scripts/test-preparation-state.cjs", "scripts/test-check-shared-engine.mjs"]
     },
     {
       "id": "multi-pointer-mcp-source",
@@ -1113,6 +1113,8 @@
         "source"
       ],
       "inputs": [
+        "scripts/module-cache-dotnet-lease.cjs",
+        "scripts/maintenance-lock-owner.cjs",
         "scripts/check-artifact-lifecycle.cjs",
         "scripts/artifact-lifecycle.cjs",
         "scripts/test-artifact-lifecycle.cjs",

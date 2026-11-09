@@ -4446,6 +4446,7 @@
         "scripts/test-artifact-lifecycle.cjs",
         "scripts/build-module-cache.ps1",
         "scripts/module-cache-consumers.cjs",
+        "scripts/module-cache-dotnet-lease.cjs",
         "scripts/window-control-cache.ps1",
         "scripts/build-window-control.ps1",
         "scripts/preparation-state.cjs",

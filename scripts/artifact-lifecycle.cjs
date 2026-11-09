@@ -60,6 +60,7 @@ function validate(root, record) {
   }
   if (record.producer && (record.producer.status !== "stopped" || !["success", "failure", "unknown"].includes(record.producer.outcome) || !(record.producer.exit_code === null || Number.isInteger(record.producer.exit_code)) || typeof record.producer.reason !== "string" || !record.producer.reason.trim() || typeof record.producer.evidence_ref !== "string" || !/^[a-f0-9]{64}$/.test(record.producer.evidence_sha256 || ""))) throw new Error("Invalid lifecycle producer");
   if (record.cleanup_recovery !== undefined) validateCleanupRecovery(root, record);
+  if (record.failed_consumer_retirement !== undefined) validateFailedConsumerRetirement(root, record);
   if (record.restart_recovery !== undefined) validateRestartRecovery(root, record);
   if (record.previous_generation !== undefined) validatePreviousGeneration(root, record);
   if (record.record_type !== undefined && record.record_type !== "observation") throw new Error("Unknown lifecycle record type");
@@ -203,6 +204,175 @@ function validateCleanupRecovery(root, record) {
     if (proof.path === recovery.evidence_ref) throw new Error("Independent cleanup recovery producer proof required");
     readRecoveryProof(root, record, proof.path, proof.sha256);
   }
+  if (recovery.consumer_retirement !== undefined) {
+    const retirement = recovery.consumer_retirement;
+    if (record.owner !== "module-cache-consumer" || record.kind !== "run" || record.state !== "pending" || record.producer ||
+        !record.membership_complete || record.members.length !== 1 || record.members[0].role !== "consumer-receipt" || record.references.length !== 0 ||
+        retirement.schema !== 1 || retirement.consumer_id !== record.id || typeof retirement.source_id !== "string" ||
+        !retirement.source_id.startsWith("version:") || typeof retirement.source_generation !== "string" && retirement.source_generation !== null ||
+        !Number.isSafeInteger(retirement.source_revision) || retirement.source_revision < 1 ||
+        !/^[a-f0-9]{64}$/.test(retirement.source_request_sha256 || "") || !/^[a-f0-9]{64}$/.test(retirement.binding_sha256 || "") ||
+        !/^[a-f0-9]{64}$/.test(retirement.proxy_release_request_sha256 || "") ||
+        typeof retirement.source_evidence_ref !== "string" || !/^[a-f0-9]{64}$/.test(retirement.source_evidence_sha256 || "") ||
+        typeof retirement.source_proof_ref !== "string" || !/^[a-f0-9]{64}$/.test(retirement.source_proof_sha256 || "") ||
+        typeof retirement.proxy_release_proof_ref !== "string" || !/^[a-f0-9]{64}$/.test(retirement.proxy_release_proof_sha256 || "") ||
+        !isDeepStrictEqual(document.failed_consumer_retirement, retirement) ||
+        !document.producer_evidence.some(proof => proof.path === retirement.source_evidence_ref && proof.sha256 === retirement.source_evidence_sha256) ||
+        !document.producer_evidence.some(proof => proof.path === retirement.source_proof_ref && proof.sha256 === retirement.source_proof_sha256) ||
+        !document.producer_evidence.some(proof => proof.path === retirement.proxy_release_proof_ref && proof.sha256 === retirement.proxy_release_proof_sha256) ||
+        record.release_receipt?.request_sha256 !== retirement.proxy_release_request_sha256) throw new Error("Invalid failed consumer recovery binding");
+  }
+}
+function retirementSource(record) {
+  return Object.fromEntries(["id", "kind", "owner", "version", "generation", "revision", "state", "membership_complete", "members", "references", "producer"]
+    .map(key => [key, record[key] ?? null]));
+}
+function failedRetirementRecoveryReference(sourceId, consumerId) {
+  const reference = { id: sourceId, kind: "recovery", reason: `failed-consumer-retirement:${consumerId}` };
+  return { ...reference, reference_id: referenceIdentity(reference) };
+}
+function retirementProofFile(root, record, filename, expectedHash) {
+  filename = checked(root, filename);
+  if (inside(registry(root), filename) || record.members.some(member => overlap(member.path, filename))) throw new Error("Failed consumer retirement proof must survive outside source members and registry");
+  const before = fs.lstatSync(filename, { bigint: true });
+  if (!before.isFile() || before.nlink !== 1n) throw new Error("Independent failed consumer retirement proof required");
+  const raw = fs.readFileSync(filename);
+  const after = fs.lstatSync(checked(root, filename), { bigint: true });
+  if (!["dev", "ino", "size", "mtimeNs", "ctimeNs"].every(key => before[key] === after[key]) ||
+      !/^[a-f0-9]{64}$/.test(expectedHash || "") || sha(raw) !== expectedHash) throw new Error("Failed consumer retirement proof SHA256 or identity changed");
+  return raw;
+}
+function retirementPhysicalIdentity(filename) {
+  if (typeof filename !== "string" || !path.isAbsolute(filename) || filename.split(/[\\/]/).includes("..")) throw new Error("Absolute physical retirement path required");
+  const resolved = path.resolve(filename);
+  let current = path.parse(resolved).root;
+  for (const part of resolved.slice(current.length).split(path.sep).filter(Boolean)) {
+    current = path.join(current, part);
+    if (fs.lstatSync(current).isSymbolicLink()) throw new Error("Linked failed consumer retirement path");
+  }
+  const stat = fs.statSync(resolved, { bigint: true });
+  return { path: fs.realpathSync.native(resolved), dev: String(stat.dev), ino: String(stat.ino), birthtimeNs: String(stat.birthtimeNs) };
+}
+function validateFailedConsumerRetirement(root, record) {
+  const retirement = record.failed_consumer_retirement;
+  const source = retirement?.source;
+  const identity = retirement?.reference_id;
+  if (!retirement || retirement.schema !== 1 || retirement.action !== "retire-failed-module-cache-consumer" ||
+      retirement.source_revision !== source?.revision || !Number.isSafeInteger(retirement.source_revision) || retirement.source_revision < 1 ||
+      typeof retirement.consumer_id !== "string" || !retirement.consumer_id.startsWith("run:module-cache-consumer:") ||
+      typeof identity !== "string" || !source?.references?.some(reference => referenceIdentity(reference) === identity) ||
+      source.id !== record.id || source.kind !== record.kind || source.owner !== record.owner || source.version !== (record.version ?? null) ||
+      source.generation !== (record.generation ?? null) || source.state !== "failed" || source.membership_complete !== true ||
+      !source.producer || source.producer.status !== "stopped" || source.producer.outcome !== "failure" ||
+      !(source.producer.exit_code === null || Number.isInteger(source.producer.exit_code) && source.producer.exit_code !== 0) ||
+      !Array.isArray(source.members) || !source.members.length || source.members.some(member => member.generated !== true || member.protection_known !== true) ||
+      !isDeepStrictEqual(record.producer, source.producer) || record.state !== "failed" || record.membership_complete !== true ||
+      !isDeepStrictEqual(record.members, source.members) || !isDeepStrictEqual(record.generation ?? null, source.generation) ||
+      record.references.some(reference => referenceIdentity(reference) === identity) ||
+      record.references.some(reference => !source.references.some(original => referenceIdentity(original) === referenceIdentity(reference)) &&
+        !isDeepStrictEqual(reference, failedRetirementRecoveryReference(record.id, retirement.consumer_id))) ||
+      typeof retirement.evidence_ref !== "string" || !/^[a-f0-9]{64}$/.test(retirement.evidence_sha256 || "") ||
+      !/^[a-f0-9]{64}$/.test(retirement.request_sha256 || "")) throw new Error("Invalid failed consumer retirement freeze");
+  const receipt = record.failed_consumer_retirement_receipt;
+  if (!receipt || receipt.request_sha256 !== retirement.request_sha256 || receipt.evidence_ref !== retirement.evidence_ref ||
+      receipt.evidence_sha256 !== retirement.evidence_sha256) throw new Error("Failed consumer retirement receipt mismatch");
+  const document = JSON.parse(retirementProofFile(root, record, retirement.evidence_ref, retirement.evidence_sha256));
+  if (document.schema !== 1 || document.action !== retirement.action || !isDeepStrictEqual(document.source, source) ||
+      document.consumer?.id !== retirement.consumer_id || document.reference_id !== identity ||
+      !document.cache_owner || !document.project || !document.binding || typeof document.binding.path !== "string" || !/^[a-f0-9]{64}$/.test(document.binding.sha256 || "") ||
+      !document.checkpoint || typeof document.checkpoint.path !== "string" ||
+      !document.module_cache_lock || typeof document.module_cache_lock.path !== "string" ||
+      !isDeepStrictEqual(document.terminal_producer_evidence, { path: source.producer.evidence_ref, sha256: source.producer.evidence_sha256 })) {
+    throw new Error("Invalid failed consumer retirement proof binding");
+  }
+  const consumerBindingPath = path.resolve(document.binding.path);
+  const cacheOwner = document.cache_owner;
+  if (cacheOwner.path !== path.resolve(cacheOwner.path) || document.project.path !== path.resolve(root) ||
+      !inside(cacheOwner.path, document.project.path) || !inside(cacheOwner.path, consumerBindingPath) || !isDeepStrictEqual(retirementPhysicalIdentity(cacheOwner.path), cacheOwner) ||
+      !isDeepStrictEqual(retirementPhysicalIdentity(root), document.project)) throw new Error("Failed consumer owner or project physical root changed");
+  if (typeof document.binding.bytes_base64 !== "string" || document.binding.bytes_base64.length > 2 * 1024 * 1024) throw new Error("Immutable failed consumer binding snapshot required");
+  const bindingSnapshot = Buffer.from(document.binding.bytes_base64, "base64");
+  if (bindingSnapshot.toString("base64") !== document.binding.bytes_base64 || sha(bindingSnapshot) !== document.binding.sha256) throw new Error("Immutable failed consumer binding snapshot changed");
+  // Historical source receipts survive canonical proxy cleanup. Operational APIs
+  // separately inspect live binding, checkpoint, release absence and cache lease.
+  const bindingBytes = bindingSnapshot;
+  const binding = JSON.parse(bindingBytes.toString("utf8"));
+  const consumerToken = sha(JSON.stringify([binding.project?.path, binding.versionId, binding.module, binding.key]));
+  const consumerDirectory = path.join(cacheOwner.path, "artifacts/cache/module-consumers", consumerToken);
+  if (sha(bindingBytes) !== document.binding.sha256 || binding.id !== retirement.consumer_id ||
+      binding.id !== `run:module-cache-consumer:${consumerToken}` ||
+      binding.bindingPath !== path.join(consumerDirectory, "binding.json") || binding.bindingPath !== consumerBindingPath ||
+      binding.owner?.path !== cacheOwner.path || binding.project?.path !== document.project.path || binding.versionId !== record.id ||
+      binding.module !== "companion" || !/^[a-f0-9]{64}$/.test(binding.key || "") ||
+      !isDeepStrictEqual(binding.sourceReference, document.source_reference) ||
+      !isDeepStrictEqual(binding.release, document.planned_release)) throw new Error("Failed consumer binding changed");
+  if (record.id !== binding.versionId || document.consumer.version !== record.id ||
+      document.consumer.owner !== "module-cache-consumer" || document.consumer.kind !== "run" ||
+      document.consumer.state !== "pending" || document.consumer.producer !== null || document.consumer.membership_complete !== true ||
+      document.consumer.members.length !== 1 || document.consumer.members[0].path !== consumerDirectory ||
+      document.consumer.members[0].role !== "consumer-receipt" || document.consumer.members[0].generated !== true ||
+      document.consumer.members[0].protection_known !== true || document.consumer.references.length !== 1 ||
+      !document.consumer.references.some(reference => referenceIdentity(reference) === identity)) {
+    throw new Error("Failed consumer proxy snapshot mismatch");
+  }
+  const nativeRegistration = document.native_registration;
+  if (!nativeRegistration || nativeRegistration.id !== document.consumer.id || nativeRegistration.kind !== document.consumer.kind ||
+      nativeRegistration.owner !== document.consumer.owner || nativeRegistration.version !== document.consumer.version ||
+      nativeRegistration.provenance_ref !== registryPath(cacheOwner.path, document.consumer.id) ||
+      nativeRegistration.membership_source !== registry(cacheOwner.path) || nativeRegistration.membership_source_format !== "producer_registry_v1" ||
+      nativeRegistration.members?.length !== 1 || nativeRegistration.members[0].id !== sha(document.consumer.id + "\0" + consumerDirectory) ||
+      nativeRegistration.members[0].path !== consumerDirectory || nativeRegistration.members[0].role !== "consumer-receipt" ||
+      nativeRegistration.members[0].owner !== document.consumer.owner) throw new Error("Failed consumer native registration snapshot mismatch");
+  const releaseMembers = source.members.filter(member => member.role === "release");
+  const deployLogMembers = source.members.filter(member => member.role === "deploy-logs");
+  if (releaseMembers.length !== 1 || deployLogMembers.length !== 1 || document.planned_release?.kind !== "planned" ||
+      document.planned_release.path !== releaseMembers[0].path || !document.planned_release.ancestor ||
+      document.checkpoint.path !== path.join(deployLogMembers[0].path, "pipeline-state.json") ||
+      document.checkpoint.path !== path.join(path.resolve(root), "artifacts/logs", `deploy-${record.id.slice("version:".length)}`, "pipeline-state.json")) {
+    throw new Error("Failed consumer retirement paths are not canonical for the source version");
+  }
+  const checkpoint = document.checkpoint;
+  if (checkpoint.presence !== "absent" && !(checkpoint.presence === "present" && /^[a-f0-9]{64}$/.test(checkpoint.sha256 || ""))) throw new Error("Invalid failed consumer checkpoint snapshot");
+  if (typeof document.seal_path !== "string" || typeof document.release_receipt_path !== "string") throw new Error("Failed consumer seal paths required");
+  if (document.seal_path !== path.join(consumerDirectory, "release-identity.json") ||
+      document.release_receipt_path !== path.join(consumerDirectory, "release.json")) throw new Error("Failed consumer success receipt paths changed");
+  const lockPath = path.join(cacheOwner.path, "artifacts/cache/modules/.lock");
+  if (document.module_cache_lock.path !== lockPath || !document.module_cache_lock.identity ||
+      document.module_cache_lock.identity.path !== lockPath ||
+      document.module_cache_lock.owner?.operation !== "module-cache.consumer-retirement") throw new Error("Failed consumer exclusive module cache lease changed");
+  const moduleLease = document.module_cache_lock;
+  if (moduleLease.backend === "windows-dotnet-file-share-none") {
+    if (moduleLease.owner.schema !== 1 || !Number.isSafeInteger(moduleLease.owner.pid) || moduleLease.owner.pid < 1 ||
+        !/^[a-f0-9]{64}$/.test(moduleLease.owner.token || "") || !/^[0-9]+$/.test(moduleLease.owner.process_start_ticks || "") ||
+        !/^[a-f0-9]{64}$/.test(moduleLease.sha256 || "")) throw new Error("Invalid Windows module lease historical ownership");
+  } else if (moduleLease.backend !== "native-maintenance-owner" || moduleLease.owner.schema !== 2) throw new Error("Unknown module lease provider");
+  const terminal = checked(root, document.terminal_producer_evidence.path);
+  if (inside(registry(root), terminal) || source.members.some(member => overlap(member.path, terminal))) throw new Error("Failed consumer terminal evidence must survive source members and registry");
+  const terminalStat = fs.lstatSync(terminal, { bigint: true });
+  if (!terminalStat.isFile() || terminalStat.nlink !== 1n || sha(fs.readFileSync(terminal)) !== document.terminal_producer_evidence.sha256) throw new Error("Failed consumer terminal producer evidence changed");
+  if (retirementProofFile(root, record, retirement.evidence_ref, retirement.evidence_sha256).length === 0) throw new Error("Empty failed consumer retirement proof");
+  const recoveryReference = failedRetirementRecoveryReference(record.id, retirement.consumer_id);
+  if (!record.failed_consumer_completion && !record.references.some(reference => isDeepStrictEqual(reference, recoveryReference))) throw new Error("Pending failed consumer retirement recovery reference required");
+  if (record.failed_consumer_completion) {
+    const completed = record.failed_consumer_completion;
+    const proof = JSON.parse(retirementProofFile(root, record, completed.evidence_ref, completed.evidence_sha256));
+    if (completed.schema !== 1 || completed.source_request_sha256 !== retirement.request_sha256 ||
+        completed.consumer_id !== retirement.consumer_id || proof.schema !== 1 || proof.action !== "complete-failed-module-cache-consumer-retirement" ||
+        proof.source_request_sha256 !== retirement.request_sha256 || proof.consumer_id !== retirement.consumer_id ||
+        proof.binding_sha256 !== document.binding.sha256 || record.references.some(reference => isDeepStrictEqual(reference, recoveryReference)) ||
+        record.failed_consumer_completion_receipt?.request_sha256 !== completed.request_sha256) throw new Error("Invalid failed consumer retirement completion");
+    const native = proof.native, registration = document.native_registration, member = registration?.members?.[0];
+    if (!member || registration.id !== retirement.consumer_id || !Array.isArray(native?.items) || native.items.length !== 1 ||
+        !Array.isArray(native.groups) || native.groups.length !== 1 || native.groups[0].id !== registration.id || native.groups[0].cleanup_status !== "deleted" ||
+        native.items[0].id !== member.id || native.items[0].path !== member.path || native.items[0].lifecycle_group_id !== registration.id ||
+        native.items[0].cleanup_status !== "deleted" || native.items[0].remaining !== false ||
+        !Array.isArray(native.decisions) || !native.decisions.length || native.decisions.some(value => value.id !== member.id ||
+          value.lifecycle_group_id !== registration.id || value.status !== "deleted" || value.remaining !== false || value.decision !== "delete" ||
+          ["error", "persistence_error", "observation_error"].some(key => value[key] != null)) ||
+        !Array.isArray(native.calls) || native.calls.length < 2 || native.calls.some(call => call.operation !== "inventory" || call.actual_exit_code !== 0 ||
+          !/^[a-f0-9]{64}$/.test(call.stdout_sha256 || "") || !Number.isSafeInteger(call.stdout_bytes) || call.stdout_bytes < 1)) throw new Error("Invalid native failed consumer terminal receipt");
+    retirementProofFile(root, record, proof.terminal_evidence.path, proof.terminal_evidence.sha256);
+  }
 }
 // Restart authority preserves the unresolved result and grants no cleanup authority.
 function restartSource(record) {
@@ -279,7 +449,7 @@ function mutateLifecycle(root, id, request, operation, mutate) {
       if (record.custody_refinement && record.state === "pending") throw new Error("Pending custody refinement requires refine-custody retry");
       if (record.id !== id || request.owner !== record.owner) throw new Error("Exact lifecycle owner required");
       const evidence = checkedEvidence(root, request);
-      const identity = sha(JSON.stringify(Object.keys(request).sort().map(key => [key, request[key]])));
+      const identity = requestIdentity(request);
       const receiptKey = operation + "_receipt";
       if (record[receiptKey]?.request_sha256 === identity) {
         if (operation === "release" && record.references.some(reference => request.reference_ids.includes(referenceIdentity(reference)))) throw new Error("Conflicting release retry after reference replacement");
@@ -299,6 +469,7 @@ function mutateLifecycle(root, id, request, operation, mutate) {
   // its write/CAS/transport outcome are never retried here.
   }, { operation: "lifecycle.reconcile" });
 }
+function requestIdentity(request) { return sha(JSON.stringify(Object.keys(request).sort().map(key => [key, request[key]]))); }
 function closeLifecycle(root, id, request) {
   return mutateLifecycle(root, id, request, "close", (record, evidence) => {
     if (record.producer) throw new Error("Conflicting lifecycle close retry");
@@ -322,6 +493,59 @@ function releaseReferences(root, id, request) {
     record.references = record.references.filter(reference => !request.reference_ids.includes(referenceIdentity(reference)));
   });
 }
+function retireFailedConsumerReference(root, id, request) {
+  return mutateLifecycle(root, id, request, "failed_consumer_retirement", (record, evidence) => {
+    if (record.failed_consumer_retirement) throw new Error("Conflicting failed consumer retirement retry");
+    if (record.owner !== "azrael-release" || record.kind !== "version" || record.state !== "failed" ||
+        record.producer?.status !== "stopped" || record.producer.outcome !== "failure" ||
+        !(record.producer.exit_code === null || Number.isInteger(record.producer.exit_code) && record.producer.exit_code !== 0) ||
+        record.membership_complete !== true || !record.members.length || record.members.some(member => member.generated !== true || member.protection_known !== true)) {
+      throw new Error("Exact stopped failed source with complete known membership required");
+    }
+    if (request.expected_generation !== (record.generation ?? null) || typeof request.consumer_id !== "string" ||
+        !request.consumer_id.startsWith("run:module-cache-consumer:") || typeof request.reference_id !== "string") throw new Error("Exact source generation, consumer and dependency reference required");
+    if (cleanupReservation(root, record)) throw new Error("Active source cleanup reservation protects failed consumer retirement");
+    const matches = record.references.filter(reference => referenceIdentity(reference) === request.reference_id);
+    if (matches.length !== 1 || matches[0].id !== request.reference?.id || matches[0].reason !== "companion-tool" ||
+        matches[0].kind !== "dependency" || matches[0].member_paths !== undefined || matches[0].target_revision !== undefined ||
+        matches[0].target_version !== undefined || !/^run:module-cache:companion:[a-f0-9]{64}$/.test(matches[0].id)) {
+      throw new Error("Exact source companion-tool dependency required");
+    }
+    if (!isDeepStrictEqual(request.reference, matches[0])) throw new Error("Source dependency identity changed");
+    const source = retirementSource(record);
+    const document = JSON.parse(retirementProofFile(root, record, evidence.evidence_ref, evidence.evidence_sha256));
+    if (document.schema !== 1 || document.action !== "retire-failed-module-cache-consumer" ||
+        !isDeepStrictEqual(document.source, source) || document.consumer?.id !== request.consumer_id ||
+        document.reference_id !== request.reference_id || !isDeepStrictEqual(document.source_reference, matches[0]) ||
+        !document.binding || typeof document.binding.path !== "string" || !/^[a-f0-9]{64}$/.test(document.binding.sha256 || "") ||
+        document.terminal_producer_evidence?.path !== record.producer.evidence_ref ||
+        document.terminal_producer_evidence?.sha256 !== record.producer.evidence_sha256 ||
+        typeof document.review_token !== "string" || !/^[a-f0-9]{64}$/.test(document.review_token)) {
+      throw new Error("Exact failed consumer retirement source proof required");
+    }
+    const requestSha = requestIdentity(request);
+    record.references = record.references.filter(reference => referenceIdentity(reference) !== request.reference_id);
+    record.references.push(failedRetirementRecoveryReference(record.id, request.consumer_id));
+    record.failed_consumer_retirement = { schema: 1, action: "retire-failed-module-cache-consumer", consumer_id: request.consumer_id,
+      source_revision: source.revision, source, reference_id: request.reference_id,
+      evidence_ref: evidence.evidence_ref, evidence_sha256: evidence.evidence_sha256, request_sha256: requestSha };
+  });
+}
+function completeFailedConsumerRetirement(root, id, request) {
+  return mutateLifecycle(root, id, request, "failed_consumer_completion", (record, evidence) => {
+    const frozen = record.failed_consumer_retirement;
+    if (!frozen || record.failed_consumer_completion || request.source_request_sha256 !== frozen.request_sha256 ||
+        request.consumer_id !== frozen.consumer_id || cleanupReservation(root, record)) throw new Error("Exact pending source retirement freeze required");
+    const proof = JSON.parse(retirementProofFile(root, record, evidence.evidence_ref, evidence.evidence_sha256));
+    if (proof.schema !== 1 || proof.action !== "complete-failed-module-cache-consumer-retirement" ||
+        proof.source_request_sha256 !== frozen.request_sha256 || proof.consumer_id !== frozen.consumer_id) throw new Error("Exact failed consumer completion proof required");
+    const reference = failedRetirementRecoveryReference(record.id, frozen.consumer_id);
+    if (record.references.filter(value => isDeepStrictEqual(value, reference)).length !== 1) throw new Error("Exact retirement recovery reference required");
+    record.references = record.references.filter(value => !isDeepStrictEqual(value, reference));
+    record.failed_consumer_completion = { schema: 1, consumer_id: frozen.consumer_id, source_request_sha256: frozen.request_sha256,
+      ...evidence, request_sha256: requestIdentity(request) };
+  });
+}
 function checkRecoveryConsumers(root, record) {
   if (cleanupReservation(root, record)) throw new Error("Lifecycle group has active-cleanup-reservation");
   if (catalog(root).some(consumer => consumer.references.some(reference => reference.id === record.id))) throw new Error("Active cleanup recovery consumer references");
@@ -332,9 +556,38 @@ function recoverCleanup(root, id, request) {
     if (record.state !== "pending" || (record.producer && (record.producer.status !== "stopped" || record.producer.outcome !== "unknown" || record.producer.exit_code !== null))) throw new Error("Only unresolved lifecycle cleanup may be recovered");
     if (request.producer_stopped_verified !== true || request.membership_complete_verified !== true) throw new Error("Verified producer tree stop and complete membership required");
     checkRecoveryConsumers(root, record);
+    let consumerRetirement;
+    if (request.consumer_retirement !== undefined) {
+      consumerRetirement = request.consumer_retirement;
+      if (record.owner !== "module-cache-consumer" || record.kind !== "run" || record.state !== "pending" || record.producer ||
+          record.membership_complete !== true || record.members.length !== 1 || record.members[0].role !== "consumer-receipt" ||
+          record.references.length !== 0 || !consumerRetirement || consumerRetirement.schema !== 1 ||
+          consumerRetirement.consumer_id !== record.id || typeof consumerRetirement.source_id !== "string" || !consumerRetirement.source_id.startsWith("version:") ||
+          typeof consumerRetirement.source_generation !== "string" && consumerRetirement.source_generation !== null ||
+          !Number.isSafeInteger(consumerRetirement.source_revision) || consumerRetirement.source_revision < 1 ||
+          !/^[a-f0-9]{64}$/.test(consumerRetirement.source_request_sha256 || "") ||
+          !/^[a-f0-9]{64}$/.test(consumerRetirement.binding_sha256 || "") ||
+          !/^[a-f0-9]{64}$/.test(consumerRetirement.proxy_release_request_sha256 || "") ||
+          typeof consumerRetirement.source_proof_ref !== "string" || !/^[a-f0-9]{64}$/.test(consumerRetirement.source_proof_sha256 || "") ||
+          typeof consumerRetirement.proxy_release_proof_ref !== "string" || !/^[a-f0-9]{64}$/.test(consumerRetirement.proxy_release_proof_sha256 || "") ||
+          record.release_receipt?.request_sha256 !== consumerRetirement.proxy_release_request_sha256) {
+        throw new Error("Exact source-first failed consumer release receipt required for proxy recovery");
+      }
+      const proof = JSON.parse(readRecoveryProof(root, record, evidence.evidence_ref, evidence.evidence_sha256));
+      if (!isDeepStrictEqual(proof.failed_consumer_retirement, consumerRetirement) ||
+          proof.producer_evidence?.some(item => item.path === evidence.evidence_ref) || !Array.isArray(proof.producer_evidence) ||
+          !proof.producer_evidence.some(item => item.path === consumerRetirement.source_evidence_ref && item.sha256 === consumerRetirement.source_evidence_sha256) ||
+          !proof.producer_evidence.some(item => item.path === consumerRetirement.source_proof_ref && item.sha256 === consumerRetirement.source_proof_sha256) ||
+          !proof.producer_evidence.some(item => item.path === consumerRetirement.proxy_release_proof_ref && item.sha256 === consumerRetirement.proxy_release_proof_sha256)) {
+        throw new Error("Independent source-first failed consumer proof required");
+      }
+    } else if (request.consumer_reference_ids !== undefined) {
+      throw new Error("Consumer reference release requires the typed failed consumer recovery proof");
+    }
     const recovery = { schema: 1, id: record.id, kind: record.kind, owner: record.owner, version: record.version ?? null, generation: record.generation ?? null,
       source_revision: record.revision, original_state: record.state, original_producer: record.producer ?? null,
       original_membership_complete: record.membership_complete, members: record.members,
+      ...(consumerRetirement ? { consumer_retirement: consumerRetirement } : {}),
       ...evidence, producer_stopped_verified: true, membership_complete_verified: true, verified_at: new Date().toISOString() };
     record.cleanup_recovery = recovery;
     record.membership_complete = true;
@@ -366,6 +619,20 @@ function recordLifecycleUnlocked(root, request) {
     if (catalog(root).some(record => record.id !== incoming.id && record.ownership_scope === "run-root" && incoming.members.some(member => record.members.some(old => overlap(old.path, member.path))))) throw new Error("Artifact destination already claimed by reserved run");
     if (previous?.custody_transfer && previous.state === "pending") throw new Error("Pending custody transfer requires transfer-custody retry");
     if (previous?.custody_refinement && previous.state === "pending") throw new Error("Pending custody refinement requires refine-custody retry");
+    if (previous?.failed_consumer_retirement) {
+      if (incoming.generation !== undefined && incoming.generation !== previous.generation || incoming.state !== previous.state ||
+          incoming.membership_complete !== previous.membership_complete || !isDeepStrictEqual(incoming.members, previous.members) ||
+          incoming.references.some(reference => !previous.references.some(old => referenceIdentity(old) === referenceIdentity(reference)))) {
+        throw new Error("Failed consumer retirement freeze forbids source restart, state/member changes and new references");
+      }
+    }
+    if (previous?.cleanup_recovery && incoming.references.some(reference => !previous.references.some(old => referenceIdentity(old) === referenceIdentity(reference)))) {
+      throw new Error("Recovered cleanup lifecycle cannot gain new references");
+    }
+    if (previous?.owner === "module-cache-consumer" && previous.release_receipt &&
+        incoming.references.some(reference => !previous.references.some(old => referenceIdentity(old) === referenceIdentity(reference)))) {
+      throw new Error("Released module cache consumer cannot be reattached");
+    }
     if (previous?.custody_handoffs?.some(receipt => incoming.members.some(member => receipt.paths.some(transferred => overlap(transferred, member.path))))) throw new Error("Transferred custody cannot be reclaimed by ordinary record writes");
     if (previous?.custody_refinements?.some(receipt => incoming.members.some(member => receipt.paths.some(transferred => overlap(transferred, member.path))))) throw new Error("Refined custody cannot be reclaimed by ordinary record writes");
     if (previous && (previous.id !== incoming.id || previous.kind !== incoming.kind || previous.owner !== incoming.owner || (previous.version ?? null) !== (incoming.version ?? null))) throw new Error("Conflicting lifecycle identity");
@@ -417,6 +684,10 @@ function recordLifecycleUnlocked(root, request) {
       ...(!newGeneration && previous?.release_receipt ? { release_receipt: previous.release_receipt } : {}),
       ...(newGeneration && previous?.restart_recovery ? { previous_generation: { ...restartSource(previous), restart_recovery: previous.restart_recovery } } : previous?.previous_generation ? { previous_generation: previous.previous_generation } : {}),
       ...(previous?.cleanup_recovery ? { cleanup_recovery: previous.cleanup_recovery, recover_receipt: previous.recover_receipt } : {}),
+      ...(previous?.failed_consumer_retirement ? { failed_consumer_retirement: previous.failed_consumer_retirement,
+        failed_consumer_retirement_receipt: previous.failed_consumer_retirement_receipt } : {}),
+      ...(previous?.failed_consumer_completion ? { failed_consumer_completion: previous.failed_consumer_completion,
+        failed_consumer_completion_receipt: previous.failed_consumer_completion_receipt } : {}),
       ...(previous?.custody_handoffs ? { custody_handoffs: previous.custody_handoffs } : {}),
       ...(previous?.custody_transfer ? { custody_transfer: previous.custody_transfer } : {}),
       ...(previous?.custody_refinement ? { custody_refinement: previous.custody_refinement } : {}),
@@ -1007,7 +1278,7 @@ function main(argv = process.argv.slice(2)) {
 }
 const observationApi = require("./artifact-observations.cjs").createObservationApi({ fs, path, sha, inside, overlap, checked, registry, registryPath,
   validate, catalog, projectMembers, withCatalogLock, writeRecord, checkedEvidence, referenceIdentity, cleanupReservation });
-module.exports = { authorizeRestart, canRestartGeneration, restartSource, checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, recoverCleanup, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, cleanupReservation, finalize, main,
+module.exports = { authorizeRestart, canRestartGeneration, restartSource, checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, retireFailedConsumerReference, completeFailedConsumerRetirement, recoverCleanup, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, cleanupReservation, referenceIdentity, requestIdentity, finalize, main,
   recordObservation: observationApi.recordObservation, migrateObservation: observationApi.migrateObservation, resolveObservation: observationApi.resolveObservation, observationCatalog: observationApi.observationCatalog };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) {
   console.error(error.message);

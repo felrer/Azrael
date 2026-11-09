@@ -313,6 +313,14 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 이 전이는 payload 이동·삭제 권한을 부여하지 않는다. 이후 fresh review와 기존 소유자 이관 절차를 별도로 통과해야 한다. 예외는 고정한 replacement 관계에서만 유효하고 source·generation·측정·root·참조/보호·과거 원본 재등장에 따라 무효화된다. claim 전이에는 예약 부재가 필요하며, ordinary cleanup apply의 재검증은 기존 fence가 확인한 현재 요청의 정확한 replacement 예약만 허용한다. 외부·미확정 예약, 제3자 경로 claim과 나머지 보호는 계속 차단한다. [현재 작업](../../work/FT-01-periodic-system-freeze/04-plan.md)이 실제 실행기 수용과 이관 결과를 소유한다.
 
+### 실패한 봉인 전 module 소비자의 퇴역
+
+상태: Windows x64 회귀 및 기존 프로젝트 inspection 수용 완료. 실제 프로젝트 전이는 현재 보호 조건을 별도로 확인한다. 성공 준비의 seal·완료 checkpoint를 대신 만들지 않는다. `module-cache-consumers.cjs`의 `reviewFailedRetirement(ownerRoot, projectRoot, versionId, "companion", key)`가 반환한 정확한 token으로 `applyFailedRetirement`를 호출한다. 원래 실패·null exit와 다른 참조는 보존한다. 변경된 source/binding/계획 release·checkpoint·물리 root·예약은 새 검토가 필요하다.
+
+Windows의 모듈 lock은 원래 `.NET FileShare.None` 소유 절차를 사용한다. 새 provider는 이미 있는 `.lock`을 `FileMode.Open`으로 열고 빈 파일도 그대로 유지한다. lock 파일·바이트·project 등록을 생성하거나 복구하지 않으며 native sentinel의 거부 뒤 다른 방식으로 자동 재시도하지 않는다. Linux/macOS의 native provider와 실제 수용 범위는 구분하며 현재 Windows 외 수용은 미검증이다. child의 token/sequence/PID, 보유 확인과 실제 release·exit·close를 확인한다. lease 확인과 catalog CAS의 원자성을 주장하지 않으며, 중간 loss는 성공으로 반환하지 않고 부분 전이와 보호를 보존한다.
+
+source freeze와 self recovery 참조가 재시작·재부착 및 source 삭제를 막는다. proxy는 기존 native 등록·fresh review·선택한 일반 삭제와 canonical `finalize`로 정리한다. 실제 결과를 source member·registry 밖의 독립 SHA 고정 증거로 남긴 뒤 `completeFailedRetirement`에 원래 token과 증거 경로·SHA를 전달한다. 완료 API는 지원 native terminal 결과, 현재 proxy 전체 root 및 원장 부재를 직접 확인하고 source의 정확한 recovery 참조만 해제한다. 역사적 binding은 독립 snapshot으로 검증하므로 정식 proxy 삭제 후에도 source catalog가 읽혀야 한다. 그 다음 기존 module 프로젝트 inspection/retire와 cache 소유자의 정리 절차를 별도로 통과한다.
+
 ### 확인된 legacy 로그의 보관 이관
 
 일반 `record`는 `generated:false`나 `protection_known:false`를 승격하지 않는다. 생성 근거를 확인한 legacy 로그는 `node scripts/artifact-lifecycle.cjs transfer-custody --project-root <absolute-root> --id <custody-id> --request-file <absolute-json>`로 명시적으로 이관한다. 요청은 보관 `owner`, `expected_revision`, `reason`, `evidence_ref`, `evidence_sha256`, 새 `target:{id,kind:"work",owner,version?}`와 정확한 절대 `paths`를 가진다. source에 선택되지 않은 member가 남는 부분 이관을 지원한다.

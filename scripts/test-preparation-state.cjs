@@ -5,6 +5,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { spawn } = require("node:child_process");
 const { test } = require("node:test");
 const state = require("./preparation-state.cjs");
 const zipToolFiles = ["companion/package-lock.json", "companion/node_modules/azrael-yazl/package.json",
@@ -42,6 +43,108 @@ function fixture(t) {
   const output = path.join(root, "output");
   fs.mkdirSync(output);
   return { root, config, output, write };
+}
+function failedConsumerFixture(t, exitCode = null) {
+  const { root, write } = fixture(t), lifecycle = require("./artifact-lifecycle.cjs"), consumers = require("./module-cache-consumers.cjs");
+  const command = require("./maintenance-owner-config.cjs").resolveMaintenanceCommand(path.resolve(__dirname, ".."));
+  const inheritedOwner = process.env.AZRAEL_MAINTENANCE_OWNER, inheritedWait = process.env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS;
+  process.env.AZRAEL_MAINTENANCE_OWNER = command.executable;
+  process.env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS = String(command.maxLockWaitMs ?? 5000);
+  t.after(() => {
+    if (inheritedOwner === undefined) delete process.env.AZRAEL_MAINTENANCE_OWNER; else process.env.AZRAEL_MAINTENANCE_OWNER = inheritedOwner;
+    if (inheritedWait === undefined) delete process.env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS; else process.env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS = inheritedWait;
+  });
+  const owner = path.join(root, "module-cache-owner"), project = path.join(owner, "artifacts", "a");
+  const key = "f".repeat(64), versionId = "version:retirement-fixture";
+  const release = path.join(project, "artifacts/releases/retirement-fixture");
+  const deployLogs = path.join(project, "artifacts/logs/deploy-retirement-fixture");
+  const evidence = path.join(project, "artifacts/maintenance/evidence/source-stop.json");
+  const lock = path.join(owner, "artifacts/cache/modules/.lock");
+  fs.mkdirSync(path.dirname(release), { recursive: true });
+  fs.mkdirSync(deployLogs, { recursive: true });
+  fs.mkdirSync(path.dirname(lock), { recursive: true });
+  if (process.platform === "win32") fs.writeFileSync(lock, ""); // The .NET owner normally leaves an empty lock.
+  else require("./maintenance-lock-owner.cjs").acquire(lock, { operation: "fixture.module-cache", waitMs: 0 }).release();
+  write(path.join(owner, "project-maintenance.json"), JSON.stringify({ schema_version: 1, project_id: "failed-consumer-fixture", managed_roots: ["artifacts"], bundles: [] }));
+  const sourceEvidence = { schema: 1, action: "fixture-source-terminal", producer_stopped_verified: true, children_closed: true };
+  write(evidence, JSON.stringify(sourceEvidence));
+  const sourceReference = { id: `run:module-cache:companion:${key}`, reason: "companion-tool", kind: "dependency" };
+  const retainedReference = { id: "version:runtime-consumer", reason: "installed runtime", kind: "installation" };
+  const members = [
+    { path: release, role: "release", generated: true, protection_known: true },
+    { path: path.join(project, "artifacts/logs/retirement-fixture"), role: "build-logs", generated: true, protection_known: true },
+    { path: deployLogs, role: "deploy-logs", generated: true, protection_known: true },
+  ];
+  const source = lifecycle.recordLifecycle(project, { id: versionId, kind: "version", owner: "azrael-release", version: "retirement-fixture",
+    state: "pending", membership_complete: false, members, references: [sourceReference, retainedReference] });
+  const proxy = consumers.attach(owner, project, versionId, "companion", key);
+  const closed = lifecycle.closeLifecycle(project, versionId, { owner: source.owner, expected_revision: source.revision,
+    producer_stopped_verified: true, outcome: "failure", exit_code: exitCode, reason: "Fixture stopped failed producer",
+    evidence_ref: evidence, evidence_sha256: crypto.createHash("sha256").update(fs.readFileSync(evidence)).digest("hex") });
+  return { root, owner, project, release, deployLogs, evidence, lock, key, versionId, sourceReference, retainedReference,
+    source: closed, proxy, lifecycle, consumers, write };
+}
+function startPowerShellLock(pathname, script) {
+  const child = spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script],
+    { windowsHide: true, stdio: ["pipe", "pipe", "pipe"] });
+  child.stdin.write(pathname + "\n");
+  child.stdin.on("error", error => { if (error.code !== "EPIPE") child.emit("error", error); });
+  let buffered = "", stderr = "";
+  const lines = [];
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+  child.stdout.on("data", chunk => {
+    buffered += chunk;
+    for (;;) {
+      const index = buffered.indexOf("\n");
+      if (index < 0) break;
+      lines.push(buffered.slice(0, index).trim()); buffered = buffered.slice(index + 1);
+    }
+  });
+  child.stderr.on("data", chunk => { stderr += chunk; });
+  const nextLine = async () => {
+    while (!lines.length) {
+      if (child.exitCode !== null) throw new Error(`PowerShell lease probe exited ${child.exitCode}: ${stderr}`);
+      await new Promise((resolve, reject) => {
+        const onLine = () => { cleanup(); resolve(); };
+        const onExit = code => { cleanup(); reject(new Error(`PowerShell lease probe exited ${code}: ${stderr}`)); };
+        const cleanup = () => { child.stdout.off("data", onData); child.off("exit", onExit); };
+        const onData = () => { if (lines.length) onLine(); };
+        child.stdout.on("data", onData); child.once("exit", onExit);
+      });
+    }
+    return lines.shift();
+  };
+  const close = async () => {
+    if (child.exitCode === null) { child.stdin.write("release\n"); child.stdin.end(); }
+    if (child.exitCode === null) await new Promise(resolve => child.once("close", resolve));
+    return { exitCode: child.exitCode, stderr };
+  };
+  return { child, nextLine, close, get stderr() { return stderr; } };
+}
+function retireFailedProxyFixture(f, beforeFinalize = () => {}) {
+  const { owner, lifecycle, proxy } = f;
+  const command = require("./maintenance-owner-config.cjs").resolveMaintenanceCommand(owner);
+  const invoke = request => {
+    const result = require("node:child_process").spawnSync(command.executable,
+      [...command.args, "--project-root", owner, "--request", "-"], { input: JSON.stringify({ ...request, lock_wait_ms: command.maxLockWaitMs }), encoding: "utf8", windowsHide: true });
+    assert.equal(result.error, undefined); assert.equal(result.signal, null); assert.equal(result.status, 0, result.stderr || result.stdout);
+    return JSON.parse(result.stdout);
+  };
+  const registered = invoke(lifecycle.registerRequest(owner, proxy.id));
+  const nativeReview = invoke({ operation: "review", group_ids: [proxy.id], verification: "registered" });
+  assert.equal(nativeReview.items.length, 1); assert.deepEqual(nativeReview.items[0].blockers, []);
+  const nativeApply = invoke({ operation: "apply", verification: "registered", decisions: nativeReview.items.map(item =>
+    ({ id: item.id, token: item.token, decision: "delete", reason: "Retire the generated fixture consumer after exact source freeze." })) });
+  assert.equal(nativeApply.results.length, 1);
+  assert.equal(nativeApply.results[0].status, "deleted"); assert.equal(nativeApply.results[0].remaining, false);
+  assert.equal(fs.existsSync(path.dirname(proxy.bindingPath)), false);
+  const terminal = path.join(path.dirname(f.evidence), "proxy-native-terminal.json");
+  f.write(terminal, JSON.stringify({ registered, nativeReview, nativeApply }));
+  const hash = crypto.createHash("sha256").update(fs.readFileSync(terminal)).digest("hex");
+  beforeFinalize(terminal, hash);
+  assert.equal(lifecycle.finalize(owner, proxy.id).status, "finalized");
+  return { terminal, hash };
 }
 
 test("unchanged preparation resumes and absent stages are explicit", async t => {
@@ -443,6 +546,254 @@ test("planned release consumers protect absent packaging and require an immutabl
   assert.throws(() => consumers.seal(owner, project, source.id, "companion", key), /ENOENT|Conflicting immutable|identity changed/);
   assert.throws(() => consumers.release(owner, project, source.id, "companion", key, checkpoint,
     crypto.createHash("sha256").update(fs.readFileSync(checkpoint)).digest("hex")), /Sealed release identity changed/);
+});
+
+test("failed unsealed consumer retirement freezes the exact source and reuses the exclusive cache lease", async t => {
+  if (process.platform !== "win32") { t.skip("Windows FileShare.None interoperability is Windows-specific"); return; }
+  const f = failedConsumerFixture(t), { owner, project, versionId, key, lock, lifecycle, consumers, proxy } = f;
+  const proxyRoot = path.dirname(proxy.bindingPath), sourceRefId = lifecycle.referenceIdentity(f.sourceReference);
+  const sourceBefore = lifecycle.catalog(project).find(record => record.id === versionId);
+  const proxyBefore = lifecycle.catalog(owner).find(record => record.id === proxy.id);
+  const lockBefore = fs.statSync(lock, { bigint: true });
+  const sourceEvidenceNames = fs.readdirSync(path.dirname(f.evidence)).sort();
+  const heldByDotNet = startPowerShellLock(lock, String.raw`$ErrorActionPreference='Stop'; $p=[Console]::In.ReadLine(); $s=[IO.File]::Open($p,[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None); [Console]::Out.WriteLine('HELD'); [Console]::Out.Flush(); $null=[Console]::In.ReadLine(); $s.Dispose(); [Console]::Out.WriteLine('RELEASED'); [Console]::Out.Flush()`);
+  try {
+    assert.equal(await heldByDotNet.nextLine(), "HELD");
+    assert.throws(() => consumers.reviewFailedRetirement(owner, project, versionId, "companion", key), error =>
+      ["EEXIST", "EBUSY", "EACCES"].includes(error.code) || /lock\.acquire:.*\(os error 32\)/s.test(error.message));
+    assert.deepEqual(lifecycle.catalog(project).find(record => record.id === versionId), sourceBefore);
+    assert.deepEqual(lifecycle.catalog(owner).find(record => record.id === proxy.id), proxyBefore);
+    assert.deepEqual(fs.readdirSync(path.dirname(f.evidence)).sort(), sourceEvidenceNames);
+    assert.equal(fs.existsSync(path.join(proxyRoot, "release-identity.json")), false);
+  } finally {
+    const ended = await heldByDotNet.close();
+    assert.equal(ended.exitCode, 0, ended.stderr);
+  }
+
+  const reviewed = consumers.reviewFailedRetirement(owner, project, versionId, "companion", key);
+  assert.equal(reviewed.status, "review");
+  assert.equal(reviewed.snapshot.checkpoint.presence, "absent");
+  assert.equal(reviewed.module_cache_lease_release.process_exit_code, 0);
+  assert.equal(reviewed.module_cache_lease_release.process_close_observed, true);
+  assert.equal(fs.existsSync(reviewed.snapshot.checkpoint.path), false);
+  assert.equal(fs.existsSync(path.join(proxyRoot, "release-identity.json")), false);
+  assert.equal(fs.existsSync(path.join(proxyRoot, "release.json")), false);
+
+  let attemptedDuringApply;
+  const originalWithCatalogLock = lifecycle.withCatalogLock;
+  let delayed = false;
+  lifecycle.withCatalogLock = (...args) => {
+    if (!delayed) {
+      delayed = true;
+      attemptedDuringApply = startPowerShellLock(lock, String.raw`$ErrorActionPreference='Stop'; $p=[Console]::In.ReadLine(); try { $s=[IO.File]::Open($p,[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None); [Console]::Out.WriteLine('OPENED'); $s.Dispose() } catch { [Console]::Out.WriteLine('BLOCKED') }; [Console]::Out.Flush()`);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1200);
+    }
+    return originalWithCatalogLock(...args);
+  };
+  let retired;
+  try { retired = consumers.applyFailedRetirement(owner, project, versionId, "companion", key, reviewed.review_token); }
+  finally { lifecycle.withCatalogLock = originalWithCatalogLock; }
+  assert.equal(await attemptedDuringApply.nextLine(), "BLOCKED", attemptedDuringApply.stderr);
+  assert.equal((await attemptedDuringApply.close()).exitCode, 0);
+  assert.equal(retired.status, "recovered");
+  assert.equal(retired.module_cache_lease_release.process_exit_code, 0);
+  assert.equal(retired.module_cache_lease_release.process_close_observed, true);
+  const source = lifecycle.catalog(project).find(record => record.id === versionId);
+  const consumer = lifecycle.catalog(owner).find(record => record.id === proxy.id);
+  assert.equal(source.state, "failed");
+  assert.equal(source.producer.status, "stopped");
+  assert.equal(source.producer.outcome, "failure");
+  assert.equal(source.producer.exit_code, null);
+  assert.equal(source.failed_consumer_retirement.consumer_id, proxy.id);
+  assert.equal(source.references.some(reference => lifecycle.referenceIdentity(reference) === sourceRefId), false);
+  assert.ok(source.references.some(reference => reference.reason === "installed runtime"));
+  assert.equal(consumer.state, "pending");
+  assert.equal(consumer.producer, undefined);
+  assert.equal(consumer.membership_complete, true);
+  assert.deepEqual(consumer.references, []);
+  assert.ok(consumer.cleanup_recovery.consumer_retirement);
+  assert.deepEqual(lifecycle.planCleanup(owner, { paths: [proxyRoot] }).groups[0].blockers, []);
+  assert.throws(() => consumers.attach(owner, project, versionId, "companion", key), /Frozen failed consumer source/);
+  assert.throws(() => consumers.seal(owner, project, versionId, "companion", key), /Frozen failed consumer source/);
+  assert.throws(() => lifecycle.recordLifecycle(project, { id: source.id, kind: source.kind, owner: source.owner, version: source.version,
+    expected_revision: source.revision, generation: "replacement-generation", state: "pending", membership_complete: false,
+    members: source.members, references: source.references }), /retirement freeze/);
+  assert.throws(() => lifecycle.recordLifecycle(project, { id: source.id, kind: source.kind, owner: source.owner, version: source.version,
+    expected_revision: source.revision, state: source.state, membership_complete: true, members: source.members,
+    references: [...source.references, { id: "version:new-cache-consumer", reason: "new cache use", kind: "dependency" }] }), /retirement freeze/);
+
+  const releaseEvidence = path.join(project, "artifacts/maintenance/evidence/release-other-reference.json");
+  f.write(releaseEvidence, "explicit unrelated reference release");
+  const releasedOther = lifecycle.releaseReferences(project, source.id, { owner: source.owner, expected_revision: source.revision,
+    reference_ids: [lifecycle.referenceIdentity(f.retainedReference)], reason: "Release only the unrelated runtime hold",
+    evidence_ref: releaseEvidence, evidence_sha256: crypto.createHash("sha256").update(fs.readFileSync(releaseEvidence)).digest("hex") });
+  assert.equal(releasedOther.state, "failed");
+  assert.equal(releasedOther.producer.exit_code, null);
+  assert.ok(releasedOther.failed_consumer_retirement);
+
+  const reopenedByDotNet = startPowerShellLock(lock, String.raw`$ErrorActionPreference='Stop'; $p=[Console]::In.ReadLine(); try { $s=[IO.File]::Open($p,[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None); [Console]::Out.WriteLine('OPENED'); $s.Dispose() } catch { [Console]::Out.WriteLine('BLOCKED') }; [Console]::Out.Flush()`);
+  assert.equal(await reopenedByDotNet.nextLine(), "OPENED", reopenedByDotNet.stderr);
+  assert.equal((await reopenedByDotNet.close()).exitCode, 0);
+  const finalReview = consumers.reviewFailedRetirement(owner, project, versionId, "companion", key);
+  assert.equal(finalReview.status, "recovered");
+  assert.equal(finalReview.module_cache_lease_release.process_exit_code, 0);
+  const lockAfter = fs.statSync(lock, { bigint: true });
+  assert.equal(lockAfter.dev, lockBefore.dev);
+  assert.equal(lockAfter.ino, lockBefore.ino);
+  assert.equal(lockAfter.birthtimeNs, lockBefore.birthtimeNs);
+});
+
+test("Windows module cache lease rejects EOF, malformed release and unexpected process loss", { timeout: 90000 }, async t => {
+  if (process.platform !== "win32") { t.skip("Windows FileShare.None provider"); return; }
+  const { root, write } = fixture(t), lock = path.join(root, "module.lock"); write(lock, "");
+  const provider = require("./module-cache-dotnet-lease.cjs"), before = fs.statSync(lock, { bigint: true });
+  const { Worker, MessageChannel } = require("node:worker_threads");
+  for (const operation of ["eof", "invalid-release", "terminate"]) {
+    const { port1, port2 } = new MessageChannel(), token = crypto.randomBytes(32).toString("hex");
+    const worker = new Worker(require.resolve("./module-cache-dotnet-lease.cjs"), { workerData: { kind: "module-cache-dotnet", filename: lock, token,
+      executable: path.join(process.env.SystemRoot, "System32/WindowsPowerShell/v1.0/powershell.exe"),
+      signal: new Int32Array(new SharedArrayBuffer(4)), port: port2 }, transferList: [port2] });
+    const packets = [], terminal = new Promise((resolve, reject) => {
+      worker.once("error", reject);
+      port1.on("message", packet => {
+        packets.push(packet);
+        if (packet.type === "ready") {
+          port1.postMessage({ operation, sequence: 2, token });
+        }
+        if (packet.type === "closed") resolve(packet);
+      });
+    });
+    const closed = await terminal;
+    const ready = packets.find(packet => packet.type === "ready");
+    assert.equal(ready?.token, token); assert.equal(ready.pid, ready.process_pid);
+    assert.notEqual(closed.process_exit_code, 0);
+    assert.equal(packets.some(packet => packet.type === "released"), false);
+    if (operation !== "terminate") assert.ok(packets.some(packet => packet.type === "error"));
+    port1.close(); await worker.terminate();
+    const lease = provider.acquire(lock); lease.assertHeld();
+    assert.throws(() => fs.renameSync(lock, lock + "-replaced"));
+    const release = lease.release();
+    assert.equal(release.process_exit_code, 0); assert.equal(release.process_close_observed, true);
+    const after = fs.statSync(lock, { bigint: true });
+    for (const key of ["dev", "ino", "birthtimeNs", "size"]) assert.equal(after[key], before[key]);
+    assert.equal(fs.readFileSync(lock).length, 0);
+  }
+});
+
+test("failed consumer retirement rejects stale package and source evidence before creating receipts", t => {
+  const f = failedConsumerFixture(t, 7), { consumers, lifecycle, owner, project, versionId, key, proxy, write } = f;
+  const review = () => consumers.reviewFailedRetirement(owner, project, versionId, "companion", key);
+  const apply = token => consumers.applyFailedRetirement(owner, project, versionId, "companion", key, token);
+  const reviewed = review(), evidenceDirectory = path.dirname(f.evidence);
+  const names = fs.readdirSync(evidenceDirectory).sort();
+  const checkpoint = path.join(f.deployLogs, "pipeline-state.json");
+  const checkpointDocument = { schema: 1, identity: { project, releaseName: "retirement-fixture", platform: "windows-x64" },
+    stages: { "build.package": [{ id: "fixture", status: "running", exitCode: null }] } };
+  write(checkpoint, JSON.stringify(checkpointDocument));
+  assert.throws(review, /running producer/);
+  checkpointDocument.stages["build.package"][0] = { id: "fixture", status: "succeeded", exitCode: 0 };
+  write(checkpoint, JSON.stringify(checkpointDocument));
+  assert.throws(review, /Completed source package/);
+  fs.unlinkSync(checkpoint);
+  const originalEvidence = fs.readFileSync(f.evidence);
+  fs.appendFileSync(f.evidence, " changed");
+  assert.throws(review, /producer stop evidence/);
+  fs.writeFileSync(f.evidence, originalEvidence);
+  const seal = path.join(path.dirname(proxy.bindingPath), "release-identity.json");
+  write(seal, "unexpected seal"); assert.throws(review, /requires absent path/); fs.unlinkSync(seal);
+  const source = lifecycle.catalog(project).find(record => record.id === versionId);
+  lifecycle.recordLifecycle(project, { ...source, expected_revision: source.revision });
+  assert.throws(() => apply(reviewed.review_token), /review is stale/);
+  assert.deepEqual(fs.readdirSync(evidenceDirectory).sort(), names);
+  assert.equal(lifecycle.catalog(project).find(record => record.id === versionId).failed_consumer_retirement, undefined);
+  assert.equal(lifecycle.catalog(owner).find(record => record.id === proxy.id).references.length, 1);
+});
+
+test("failed consumer retirement retries only its exact source freeze and proxy release", t => {
+  const f = failedConsumerFixture(t, 7), { consumers, lifecycle, owner, project, versionId, key, proxy } = f;
+  const reviewed = consumers.reviewFailedRetirement(owner, project, versionId, "companion", key);
+  const apply = () => consumers.applyFailedRetirement(owner, project, versionId, "companion", key, reviewed.review_token);
+  const release = lifecycle.releaseReferences;
+  lifecycle.releaseReferences = () => { throw new Error("Fixture interrupted after source freeze"); };
+  try { assert.throws(apply, /interrupted after source freeze/); }
+  finally { lifecycle.releaseReferences = release; }
+  const frozen = lifecycle.catalog(project).find(record => record.id === versionId);
+  assert.equal(frozen.producer.exit_code, 7);
+  assert.equal(frozen.release_receipt, undefined);
+  assert.ok(frozen.failed_consumer_retirement);
+  assert.equal(lifecycle.catalog(owner).find(record => record.id === proxy.id).references.length, 1);
+  assert.equal(consumers.reviewFailedRetirement(owner, project, versionId, "companion", key).status, "source-frozen");
+  const recover = lifecycle.recoverCleanup;
+  lifecycle.recoverCleanup = () => { throw new Error("Fixture interrupted after proxy release"); };
+  try { assert.throws(apply, /interrupted after proxy release/); }
+  finally { lifecycle.recoverCleanup = recover; }
+  assert.equal(consumers.reviewFailedRetirement(owner, project, versionId, "companion", key).status, "proxy-reference-released");
+  assert.equal(apply().status, "recovered");
+  assert.equal(apply().idempotent, true);
+  const source = lifecycle.catalog(project).find(record => record.id === versionId);
+  assert.deepEqual(source.producer, frozen.producer);
+  assert.equal(source.release_receipt, undefined);
+  assert.equal(lifecycle.catalog(owner).find(record => record.id === proxy.id).producer, undefined);
+  const sourceBeforeCleanup = lifecycle.catalog(project).find(record => record.id === versionId);
+  const proxyRoot = path.dirname(proxy.bindingPath);
+  assert.ok(lifecycle.planCleanup(project, { paths: [f.deployLogs] }).groups.find(group => group.id === versionId).blockers.includes(`active-reference:${versionId}`));
+  const { terminal, hash } = retireFailedProxyFixture(f, (terminal, hash) => {
+    assert.deepEqual(lifecycle.catalog(project).find(record => record.id === versionId), sourceBeforeCleanup);
+    assert.throws(() => consumers.completeFailedRetirement(owner, project, versionId, "companion", key, reviewed.review_token, terminal, hash), /canonically finalized/);
+  });
+  const complete = () => consumers.completeFailedRetirement(owner, project, versionId, "companion", key, reviewed.review_token, terminal, hash);
+  assert.equal(complete().status, "completed");
+  assert.equal(complete().idempotent, true);
+  const finalSource = lifecycle.catalog(project).find(record => record.id === versionId);
+  assert.deepEqual(finalSource.producer, sourceBeforeCleanup.producer);
+  assert.ok(finalSource.failed_consumer_completion);
+  assert.equal(finalSource.references.some(reference => reference.reason.startsWith("failed-consumer-retirement:")), false);
+  assert.equal(lifecycle.catalog(owner).some(record => record.id === proxy.id), false);
+  f.write(proxy.bindingPath, "reappeared binding");
+  assert.throws(complete, /requires absent path/);
+  // Historical receipt parsing is independent of operational reappearance checks.
+  assert.ok(lifecycle.catalog(project).find(record => record.id === versionId).failed_consumer_completion);
+});
+
+for (const timing of ["before", "after"]) test(`failed consumer retirement reports lease loss ${timing} each metadata CAS without inventing success`, { timeout: 120000 }, t => {
+  if (process.platform !== "win32") { t.skip("Windows FileShare.None provider"); return; }
+  const f = failedConsumerFixture(t, timing === "before" ? null : 7), { consumers, lifecycle, owner, project, versionId, key, proxy } = f;
+  const provider = require("./module-cache-dotnet-lease.cjs"), acquire = provider.acquire;
+  let held;
+  provider.acquire = (...args) => { held = acquire(...args); return held; };
+  try {
+    const reviewed = consumers.reviewFailedRetirement(owner, project, versionId, "companion", key);
+    const apply = () => consumers.applyFailedRetirement(owner, project, versionId, "companion", key, reviewed.review_token);
+    const fault = (method, action) => {
+      const original = lifecycle[method]; let injected = false;
+      lifecycle[method] = (...args) => {
+        const kill = () => { injected = true; process.kill(held.owner.pid); };
+        if (timing === "before") kill();
+        const value = original(...args);
+        if (timing === "after") kill();
+        return value;
+      };
+      try { assert.throws(action); assert.equal(injected, true); }
+      finally { lifecycle[method] = original; }
+      const source = lifecycle.catalog(project).find(record => record.id === versionId);
+      assert.equal(source.state, "failed"); assert.deepEqual(source.producer, f.source.producer);
+      assert.equal(source.release_receipt, undefined);
+      if (!source.failed_consumer_completion) assert.ok(source.references.some(reference => reference.reason.startsWith("failed-consumer-retirement:")));
+    };
+    fault("retireFailedConsumerReference", apply);
+    assert.equal(lifecycle.catalog(owner).find(record => record.id === proxy.id).references.length, 1);
+    fault("releaseReferences", apply);
+    assert.equal(lifecycle.catalog(owner).find(record => record.id === proxy.id).references.length, 0);
+    assert.equal(lifecycle.catalog(owner).find(record => record.id === proxy.id).cleanup_recovery, undefined);
+    fault("recoverCleanup", apply);
+    assert.ok(lifecycle.catalog(owner).find(record => record.id === proxy.id).cleanup_recovery.consumer_retirement);
+    assert.equal(apply().idempotent, true);
+    const { terminal, hash } = retireFailedProxyFixture(f);
+    const complete = () => consumers.completeFailedRetirement(owner, project, versionId, "companion", key, reviewed.review_token, terminal, hash);
+    fault("completeFailedConsumerRetirement", complete);
+    assert.ok(lifecycle.catalog(project).find(record => record.id === versionId).failed_consumer_completion);
+    assert.equal(complete().idempotent, true);
+  } finally { provider.acquire = acquire; }
 });
 
 test("legacy nested p/q preparation binds an explicit ancestor cache owner without inventing proxies", async t => {
