@@ -1,45 +1,29 @@
 # Azrael root coordination
 
-Status: `partial`. Root-only native context assembly, persisted-state deduplication, restoration and ordinary/compacted child-history sanitation pass focused Windows tests. A synthetic Devin request preserves the approved instruction text. Installed-host acceptance, other provider transports and non-Windows execution remain separate; instruction tests do not establish faster model scheduling. See [verification procedure](../ops/development.md#root-coordination-guidance).
+<!-- architecture: {"id":"arch.legacy.root-coordination","feature":null,"layers":[],"redirect":"arch.agent-coordination.contract"} -->
 
-## Scope and ownership
+Status: `reference` — link-only compatibility router.
 
-Azrael provides common coordination guidance to the root across projects. It owns delegation decisions, shared contracts, exclusive assignments, execution ordering, resource coordination, handoff, waiting, intervention, integration and final acceptance. User authorization, the effective delegation mode and project constraints remain applicable. Coordination guidance does not enable delegation or grant build, installation or publication authority.
+[Canonical contract](features/agent-coordination/README.md).
 
-The instruction body is maintained with the native prompt implementation, rather than copied into project or global AGENTS files. Root selection uses the actual session role, not its working directory or provider name. A child's inherited history must not activate root-only guidance. Root creation, resume and provider switching must retain the same scope. Available agent roles, tools and runtime capabilities determine usable actions; unavailable capabilities are not prescribed as available.
+<a id="azrael-root-coordination"></a>
 
-Workers receive their assigned outcome, owned scope, settled contracts, authority limits, prerequisites, completion criteria and reporting requirements. Shared change-preservation and evidence rules still apply to all agents. Common implementation and verification decisions remain in `implementation`; project commands, environments and required checks remain in their owning playbooks.
+[azrael-root-coordination](features/agent-coordination/README.md#azrael-root-coordination).
 
-## Image attachments between agents
+<a id="scope-and-ownership"></a>
 
-Status: `partial`: implemented and verified by scoped source/native tests; installed-runtime and live-provider acceptance remain unverified. Preservation feature: `agent.image-attachments`.
+[scope-and-ownership](features/agent-coordination/README.md#scope-and-ownership).
 
-`spawn_agent`, `send_message` and `followup_task` accept an optional image-only `attachments` array. Each entry selects exactly one local `path` or an `attachment_id` accessible to the sender. Local files are read through the caller's selected filesystem environment and effective sandbox, validated as images and copied into an immutable snapshot automatically. Chat images expose reusable attachment IDs. There is no separate registration tool, general file attachment or automatic URL download in this interface.
+<a id="image-attachments-between-agents"></a>
 
-Attachment IDs do not grant authority. Existing sender/recipient addressing rules and image access checks remain applicable to root and lead agents. Invalid sources, unsupported images and recipients without image-input capability fail explicitly. Selected images reach the recipient as image input even without parent-history inheritance. Plaintext/encrypted message custody, sender attribution and queue-only versus triggering behavior remain unchanged.
+[image-attachments-between-agents](features/agent-coordination/README.md#image-attachments-between-agents).
 
-Durable communications carry image snapshots so queued delivery and resumed recipients do not depend on the original download path. Sender-owned snapshots support ID reuse and follow the conversation lifecycle; local persistence holds the existing live-writer lock and rejects writes after shutdown or discard, so a late write cannot recreate deleted data; ephemeral conversations must not create durable image copies. The [attachment-copy contract](azrael-ex.md#chat-content-handling) owns project bulk cleanup and in-use protection. Independent project sharing and remote path transport are outside this local interface.
+<a id="scheduling-behavior"></a>
 
-## Scheduling behavior
+[scheduling-behavior](features/agent-coordination/README.md#scheduling-behavior).
 
-The root identifies prerequisites, owners, inputs, outputs, downstream consumers, exclusive writes and shared resources only as far as execution needs. It starts ready work on the path that controls total completion time and runs independent work alongside it. Small relevant preflight checks reduce avoidable rebuilds without creating a mandatory serial barrier for unrelated components. Completion of one assignment can release its dependent work before every other assignment finishes. Unresolved contracts block only the work that depends on them; work based on settled contracts continues. A confirmed API shape alone is insufficient if required behavior remains unresolved, and invented defaults or empty implementations must not substitute for that behavior. Existing work records may briefly identify the current prerequisite, ready independent work and next handoff output.
+<a id="waiting-intervention-and-acceptance"></a>
 
-Concurrency follows actual process dependencies, CPU, memory, disk, network and cache locks. Separate caches or execution environments are chosen by their expected waiting reduction and preparation or duplicate-compilation cost. Already-running builds and checks are not duplicated. Fixed inputs and reusable evidence follow their owning contracts; changes invalidate affected outputs rather than automatically repeating every completed stage.
+[waiting-intervention-and-acceptance](features/agent-coordination/README.md#waiting-intervention-and-acceptance).
 
-Before expensive execution, the root confirms the downstream consumer’s required inputs, settings, environment, paths and validation conditions. Preflight outputs may be reused when their identity and coverage meet the final consumer’s contract; reuse is optional and must not make a small diagnostic unnecessarily expensive. Preparation cost is weighed against early failure detection. Fixed-input and reuse details remain with the implementation build-input reference.
-
-Verification dependencies, data, fixtures, services and installation/browser/desktop environments that do not require the final output are prepared in parallel within existing authority. A small real execution checks readiness; environment readiness is distinct from final product acceptance.
-
-## Waiting, intervention and acceptance
-
-Immediately after dispatch, the root starts implementation, integration preparation or validation preparation that does not depend on the result. Document work remains useful, but does not justify waiting while executable implementation or validation preparation remains. Before parking, the root reviews remaining authorized work, prerequisites, exclusive ownership and shared resources; the wait reason identifies the required output and the specific downstream action it blocks. A resource occupied by one action does not block every independent action. A preference to resume when a worker finishes applies at a dependency boundary; an explicit user instruction to wait still takes precedence. It avoids repeated messages, status calls and indirect file/log/process polling. A reasonable expected duration or first-check point can be set without pretending that an uncertain completion time is guaranteed.
-
-Workers distinguish overall completion from readiness of an output that will remain unchanged while downstream work consumes it. Readiness reports include the fixed output identity, satisfied consumer conditions and remaining checks; path existence or partial file output is insufficient. Ordinary progress/readiness messages do not wake a parked root. When the current runtime/provider supports stage completion events, the root waits only on stages required by the next action, observes the `all_terminal` contract, and checks result state after resuming. Source implementation does not establish installed capability. The parent does not mark the overall assignment complete merely to wake a dependent action.
-
-Targeted checks and intervention are permitted for changed user requirements, confirmed contract errors, data-loss risk, a predefined check point or time limit, newly reported execution failures or resource conflicts, and evidenced suspicion of a missing completion signal. Failures or changed prerequisites trigger reassessment of their effect on total completion and the remaining sequence. Corrections go to the existing owner as a consolidated delta. Slow work alone does not justify duplicate assignments.
-
-Completion reports identify actual scope, inputs and outputs, exit codes, log locations and unverified items. The root reuses sufficient evidence, verifies gaps or new integration risks, and reports completion only after all success criteria, mandatory checks and cleanup are satisfied. Product performance improvement is not established by instruction transport tests.
-
-For long-running or connected assignments, existing logs and work records retain concise start/end times, dependency/resource waiting reasons and rerun causes. Performance is assessed by total elapsed time and reduced waiting/rework, not summed overlapping durations. Estimates are separate from measured improvements. Small edits require no detailed schedule, separate timing document or repeated polling for measurement.
-
-Root deferral and its provider/tool availability follow [root resume scheduling](root-resume.md). Instruction distribution follows [instruction ownership](instructions.md).
+[preamble](features/agent-coordination/README.md#azrael-root-coordination).

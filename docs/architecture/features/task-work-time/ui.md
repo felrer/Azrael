@@ -29,4 +29,4 @@ Status: `partial` — 소스 변환과 Windows native React/CSS fixture의 시�
 
 ## 공통 표현과 보존
 
-공통 표현 원칙은 [UI presentation](../../ui-presentation.md), 기능 연결은 [전체 계약의 preservation mapping](README.md#preservation-mapping)을 따른다.
+공통 표현 원칙은 [UI presentation](../../shared/ui-principles.md), 기능 연결은 [전체 계약의 preservation mapping](README.md#preservation-mapping)을 따른다.

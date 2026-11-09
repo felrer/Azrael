@@ -39,10 +39,10 @@ Status: `target` — [작업 기록](../../../../work/EK-01-user-wait-time/01-pl
 
 ## 소유권과 적용 범위
 
-엔진은 기록 경계를, UI/Host는 기록의 조회·집계·표시를 소유한다. 예약의 durable defer 경계는 [자동 재개 계약](../../root-resume.md#deferred-turn-timing)에 둔다. 사용자 승인 자체의 권한은 해당 승인 계약이 소유하며 시간 표시는 권한을 부여하지 않는다.
+엔진은 기록 경계를, UI/Host는 기록의 조회·집계·표시를 소유한다. 예약의 durable defer 경계는 [자동 재개 계약](../root-resume/README.md#deferred-turn-timing)에 둔다. 사용자 승인 자체의 권한은 해당 승인 계약이 소유하며 시간 표시는 권한을 부여하지 않는다.
 
 Windows x64, Linux x64와 macOS ARM64의 로컬 VS Code 대화에 공통으로 적용한다. 원격·컨테이너 환경의 수용은 이번 범위에 포함하지 않는다. native OpenAI 스타일의 기존 보조 텍스트·색상 토큰과 사용자 메시지 레이아웃을 재사용하며 밝은·어두운 테마에서 검증한다.
 
 ## Preservation mapping
 
-Registered features: `ui.task-work-time`, `engine.task-work-time`. The task-work-time UI scope retains its three timing tests and the separate `ui.task-work-time.deferred-contract` check. When deferred-turn is also selected, the existing exact-command grouping runs its shared test once and retains both mandatory check records. The [contract index](../../upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately. The UI test transform fixture reuses complete transformed output through the guarded asset cache; the original behavioral assertions remain mandatory. Its registered guard checks tool, environment, exact path context and cache-owner changes, and runs once when shared by selected features.
+Registered features: `ui.task-work-time`, `engine.task-work-time`. The task-work-time UI scope retains its three timing tests and the separate `ui.task-work-time.deferred-contract` check. When deferred-turn is also selected, the existing exact-command grouping runs its shared test once and retains both mandatory check records. The [contract index](../../shared/feature-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately. The UI test transform fixture reuses complete transformed output through the guarded asset cache; the original behavioral assertions remain mandatory. Its registered guard checks tool, environment, exact path context and cache-owner changes, and runs once when shared by selected features.

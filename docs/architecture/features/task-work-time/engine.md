@@ -19,4 +19,4 @@ Status: `target` — [작업 기록](../../../../work/EK-01-user-wait-time/01-pl
 
 ## 예약 경계와 검증 연결
 
-durable defer·취소·재시작의 시간 경계는 [자동 재개 계약](../../root-resume.md#deferred-turn-timing)에 남긴다. 기존 `engine.task-work-time` 보존 ID와 검사는 [전체 계약](README.md#preservation-mapping)에 연결한다.
+durable defer·취소·재시작의 시간 경계는 [자동 재개 계약](../root-resume/README.md#deferred-turn-timing)에 남긴다. 기존 `engine.task-work-time` 보존 ID와 검사는 [전체 계약](README.md#preservation-mapping)에 연결한다.

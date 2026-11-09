@@ -13,7 +13,7 @@ the Azrael-specific constraints and owning documents to apply alongside it.
   and [operational documentation](../ops/README.md) owns execution commands and repeatable procedures.
 - Store new work plans in the project-local `work/` specified by [Work Artifacts](../README.md#work-artifacts), and follow
   the session and plan rules in [Work documents](../../work/README.md). Do not create a separate work plan repository.
-- Apply the [multi-platform contract](../architecture/multi-platform.md#requirement-applicability) when selecting the current work's platform scope and required acceptance.
+- Apply the [multi-platform contract](../architecture/shared/platform.md#requirement-applicability) when selecting the current work's platform scope and required acceptance.
 - Also select guidance applicable to the current work from the [playbook entry point](README.md).
   Read only the needed owner sections in documents linked by that guidance.
 
@@ -30,7 +30,7 @@ When handling generated inputs, logs, reports, backups and version evidence, als
   Do not extend a pass on one OS into acceptance evidence for other environments. Do not create a separate plan or full checks on every OS solely for this assessment.
 - Before investigating or modifying engine code, confirm the actual source root through [engine source selection](../maps/README.md#select-the-engine-source).
   For problems in a running distribution, first establish that distribution's relationship to the source.
-- UI changes follow the [UI presentation contract](../architecture/ui-presentation.md). Reuse components, layouts and theme tokens
+- UI changes follow the [UI presentation contract](../architecture/shared/ui-principles.md). Reuse components, layouts and theme tokens
   from the pinned upstream UI, and verify actual rendering and interaction in light and dark themes.
   Do not mark visual verification complete from source inspection alone.
 - Apply the [Build and reinstall playbook](build.md) to packaging, installation, updates, rollback and build artifact cleanup.
@@ -53,7 +53,7 @@ When handling generated inputs, logs, reports, backups and version evidence, als
   Make the preservation item connected to each relevant design section discoverable through a document link or feature ID.
   First check whether existing items and checks can be extended.
   For features spanning UI and engine, connect verification coverage for both sides; documentation or source provenance checks do not replace behavior verification.
-- For Codex UI and engine updates, compare the candidate against the baseline release's design and preservation inventory under the [upstream preservation contract](../architecture/upstream-preservation.md).
+- For Codex UI and engine updates, compare the candidate against the baseline release's design and preservation inventory under the [upstream preservation contract](../architecture/shared/feature-preservation.md).
   Check implemented portions and contracts agreed to be retained section by section;
   do not exclude existing implementations from preservation merely because the overall design is `target` or `partial`.
   Distinguish unimplemented goals and drafts from implementation requirements.

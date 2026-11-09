@@ -22,4 +22,4 @@ thinking 파라미터 전송은 기본으로 꺼져 있다. Qwen처럼 해당 �
 
 Qwen의 서버 측 PASS 결과는 Azrael 연동 시험과 구분한다. 사용자가 등록한 주소에서 모델 조회, 비스트리밍 도구 call/result 왕복, subagent 생성·후속 지시·중단·완료를 검증한 뒤 실제 사용 범위를 확정한다. GPU 경로·context·streaming·thinking·병렬 도구 변경은 각각 재검증한다.
 
-구조와 저장 계약은 [사용자 API 모델](../architecture/custom-api-models.md)을 참조한다.
+구조와 저장 계약은 [사용자 API 모델](../architecture/features/custom-api-models/README.md)을 참조한다.

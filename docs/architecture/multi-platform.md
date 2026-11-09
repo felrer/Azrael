@@ -1,69 +1,41 @@
 # Multi-platform runtime and maintenance
 
-Status: `partial` across the complete platform matrix. Shared identity/runtime/build contracts are implemented. Public release identities, exact-package gates and installed-host evidence are owned by [app release operations](../ops/app-release.md), rather than a version pinned in this design. Retained Linux x64 acceptance includes Ubuntu 24.04/glibc 2.39 through WSLg; standalone desktops and older distributions remain separate. [Linux operations](../ops/linux.md) records additional selected-window and specific live API checks, without establishing every provider or desktop. Retained macOS ARM64 acceptance includes macOS 26.6.2 with VS Code 1.138.0 and the [certificate-free Mac policy](../ops/app-release.md#macos-distribution-without-a-developer-id-certificate). Intel Mac, other macOS versions, live provider authentication/inference, voice usage and native Mac desktop control remain unverified. Windows public distribution and ordinary-profile installation retain their release-specific acceptance evidence.
+<!-- architecture: {"id":"arch.legacy.multi-platform","feature":null,"layers":[],"redirect":"arch.shared.platform"} -->
 
-## Product scope
+Status: `reference` — link-only compatibility router.
 
-The initial scope is local VS Code execution on Windows x64, glibc Linux x64 and Apple Silicon macOS. Shared chat, account/provider management, native development tools, collaboration, queues and recovery remain one product. Desktop control has a Windows backend and a bounded Linux Xorg selected-window path described below; macOS desktop control remains a later scope. Intel Mac, Linux ARM64, Alpine/musl user environments, WSL product support, Remote SSH and containers are separate follow-up targets.
+[Canonical contract](shared/platform.md).
 
-`scripts/azrael-platforms.json` owns selected runtime descriptors, Cargo and VSIX targets, executable suffixes, desktop-control availability and acceptance maturity. An entry permits preparing a candidate; it is not proof of support. Minimum OS/ABI and desktop guarantees must be established by native dependency and installed-host acceptance before release. A Linux Rust target alone does not determine the compatibility of Node, Bun, keyring or PTY.
+<a id="multi-platform-runtime-and-maintenance"></a>
 
-## Requirement applicability
+[multi-platform-runtime-and-maintenance](shared/platform.md#multi-platform-runtime-and-maintenance).
 
-Apply the common [Platform Scope rules](../../instructions/instructions/AGENTS.snippet.md#platform-scope-all-agents) to feature, dependency and build/install work. Azrael's target set and acceptance status are defined above and in the linked release operations; the runtime descriptors identify candidates rather than establish support. Select native and installed-host verification through this contract's [installation and verification gates](#installation-update-and-verification).
+<a id="product-scope"></a>
 
-## Shared and platform responsibilities
+[product-scope](shared/platform.md#product-scope).
 
-Shared services own conversation and provider state, queues, agent coordination, recovery, settings, approval policy and user-visible semantics. Existing native UI and account services are reused; complete services, UI views or install policies are not copied for each OS.
+<a id="requirement-applicability"></a>
 
-Platform responsibilities include native executable and dependency selection, case-sensitive path identity, executable permissions, process lifetime, credentials, private socket transport, file opening and host launch. Native desktop backends own capture, window enumeration/identity and input. Common authorization never becomes weaker when a backend is unavailable.
+[requirement-applicability](shared/platform.md#requirement-applicability).
 
-The target [maintenance command and platform modules](project-maintenance.md#maintenance-platform-modules) keep bundle ownership/protection, review, reservations and recovery in one core behind `azrael maintenance`. Windows and Unix filesystem/process adapters preserve those contracts; Linux/macOS share Unix primitives with OS-specific corrections. Initial maintenance acceptance covers local filesystems and requires native management checks for each OS before that platform switches. Generic host/package acceptance does not establish recursive deletion or lease correctness, and network/shared-filesystem maintenance remains a separate scope.
+<a id="shared-and-platform-responsibilities"></a>
 
-`scripts/platform-runtime.cjs` consumes the descriptor owner and provides common identity, executable naming and installation-path rules. Build staging copies the same module and policy bytes into prepared host and account payloads; it does not maintain independent validators in the TypeScript and JavaScript hosts.
+[shared-and-platform-responsibilities](shared/platform.md#shared-and-platform-responsibilities).
 
-## Runtime and release identity
+<a id="runtime-and-release-identity"></a>
 
-A new runtime manifest identifies `platform` with `{os, arch, target, libc?}` using Node OS/architecture names. It is validated against the host before native launch. Existing Windows-only manifests without an identity remain accepted only on Windows x64 during the recorded migration. A manifest naming another OS/CPU/Cargo target is rejected. Linux candidates declare glibc; ABI minimum and actual binary/dependency compatibility remain release gates.
+[runtime-and-release-identity](shared/platform.md#runtime-and-release-identity).
 
-Existing absolute runtime schemas and bundle-relative inventory validation retain their state-isolation, containment and hash contracts. Relative public templates are resolved once against the selected installation root. The runtime configuration cannot select ordinary Codex state. Unix files intended for execution must also be executable. JavaScript helper files need integrity and file checks but are not treated as native executable files.
+<a id="private-management-transport"></a>
 
-Source content identity, target, protocol-compatible engine/bridge/code-mode host and their hashes are bound in provenance. An imported code-mode host retains its explicit original path and hash; a source-built host has a different, explicit origin. A source-built claim requires a real source build. Native dependencies, runtime interpreter versions, artifact architecture, executable mode and licenses are part of the selected distribution inputs.
+[private-management-transport](shared/platform.md#private-management-transport).
 
-An imported Windows source receipt remains unchanged when materialized on Unix. Native validation checks identical bytes, Git modes and contained relative link targets, then records the actual Unix file, directory and link metadata in a separate materialization digest. Only the documented Windows file-mode and Git-link representations may be translated; the original importer still validates its original representation.
+<a id="desktop-features"></a>
 
-## Private management transport
+[desktop-features](shared/platform.md#desktop-features).
 
-Chat and account management share the same native engine. Windows keeps its current-user, non-elevated peer validation. Unix local-daemon admission checks that the socket parent is private, the directory/socket belong to the effective user and the connected peer credential matches before WebSocket/session bytes are sent. Explicit remote endpoint transport is a different authority boundary and does not bypass this local admission.
+<a id="installation-update-and-verification"></a>
 
-The engine publishes a rendezvous alias to its protected physical Unix socket. Private management accepts one final user-owned alias only when both advertised and physical parents are user-owned 0700 directories and the target is an actual socket. It connects to the inspected physical path and rechecks entry identities and link text after peer verification. Chained links, changed aliases and public advertised directories are rejected.
+[installation-update-and-verification](shared/platform.md#installation-update-and-verification).
 
-Native state remains `~/.azrael-ex` or an explicitly selected, isolated absolute state path. Changing installation paths does not migrate accounts or conversations. SQL migration bytes and applied checksums are preserved. Case-insensitive Windows identity is not used to merge distinct Unix paths. Private provider temporary files also set Unix `TMPDIR` without changing other extensions' process environment.
-
-Account selection uses VS Code's workspace/global storage paths. Local desktop storage accepts absolute `file` URIs and the file-backed `vscode-userdata` scheme with empty authority; the latter is rejected in a remote extension host. Other providers and relative paths cannot become native account-state paths.
-
-## Desktop features
-
-Window Use is temporarily Windows-only under the [availability policy](window-use.md#product-and-platform-scope). Linux and macOS do not activate its host binding or advertise its MCP tools; non-Windows relay calls are rejected. The retained Linux selected-window backend below describes implementation and earlier evidence, not current product availability. Current packages omit the retired Computer Use/Sky desktop-input payload. Backend absence must not prevent core host activation. Capability, OS permission, Azrael approval and execution failure are different states. Unsupported or permission-required states must remain consistent in UI and model tool registration.
-
-Injected request, notification, approval and disconnect hooks check the validated runtime's Window Use availability before requiring its backend. With no backend, native core dispatch continues, desktop routes report unavailable, and reserved local consent responses remain suppressed.
-
-Linux selected-window control uses Xorg/XComposite capture, AT-SPI actions and a verified Python/GI runtime. Its [operational owner](../ops/linux.md) records isolated GTK-window verification and integrated-host/package checks. These establish their named fixture and host scopes; they do not accept arbitrary user desktops or every application. Wayland, whole-desktop Computer Use and native macOS capture/accessibility remain outside this path. A selected-window failure cannot automatically grant whole-desktop control. Window identity and process lifetime must be revalidated before input. OS-level privacy permission cannot substitute for Azrael conversation/app consent. The detailed active policy is owned by [Window Use](window-use.md); retired Computer Use is historical only.
-
-## Installation, update and verification
-
-All build inputs, locks, scripts, source and explicitly selected external runtime/UI inputs are frozen at build start. The source checkout may change afterward; those changes belong to a new input identity. Native builds, packaging, installation and verification consume the same frozen inputs.
-
-`build-platform.cjs` orchestrates native candidates; `freeze-platform-inputs.cjs` binds content, permissions and contained relative symlinks. Mutable compilation copies are separate from the immutable input tree. The existing Windows PowerShell producer remains the installed migration path until the common producer passes its Windows release acceptance. Native interpreters and dependencies must match the selected architecture; emulation is not a substitute for that identity.
-
-Common preparation reuses the pinned UI hash/anchor checks, namespace transforms, package secret scan and account payload. Packages are target-specific, contain a complete integrity inventory and exclude user state/cache. Installation verifies inventory and identity before mutation, uses a new versioned destination, records resolved runtime/state paths and preserves active processes. Rollback selects the retained verified version; it does not overwrite a running runtime or rewrite user databases.
-
-Windows retains its existing installed contract during migration. Unix release roots default to user-owned platform locations; the state directory remains separate. macOS candidate build and verification do not authorize public distribution, signing account changes or notarization publication.
-
-Portable candidates use `prepare-platform-host.cjs` for pinned UI preparation, `package-platform-release.cjs` for a schema-2 inventory and `install-platform-release.cjs` for side-by-side installation. Windows uses ZIP; Unix uses TAR with explicit executable modes. The recipient first extracts into a new directory, verifies the complete inventory, and can prepare a relocated VSIX without installing it. Bundled Devin Node paths and their installed build hashes are rebound with source/output transformation receipts; the original package remains unchanged. There is no automatic database migration or replacement of running releases.
-
-Common source/contract checks are selected by changed behavior. Native and installed-host tests run on required target environments, with light/dark rendering and actual interactions for UI changes. A WSL native-process check is recorded as Linux process evidence, not Linux desktop acceptance or WSL product support. Native build success, provider real-account success, host UI acceptance and release certification are separate gates.
-
-`.github/workflows/platform-contracts.yml` selects Windows x64, Ubuntu x64 and macOS ARM64 runners for common platform/frozen-input/provenance contracts and native transport compilation. This workflow does not build or publish releases. Pinned UI packaging and installed-host acceptance require the selected external inputs and remain separate gates.
-
-Detailed execution and remaining gates belong to the existing [work plan](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/DP-01-azrael-multi-platform/01-plan.md>); repeatable commands and supported artifact contracts belong to operations documents after their implementation is available.
+[preamble](shared/platform.md#multi-platform-runtime-and-maintenance).

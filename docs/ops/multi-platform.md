@@ -1,6 +1,6 @@
 # Multi-platform candidates
 
-Status: partial implementation. The [platform contract](../architecture/multi-platform.md) defines Windows x64, glibc Linux x64 and macOS ARM64 targets. macOS public distribution follows the [certificate-free Mac policy](app-release.md#macos-distribution-without-a-developer-id-certificate); final package acceptance remains required. The existing Windows release procedure remains the installed production path.
+Status: partial implementation. The [platform contract](../architecture/shared/platform.md) defines Windows x64, glibc Linux x64 and macOS ARM64 targets. macOS public distribution follows the [certificate-free Mac policy](app-release.md#macos-distribution-without-a-developer-id-certificate); final package acceptance remains required. The existing Windows release procedure remains the installed production path.
 
 ## Verified scope
 

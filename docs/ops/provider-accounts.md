@@ -1,6 +1,6 @@
 # Provider accounts and managed inference
 
-Procedures for provider account management, model discovery and managed inference. Designs are owned by [accounts and usage](../architecture/accounts.md) and [managed providers](../architecture/managed-providers.md).
+Procedures for provider account management, model discovery and managed inference. Designs are owned by [accounts and usage](../architecture/features/accounts/README.md) and [managed providers](../architecture/features/managed-providers/README.md).
 
 ## Verified scope
 
@@ -12,7 +12,7 @@ Procedures for provider account management, model discovery and managed inferenc
 
 While visible, the accounts and usage page automatically refreshes every two minutes. Opening the page and manual refresh still request an immediate update.
 
-`azrael.manageAccounts`, `azrael.usage` and `azrael.devinAccount` open the same page. OAuth login uses the upstream provider flow, and cancelling a login stops only that operation's helper. Provider icons group account rows with always-visible remaining-usage gauges. Click a row or gauge, or use Enter/Space on a focused row, to open management details. The gray **현재 로그인** badge identifies the active OpenAI profile, connected selected provider account without a reauthentication requirement, or logged-in Devin CLI identity. For providers this describes new-chat selection, not successful inference or the account pinned to an existing chat. Connection/default-account information appears in details; automatic-switch permission remains independent. The presentation contract is owned by [Accounts and usage](../architecture/accounts.md#provider-groups-and-account-summaries).
+`azrael.manageAccounts`, `azrael.usage` and `azrael.devinAccount` open the same page. OAuth login uses the upstream provider flow, and cancelling a login stops only that operation's helper. Provider icons group account rows with always-visible remaining-usage gauges. Click a row or gauge, or use Enter/Space on a focused row, to open management details. The gray **현재 로그인** badge identifies the active OpenAI profile, connected selected provider account without a reauthentication requirement, or logged-in Devin CLI identity. For providers this describes new-chat selection, not successful inference or the account pinned to an existing chat. Connection/default-account information appears in details; automatic-switch permission remains independent. The presentation contract is owned by [Accounts and usage](../architecture/features/accounts/README.md#provider-groups-and-account-summaries).
 
 To use a newly connected provider: reload the window after installation, open a new chat, expand the provider's section in the model picker, and use the picker's refresh action if discovery is still pending. Selecting a model never rotates accounts; the selected account becomes the binding for the provider's next new thread.
 

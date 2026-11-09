@@ -1,3 +1,13 @@
 # Window Use documentation
 
-The active [Window Use contract](window-use.md) owns app-based permissions, masked desktop capture and conversation-only desktop authority. Its [input modes](window-use.md#input-modes-and-virtualization-boundaries) distinguish selected-window semantic control, shared-foreground collaboration and whole-screen coordinate input. [Multi-pointer collaboration](multi-pointer.md) owns logical user/model cursors, gesture scheduling and cursor presentation. Numbered-stage walkthroughs do not define active permissions or execution guidance.
+<!-- architecture: {"id":"arch.legacy.window-use-visualization","feature":null,"layers":[],"redirect":"arch.window-use.visualization"} -->
+
+Status: `reference` — link-only compatibility router.
+
+[Canonical contract](features/window-use/visualization.md).
+
+<a id="window-use-documentation"></a>
+
+[window-use-documentation](features/window-use/visualization.md#window-use-documentation).
+
+[preamble](features/window-use/visualization.md#window-use-documentation).

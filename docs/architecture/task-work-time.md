@@ -1,4 +1,5 @@
 # 연속 작업 시간 문서 위치
+<!-- architecture: {"id":"arch.legacy.task-work-time","feature":null,"layers":[],"redirect":"arch.task-work-time.contract"} -->
 
 Status: `reference` — 현재 계약은 [작업 시간 기능](features/task-work-time/README.md)이 소유한다. 이 문서는 기존 작업 기록의 경로·앵커를 위한 연결만 제공하며 동작 계약을 중복 보관하지 않는다.
 

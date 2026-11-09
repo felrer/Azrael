@@ -114,6 +114,7 @@ function parseDocument(file, text) {
       if (!value || Array.isArray(value) || typeof value !== 'object') throw new Error('Expected metadata object');
       if ('id' in value && (typeof value.id !== 'string' || !value.id.trim() || /[\s#]/.test(value.id))) throw new Error('id must be a nonempty stable identifier without spaces or #');
       if ('feature' in value && value.feature !== null && (typeof value.feature !== 'string' || !value.feature.trim())) throw new Error('feature must be a nonempty string or null');
+      if ('redirect' in value && (typeof value.redirect !== 'string' || !value.redirect.trim() || /[\s#]/.test(value.redirect))) throw new Error('redirect must be a stable document ID without spaces or #');
       if ('layers' in value && (!Array.isArray(value.layers) || value.layers.some(layer => !['ui', 'host', 'engine', 'tooling'].includes(layer)))) throw new Error('layers must contain ui, host, engine or tooling');
       if ('status' in value && !['current', 'partial', 'target', 'draft', 'reference', 'unknown', 'conflict'].includes(value.status)) throw new Error('Invalid status');
       if (value.status === 'conflict' && (typeof value.priorStatus !== 'string' || !value.priorStatus || typeof value.conflict !== 'string' || !value.conflict)) throw new Error('conflict requires priorStatus and conflict reference');
@@ -161,11 +162,12 @@ function parseDocument(file, text) {
   const anchors = new Map();
   for (const section of sections) anchors.set(section.anchor, section.id);
   const duplicateAnchors = [];
+  const standaloneAnchors = /^(?:\s*<a\s+[^>]*?(?:id|name)\s*=\s*["'][^"']+["'][^>]*>\s*<\/a>\s*)+$/i;
   for (let i = 0; i < visible.length; i++) {
     for (const match of visible[i].matchAll(/<a\s+[^>]*?(?:id|name)\s*=\s*["']([^"']+)["'][^>]*>/gi)) {
       let next = i + 1;
-      while (next < visible.length && !visible[next].trim()) next++;
-      const heading = sections.find(section => section.headingLine === next + 1);
+      while (next < visible.length && (!lines[next].trim() || standaloneAnchors.test(visible[next]))) next++;
+      const heading = standaloneAnchors.test(visible[i]) && sections.find(section => section.headingLine === next + 1);
       const owner = heading || sections.find(section => section.startLine <= i + 1 && section.endLine >= i + 1);
       if (!owner) continue;
       if (anchors.has(match[1]) && anchors.get(match[1]) !== owner.id) duplicateAnchors.push({ anchor: match[1], line: i + 1 });
@@ -224,6 +226,7 @@ function createIndex(root, options = {}) {
   for (const document of documents) {
     document.entry = document.sections.find(section => section.level === 1) || document.sections[0];
     document.classification = document.entry.classification;
+    document.redirect = document.classification.redirect;
   }
   for (const document of documents) {
     let directory = path.posix.dirname(document.file), folderFeature;
@@ -241,6 +244,7 @@ function createIndex(root, options = {}) {
       const effective = section.effectiveClassification;
       section.feature = effective.feature;
       section.layers = effective.layers;
+      section.redirect = document.redirect;
       section.legacyId = section.id;
       const stable = section.classification.id || (section === document.entry ? base.id : base.id && `${base.id}#${section.anchor}`);
       section.id = stable || section.id;
@@ -268,6 +272,34 @@ function createIndex(root, options = {}) {
       section.sha = digest(JSON.stringify([section.title, section.body, section.parents, section.state, section.effectiveClassification]));
     }
   }
+  const stableDocuments = new Map(documents.filter(document => document.classification.id)
+    .map(document => [document.classification.id, document]));
+  for (const document of documents) {
+    for (const section of document.sections) if (section !== document.entry && Object.hasOwn(section.classification, 'redirect')) {
+      index.metadataFindings.push({ kind: 'invalid-redirect', file: document.file, source: section.id, message: 'redirect is document metadata only' });
+    }
+    if (!document.redirect) continue;
+    if (!document.classification.id || document.entry.feature !== null || document.entry.layers.length || document.entry.state.value !== 'reference') {
+      index.metadataFindings.push({ kind: 'invalid-router', file: document.file, source: document.entry.id,
+        message: 'Router requires its own stable ID, feature:null, layers:[] and reference status' });
+    }
+    const visited = new Set([document]);
+    let current = document;
+    while (current.redirect) {
+      const target = stableDocuments.get(current.redirect);
+      if (!target) {
+        index.metadataFindings.push({ kind: 'missing-redirect', file: document.file, source: document.entry.id, target: current.redirect });
+        break;
+      }
+      if (visited.has(target)) {
+        index.metadataFindings.push({ kind: target === document && current === document ? 'self-redirect' : 'redirect-cycle',
+          file: document.file, source: document.entry.id, target: current.redirect });
+        break;
+      }
+      visited.add(target);
+      current = target;
+    }
+  }
   verifyObservations(index);
   return index;
 }
@@ -287,7 +319,8 @@ function metadata(section) {
     compactState.declaration = compactState.declaration.slice(0, 240);
     compactState.declarationTruncated = true;
   }
-  return { ...candidate(section), id, file, title, headingLine, startLine, endLine, sha, state: compactState, parents, parent };
+  return { ...candidate(section), id, file, title, headingLine, startLine, endLine, sha, state: compactState, parents, parent,
+    ...(section.redirect ? { redirect: section.redirect } : {}) };
 }
 
 function candidate(section) {
@@ -303,11 +336,22 @@ function matchesFacets(section, options) {
 }
 
 function map(index, options = {}) {
-  const items = index.documents.filter(document => matchesFacets(document.entry, options)).map(document => {
+  if (options.groupBy !== undefined && !['feature', 'layer'].includes(options.groupBy)) fail('INVALID_ARGUMENT', 'group-by must be feature or layer');
+  const items = index.documents.filter(document => !document.redirect && matchesFacets(document.entry, options)).map(document => {
     const conflicts = document.sections.filter(section => section.state.value === 'conflict').map(section => section.id);
     return { ...candidate(document.entry), ...(conflicts.length ? { conflicts: {
       total: conflicts.length, ids: conflicts.slice(0, 8), truncated: conflicts.length > 8 } } : {}) };
   });
+  if (options.groupBy) {
+    const groups = new Map();
+    for (const document of items) {
+      const keys = options.groupBy === 'feature' ? [document.feature] : document.layers.length ? [...new Set(document.layers)] : [null];
+      for (const key of keys) groups.set(key, (groups.get(key) || 0) + 1);
+    }
+    const grouped = [...groups].map(([key, documents]) => ({ [options.groupBy]: key, documents }))
+      .sort((a, b) => String(a[options.groupBy] ?? '').localeCompare(String(b[options.groupBy] ?? '')));
+    return { command: 'map', groupBy: options.groupBy, ...page(grouped, options) };
+  }
   return { command: 'map', ...page(items, options) };
 }
 
@@ -337,6 +381,7 @@ function search(index, query, options = {}) {
   const exactFeatures = index.features.filter(feature => normalize(feature.id) === needle || equivalents.some(concept => concept.features.includes(feature.id)));
   const hits = [];
   for (const section of index.sections) {
+    if (section.redirect) continue;
     if (!matchesFacets(section, options)) continue;
     const title = normalize(section.title), context = normalize(section.parents.map(parent => parent.title).join(' '));
     const text = normalize(section.visible), identity = normalize(section.id);
@@ -426,12 +471,14 @@ function related(index, id, options = {}) {
     if (direction !== 'outgoing' && section.parent) items.push({ type: 'parent', direction: 'incoming', id: section.parent });
     if (direction !== 'incoming') {
       items.push(...section.children.map(child => ({ type: 'child', direction: 'outgoing', ...child })));
-      items.push(...links(section).map(link => ({ type: 'link', direction: 'outgoing', source: section.id, sourceFile: section.file, line: link.line, ...resolveLink(index, section.file, link.href) })));
+      items.push(...links(section).map(link => ({ type: 'link', direction: 'outgoing', source: section.id, sourceFile: section.file,
+        ...(section.redirect ? { sourceRedirect: section.redirect } : {}), line: link.line, ...resolveLink(index, section.file, link.href) })));
     }
     if (direction !== 'outgoing') for (const source of index.sections) for (const link of links(source)) {
       const target = resolveLink(index, source.file, link.href);
       if (target.id === section.id || (!target.anchor && target.file === section.file && section === index.documents.find(document => document.file === section.file).entry)) {
-        items.push({ type: 'link', direction: 'incoming', source: source.id, sourceFile: source.file, line: link.line, ...target });
+        items.push({ type: 'link', direction: 'incoming', source: source.id, sourceFile: source.file,
+          ...(source.redirect ? { sourceRedirect: source.redirect } : {}), line: link.line, ...target });
       }
     }
     if (options.detail) features = index.features.filter(item => item.contract === section.file);
@@ -513,7 +560,7 @@ function check(index, options = {}) {
 
 const HELP = `Local architecture retrieval (JSON, no source writes)
   node docs/architecture/tools/architecture.cjs [--root ROOT] COMMAND
-  map [--feature ID|null|unknown] [--layer ui|host|engine|tooling]
+  map [--feature ID|null|unknown] [--layer ui|host|engine|tooling] [--group-by feature|layer]
   search <query> [--feature ID|null|unknown] [--layer LAYER] [--detail]
   read <stable-id|file#anchor> [--limit 1..24000] [--offset N] [--sha HASH]
   related <stable-id|file#anchor|feature|concept> [--direction incoming|outgoing|both] [--detail]
@@ -533,13 +580,14 @@ function run(argv, defaultRoot = path.resolve(__dirname, '../../..')) {
     const argument = argv[i];
     if (argument.startsWith('--')) {
       if (argument === '--detail') { options.detail = true; continue; }
-      if (!['--root', '--limit', '--offset', '--sha', '--changed', '--feature', '--layer', '--direction'].includes(argument)) fail('INVALID_ARGUMENT', `Unknown option: ${argument}`);
+      if (!['--root', '--limit', '--offset', '--sha', '--changed', '--feature', '--layer', '--direction', '--group-by'].includes(argument)) fail('INVALID_ARGUMENT', `Unknown option: ${argument}`);
       const value = argv[++i];
       if (value === undefined || value.startsWith('--')) fail('INVALID_ARGUMENT', `Missing value: ${argument}`);
       if (argument === '--root') root = value;
       else if (argument === '--changed') changed.push(value);
       else if (argument === '--sha') options.sha = value;
       else if (argument === '--direction') options.direction = value;
+      else if (argument === '--group-by') options.groupBy = value;
       else if (['--feature', '--layer'].includes(argument)) (options[argument.slice(2)] ||= []).push(value);
       else { if (!/^\d+$/.test(value)) fail('INVALID_RANGE', `${argument} must be a nonnegative integer`); options[argument.slice(2)] = Number(value); }
     } else positional.push(argument);
@@ -549,6 +597,7 @@ function run(argv, defaultRoot = path.resolve(__dirname, '../../..')) {
   if (args.length !== (['map', 'check'].includes(command) ? 0 : 1)) fail('INVALID_ARGUMENT', `Unexpected arguments for ${command}; quote search queries`);
   if (changed.length && command !== 'check' || options.sha !== undefined && command !== 'read') fail('INVALID_ARGUMENT', 'Option is not valid for this command');
   if (options.detail && !['search', 'related'].includes(command) || (options.feature || options.layer) && !['map', 'search'].includes(command) || options.direction && command !== 'related') fail('INVALID_ARGUMENT', 'Option is not valid for this command');
+  if (options.groupBy !== undefined && command !== 'map') fail('INVALID_ARGUMENT', 'group-by is valid only for map');
   const index = createIndex(root);
   const result = command === 'check' ? check(index, { ...options, changed })
     : command === 'map' ? map(index, options) : ({ search, read, related })[command](index, args[0], options);

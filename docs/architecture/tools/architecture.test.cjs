@@ -72,6 +72,21 @@ test('declared state remains scoped, inherited provenance is preserved, unknown 
   assert.equal(tool.parseDocument('x.md', '# X\nStatus: reviewed').sections[1].state.value, 'unknown');
 });
 
+test('consecutive standalone anchors cross blanks to heading but stop at prose or code barriers', () => {
+  const text = '# Root\nroot body\n<a id="first"></a>\n\n<a id="second"></a>\n\n## Selected\nselected body\n<a id="prose"></a>\nbarrier\n<a id="code"></a>\n```md\nignored heading\n```\n## Later\nlater body\n<a id="first"></a>\n';
+  const document = tool.parseDocument('docs/architecture/a.md', text);
+  const selected = document.sections.find(section => section.title === 'Selected');
+  const later = document.sections.find(section => section.title === 'Later');
+  assert.equal(document.anchors.get('first'), selected.id);
+  assert.equal(document.anchors.get('second'), selected.id);
+  assert.equal(document.anchors.get('prose'), selected.id);
+  assert.equal(document.anchors.get('code'), selected.id);
+  assert.notEqual(document.anchors.get('code'), later.id);
+  assert.deepEqual(document.duplicateAnchors, [{ anchor: 'first', line: 17 }]);
+  assert.equal(document.sections.find(section => section.title === 'Root').body,
+    'root body\n<a id="first"></a>\n\n<a id="second"></a>\n\n');
+});
+
 test('alias expansion excludes related and legacy words; exact IDs/code keys remain searchable', () => {
   const root = fixture({
     'docs/architecture/a.md': '# Primary\nCanonicalName handles windowUseEnabled.\n',
@@ -186,6 +201,66 @@ test('metadata diagnostics expose duplicate IDs, invalid types, and feature over
   assert.equal(result.items.filter(item => item.kind === 'invalid-metadata').length, 3);
   assert.ok(result.items.some(item => item.kind === 'duplicate-id' && item.id === 'arch.owner'));
   assert.ok(result.items.some(item => item.kind === 'feature-override' && item.feature === 'other'));
+});
+
+test('grouped map counts distinct documents after facets, excludes routers and paginates compact categories', () => {
+  const root = fixture({
+    'docs/architecture/feature/README.md': '# Feature\n<!-- architecture: {"id":"arch.feature","feature":"feature","layers":["ui","engine"]} -->',
+    'docs/architecture/feature/detail.md': '# Detail\n<!-- architecture: {"id":"arch.detail","layers":["engine","engine"]} -->\n## Child\nchild',
+    'docs/architecture/shared.md': '# Shared\n<!-- architecture: {"id":"arch.shared","feature":null,"layers":[]} -->',
+    'docs/architecture/unknown.md': '# Unknown',
+    'docs/architecture/old.md': '# Old\n<!-- architecture: {"id":"arch.router","redirect":"arch.feature","feature":null,"layers":[]} -->\nStatus: reference'
+  });
+  const index = tool.createIndex(root);
+  const features = tool.run(['map', '--group-by', 'feature'], root);
+  assert.deepEqual(features.items, [{ feature: null, documents: 1 }, { feature: 'feature', documents: 2 }, { feature: 'unknown', documents: 1 }]);
+  assert.deepEqual(tool.map(index, { groupBy: 'layer' }).items,
+    [{ layer: null, documents: 2 }, { layer: 'engine', documents: 2 }, { layer: 'ui', documents: 1 }]);
+  assert.deepEqual(tool.map(index, { groupBy: 'feature', layer: ['ui'] }).items, [{ feature: 'feature', documents: 1 }]);
+  assert.deepEqual(tool.map(index, { groupBy: 'layer', feature: ['feature'] }).items,
+    [{ layer: 'engine', documents: 2 }, { layer: 'ui', documents: 1 }]);
+  const first = tool.run(['map', '--group-by', 'feature', '--limit', '1'], root);
+  assert.equal(first.total, 3);
+  assert.equal(first.truncated, true);
+  assert.equal(first.nextOffset, 1);
+  assert.deepEqual(tool.map(index, { groupBy: 'feature', offset: 1, limit: 1 }).items, [{ feature: 'feature', documents: 2 }]);
+  assert.throws(() => tool.run(['map', '--group-by', 'status'], root), { code: 'INVALID_ARGUMENT' });
+  assert.throws(() => tool.run(['search', 'feature', '--group-by', 'feature'], root), { code: 'INVALID_ARGUMENT' });
+  assert.throws(() => tool.map(index, { groupBy: 'layer', limit: 101 }), { code: 'INVALID_RANGE' });
+});
+
+test('migration routers stay out of discovery while exact legacy reads and redirect diagnostics remain available', () => {
+  const router = (id, redirect, body = '') => `# Previous\n<!-- architecture: ${JSON.stringify({ id, redirect, feature: null, layers: [] })} -->\nStatus: reference\n${body}`;
+  const oldFile = 'docs/architecture/old.md';
+  const oldText = router('arch.router.old', 'arch.new', '## Previous section\n[Canonical](feature/new.md#canonical)\n');
+  const root = fixture({
+    [oldFile]: oldText,
+    'docs/architecture/feature/new.md': '# Canonical\n<!-- architecture: {"id":"arch.new","feature":"new","layers":["engine"]} -->\ncanonical rules',
+    'docs/architecture/missing.md': router('arch.router.missing', 'arch.absent'),
+    'docs/architecture/self.md': router('arch.router.self', 'arch.router.self'),
+    'docs/architecture/cycle-a.md': router('arch.router.cycle.a', 'arch.router.cycle.b'),
+    'docs/architecture/cycle-b.md': router('arch.router.cycle.b', 'arch.router.cycle.a'),
+    'docs/architecture/invalid.md': '# Invalid\n<!-- architecture: {"redirect":42} -->',
+    'docs/architecture/section-target.md': router('arch.router.section', 'arch.new#canonical'),
+    'docs/architecture/invalid-shape.md': '# Shape\n<!-- architecture: {"id":"arch.router.shape","redirect":"arch.new","feature":"new","layers":["engine"]} -->\nStatus: current'
+  });
+  const index = tool.createIndex(root);
+  assert.equal(tool.map(index).items.some(item => item.id === 'arch.router.old'), false);
+  assert.ok(tool.map(index).items.some(item => item.id === 'arch.new'));
+  assert.ok(tool.search(index, 'Previous', { limit: 100 }).items.every(item => !item.id.startsWith('arch.router.')));
+  assert.ok(tool.search(index, 'Previous', { detail: true, limit: 100 }).items.every(item => item.file !== oldFile));
+  const legacy = tool.read(index, `${oldFile}#previous-section`);
+  assert.equal(legacy.content, '[Canonical](feature/new.md#canonical)\n');
+  assert.equal(legacy.redirect, 'arch.new');
+  assert.equal(legacy.state.value, 'reference');
+  assert.equal(tool.read(index, 'arch.router.old').content, oldText.slice(oldText.indexOf('\n') + 1, oldText.indexOf('## Previous')));
+  const incoming = tool.related(index, 'arch.new', { direction: 'incoming', limit: 100 });
+  assert.ok(incoming.items.some(item => item.sourceRedirect === 'arch.new' && item.sourceFile === oldFile && item.kind === 'section'));
+  const checked = tool.check(index, { limit: 100 });
+  for (const kind of ['missing-redirect', 'self-redirect', 'redirect-cycle', 'invalid-metadata', 'invalid-router']) {
+    assert.ok(checked.items.some(item => item.kind === kind), kind);
+  }
+  assert.equal(checked.clean, false);
 });
 
 test('compact conflict status remains visible through local status overrides without classifying target as conflict', () => {

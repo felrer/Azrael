@@ -1,273 +1,53 @@
 # Queued Context Compaction
 
-Status: `current`, verified in scoped source and host-function tests; live
-compaction UI behavior is user-verified. Procedure and verification scope are in
-[operations](../ops/development.md#queue-and-compaction).
+<!-- architecture: {"id":"arch.legacy.queued-compaction","feature":null,"layers":[],"redirect":"arch.queued-compaction.contract"} -->
 
-Manual compaction from the context gauge card or chat composer enters the durable server queue alongside
-user messages. Items execute in queue order without interrupting the current turn.
-An idle thread may immediately consume the head. Compaction is a distinct operation,
-never a prompt instructing the model to compress its context. The existing queue
-owns persistence, cancellation, reordering, cross-window notifications and pause
-after interruption. Repeated requests remain individually cancelable items.
+Status: `reference` — link-only compatibility router.
 
-## Manual request isolation
+[Canonical contract](features/queued-compaction/README.md).
 
-Status: `current` in source, verified with scoped pinned-function fixtures and
-native context-card rendering/interactions in light and dark themes. Build and
-installation were not performed; installed-window acceptance remains separate.
+<a id="queued-context-compaction"></a>
 
-The card's compaction button invokes the existing queue operation for the active
-conversation without reading or submitting the composer. Draft text and all
-attachments remain editable. Pending requests prevent duplicate button activation;
-success acknowledges the request, and a failure exposes a retryable error.
-An active response does not prevent enqueueing compaction.
+[queued-context-compaction](features/queued-compaction/README.md#queued-context-compaction).
 
-An inline `/compact` selection owns its composer action until the host request
-finishes. A concurrent ordinary submit cannot serialize the remaining draft or
-attachments during that action. An ordinary local submit beginning with the
-standalone `/compact` command is handled before context construction or message
-submission. It sends only the conversation identity to the existing compaction
-entry point. Success removes only the command prefix when the editor still matches
-the submitted text, preserving remaining text and every attachment. Failure and
-newer editor changes preserve the draft. Literal prompt submissions retain their
-ordinary message meaning.
+<a id="manual-request-isolation"></a>
 
-## Queue execution
+[manual-request-isolation](features/queued-compaction/README.md#manual-request-isolation).
 
-### Pending Window Use approvals
+<a id="compaction-progress"></a>
 
-Source implementation adds a separate durable `pendingApprovalCount`. Pending approval immediately holds automatic queued messages and compaction, independently of the 30-second initial tool wait. Missing or malformed counts fail closed. Questions and approvals can coexist; explicit send-now retains its existing behavior. A late approval uses a typed internal resume, never ordinary user text. Host fixtures, UI rendering and focused native engine integration are verified on Windows x64; installed acceptance and execution on other platforms remain pending.
+[compaction-progress](features/queued-compaction/README.md#compaction-progress).
 
-### Unanswered asynchronous questions
+<a id="local-compaction-completion-target"></a>
 
-Status: `partial`; implementation and verification are tracked in the
-[question lifecycle work record](../../work/CL-01-question-withdrawal/01-plan.md)
-and [request supersession work record](../../work/DC-01-queue-question-wait-diagnosis/02-plan.md).
+[local-compaction-completion-target](features/queued-compaction/README.md#local-compaction-completion-target).
 
-Each question created by `request_user_input_async` has an engine-owned identity
-returned to the model. Questions remain pending until answered through the
-question reply path, removed by `withdraw_user_questions`, or superseded by an
-accepted ordinary user request. Withdrawal accepts
-multiple IDs without requiring a reason; resolution and withdrawal have the same
-removal semantics. Repeated withdrawal is idempotent. Unknown IDs and IDs from
-another conversation are rejected. Ordinary chat text is not interpreted as an
-answer or detected as a question.
+<a id="preservation-mapping"></a>
 
-An ordinary user request withdraws the unanswered questions that exist when the
-engine accepts that input, including when it steers active work or explicitly
-starts a queued message. Merely registering a queued message does not withdraw
-questions. Question replies preserve the other unanswered questions; scheduled
-heartbeats and automatic resume do not establish a new user-request boundary.
-Questions created after acceptance remain pending. Accepted answers remain in
-history and are not withdrawn. Cancellation uses the existing withdrawn state
-and inactive history disclosure, so queue checks and question handling share
-one lifecycle.
+[preservation-mapping](features/queued-compaction/README.md#preservation-mapping).
 
-The accepted-input journal stores the exact IDs superseded by that input before
-applying durable withdrawal updates. Recovery and unloaded-thread queue queries
-use those saved IDs rather than recomputing a cancellation set from later
-questions. The retry digest binds the submitted input and excludes this
-host-owned snapshot. A failed or retried input cannot broaden its withdrawal
-scope. Existing histories without a supersession snapshot retain their recorded
-question state until a new request is accepted or the questions are answered or
-explicitly withdrawn.
+<a id="queue-execution"></a>
 
-The question tool description instructs the model to withdraw questions that
-become unnecessary during work. There is no extra inference or mandatory question
-review at turn completion. Asking does not stop independent work in the active
-turn. When the turn becomes idle, pending questions hold automatic queue dispatch,
-including queued compaction, without removing or reordering queued items. Removing
-the last pending question makes the queue eligible under its other admission
-conditions; it does not clear interruption, account-switch or recovery holds.
+[queue-execution](features/input-queue/execution.md#queue-execution).
 
-Queued question replies use the explicit `questionReply` operation kind. The
-reply UI supplies this kind; text resembling a reply in ordinary queued input
-does not acquire reply authority. This kind survives editing, storage and
-reload. During a question hold the earliest queued reply may run ahead of
-ordinary input; the relative order of the remaining queue is preserved. Core
-validates its target IDs again at acceptance and records only those answers.
-Other unanswered questions stay pending. Approval, interruption and recovery
-holds still apply. Question replies bypass a pending account-switch hold using
-shared account admission; the exclusive commit and failed recovery remain blocked.
-Legacy ordinary queue records without reply
-provenance remain ordinary; the user can resubmit through the question UI.
+<a id="pending-window-use-approvals"></a>
 
-Question state is authoritative in the engine and survives reopening and restart.
-Question changes and queue admission are ordered so another window or a stale
-snapshot cannot dispatch through the hold. Reply and withdrawal races preserve
-already accepted user input; a reply to an already withdrawn question cannot
-restart work automatically. Withdrawn questions leave an inactive, collapsed
-record in conversation history. Queue presentation identifies the pending-question
-hold. These semantics are common to Windows x64, Linux x64 and macOS ARM64;
-verification in one environment does not establish installed acceptance elsewhere.
+[pending-window-use-approvals](features/input-queue/execution.md#pending-window-use-approvals).
 
-Core owns the ledger in `core/src/session/user_questions.rs`. New question
-messages receive UUIDs; each question ID retains the native tuple of tool name,
-message ID and original question index. Durable `ItemCompleted` updates retain
-the original message and turn identity. Withdrawal appends and flushes those
-updates before committing the live state. Accepted direct replies record
-`answered_async_question_ids` in host-owned history metadata, so replay does not
-infer answers from ordinary user text. Loaded and unloaded queue queries expose
-`pendingQuestionCount`, and question changes notify queue subscribers. Ordinary
-input that leaves question state unchanged sends no question notification and
-does not wait on realtime-history recording.
+<a id="unanswered-asynchronous-questions"></a>
 
-The automatic queue trigger is `queue`; explicit send-now uses `queue_user`.
-Both keep Queue input provenance and treat their message content as ordinary
-input. Explicit send-now may proceed while questions remain pending. The native
-and legacy host coordinators recheck the engine count before automatic dispatch;
-missing or invalid state retains the queue. Preservation feature:
-`ui.question-withdrawal` for source/UI checks and `engine.question-withdrawal` for native and SDK checks.
+[unanswered-asynchronous-questions](features/input-queue/execution.md#unanswered-asynchronous-questions).
 
-Preservation feature: `ui.queued-compaction`; Core admission lives in
-`engine/codex-rs/core/src/session/compact_input.rs`, with boundary and admission
-tests in `compact_input_tests.rs` and host warning coverage in
-`scripts/test-queued-compaction.cjs`.
+<a id="queue-presentation-and-legacy-backlog"></a>
 
-Automatic compaction uses the [provider context policy](context-policy.md); the queue's manual skip threshold remains independent of the automatic setting.
+[queue-presentation-and-legacy-backlog](features/input-queue/ui.md#queue-presentation-and-legacy-backlog).
 
-When a compaction reaches its execution point, Core atomically reserves an idle
-turn, respecting pending trigger work, recovery reservations and execution admission.
-It then checks the latest context usage: `last_token_usage.total_tokens`. A value
-strictly below 80,000 tokens skips compaction; exactly 80,000 runs. The threshold
-is independent of model capacity and the automatic compaction setting. Missing or
-negative usage cannot establish the threshold and does not cause a skip. This avoids redundant compression when
-an earlier queued or automatic operation already reduced the context.
+<a id="local-acceptance-reconciliation"></a>
 
-The queue removes an item only after Core accepts it or reports a threshold skip.
-A skip creates no synthetic model turn and processing continues to the next item.
-Each threshold skip emits a thread-scoped warning. The host displays a native
-warning toast explaining that compaction was not executed because context usage
-is below 80,000 tokens. This applies both to requests
-processed after an active turn and to idle or explicit queue starts. Enqueue
-acknowledgement remains distinct from execution; busy admission keeps the request
-queued without showing a skip notice. This feedback is implemented in source;
-packaging and installed-window acceptance remain separate.
-Admission failure retains the item. Execution errors use the existing compact-task
-lifecycle and diagnostic paths. Existing direct compaction callers retain their
-behavior; the composer routes to the queue.
+[local-acceptance-reconciliation](features/input-queue/ui.md#local-acceptance-reconciliation).
 
-The queue API adds an explicit operation kind (user input by default), preserving
-existing user-message payloads. Queue storage carries either the existing serialized
-user input or a typed compaction operation. Start responses distinguish a skipped
-operation from an actual turn. The webview displays a compaction label and uses the
-existing queue cancellation and ordering controls; compactions cannot be steered as
-text into a running turn or edited into ordinary messages. Undo restores the kind.
+<a id="locally-accepted-submission-results"></a>
 
-The patched host enables the native queue using the server's existing queue
-capability instead of an experiment flag. Unsupported hosts reject the request
-before enqueue. While a persisted local-message backlog from the host's legacy
-queue is non-empty, compaction enqueue fails explicitly rather than placing an
-invisible native item ahead of local messages; the backlog must finish or be
-cancelled first. Legacy messages are neither migrated nor deleted. Supported-host
-queues use the native store for both messages and compaction.
+[locally-accepted-submission-results](features/input-queue/ui.md#locally-accepted-submission-results).
 
-The OpenAI account-change admission rules, including automatic queue suspension and explicit send-now, are owned by [account switching](accounts.md#input-during-an-openai-account-change).
-
-## Queue presentation and legacy backlog
-
-When a turn-start acknowledgement is lost, the host's [send acknowledgement reconciliation](reload-recovery.md#send-acknowledgement-reconciliation) verifies native acceptance by client message identity and returns the actual accepted turn through the existing success path. The coordinator consumes that message without replaying it. The pinned request client retains its promise through an outcome-unknown delivery notification so this reconciled result can complete the original request.
-
-The pinned webview queue adapter treats a queue-change notification received
-during an outstanding list request as invalidating that snapshot and repeats the
-complete paginated read before publishing, so a message consumed during the read
-does not stay visible. Native queue persistence and error reporting are unchanged.
-
-### Local acceptance reconciliation
-
-Status: `current` in scoped source and pinned-function tests; build, installation
-and live acceptance of this reconciliation are pending.
-
-While the local queue drains, its coordinator checks the native acceptance record
-by client message ID before acquiring a send lock or replaying a restored
-submission. This includes `pending`, `queued`, `sending` and `outcome-unknown`
-metadata and paused messages whose acceptance is established. An unaccepted paused
-message retains its pause. Reconciliation removes the accepted ID and wakes the
-next queued message without sending a new request for the reconciled item.
-
-Both metadata-bearing submissions and metadata-free legacy messages record
-successful acceptance per thread for the coordinator's lifetime and await
-persisted removal by ID before releasing their send lock. Reads, restored
-snapshots and later writes exclude accepted IDs. Deferred or failed sends stay
-queued; a new ID with identical text is a separate message. A persistence failure
-uses the existing queue failure diagnostics and retains the in-memory acceptance
-receipt. Disposal clears the receipts. After reload, available native acceptance
-records establish removal; absent history does not prove that delivery failed.
-
-The native queue adapter retains its app-input confirmation guard. Plain text
-with empty app attachments and open-page instructions is ordinary user input.
-Unreviewed app messages and model context use the existing review path; local
-acceptance reconciliation neither drops their payload nor bypasses confirmation.
-
-### Locally accepted submission results
-
-Status: `partial`. Queued-result handling is verified in scoped source and
-packaged pinned-function integration tests. Immediate pending/sending visibility
-and waiting presentation are verified in scoped source tests; packaging and installed user-window
-interaction are pending.
-
-Once a follow-up has been persisted and published in the local queue, its
-composer submission finishes as `queued` when dispatch fails, is deferred, or
-is cancelled before acceptance. The queued item retains its original client
-message ID, payload, position and failure or uncertain-delivery state. The
-existing queue presentation exposes paused inputs and the existing send-now and
-edit actions for confirmed failures. Pending, sending, queued, paused and
-outcome-unknown local items are visible immediately, including within the
-optimistic send display delay and when their client message ID matches the
-optimistic opening input. Local custody remains visible until the queue owner
-removes the accepted item; an optimistic display identity alone cannot remove
-it from the queue presentation.
-Pending and sending rows reuse the queue's reduced-motion-aware spinner and
-show `전송 대기 중` as a visible, polite status announcement. This label means
-the saved input is awaiting engine acceptance; it does not claim that an OpenAI
-connection is being established. Paused and uncertain rows retain their existing
-warning presentation and admission controls.
-Unconfirmed delivery keeps send-now and edit disabled until acceptance can be
-established. Editing moves the queued item into the composer through the queue
-owner; submission failure does not also restore a second editable copy.
-
-Failure before local persistence completes remains a submission error and keeps
-the composer draft. Explicit send-now failures retain their error result and
-the queued item. A queued result means custody of the input, not proof of native
-execution. Uncertain delivery requires acceptance reconciliation before another
-send. Native accepted-message removal continues to use the rules above.
-
-## Compaction progress
-
-The Responses parser forwards `response.compaction.compacting` as internal
-progress. Remote v2 compaction reaffirms its context-compaction item once per
-response attempt, keeping the item ID and original start time; repeated
-heartbeats are coalesced. Completion is emitted only after the completed response
-is validated and the compacted history installed. When compaction progress
-starts, the host removes only same-turn transient `willRetry: true` error rows;
-terminal errors, other turns and other items stay. Repeated starts keep the
-existing manual/automatic source without consuming a later pending manual request.
-No public protocol or stored context format changes.
-
-### Local compaction completion (target)
-
-Each local compaction response attempt buffers output until `response.completed`.
-Failed, incomplete or disconnected attempts leave no partial summary in live or
-persisted conversation history; retries and resumed sessions retain the original
-messages and tool results. Successful non-post-turn output retains compaction
-metadata and emits raw item notifications before the response-completed
-notification. Post-turn summaries keep their existing success-only installation.
-This shared contract applies to Windows x64, Linux x64 and macOS ARM64; native
-verification remains separate for each target.
-
-A cached Responses WebSocket connection counts as closed when its command channel
-closes or its background pump terminates, even if the stream wrapper still exists;
-the client then reconnects, clearing connection-local continuation state and
-sending the full next input. Healthy connections are reused. A peer closing after
-the health check still goes through the existing bounded retry path.
-
-Verification must cover message/compaction ordering, cancellation and reordering,
-fresh usage at execution, below/equal/above threshold, absent usage, busy admission,
-restart persistence, skipped-head continuation, queue refresh races and host routing.
-Runtime installation and real compaction UI acceptance are separate from source and
-controlled-transport verification.
-
-## Preservation mapping
-
-Registered features: `ui.compaction-progress`, `ui.queue-refresh`, `ui.queue-consumption`, `ui.queued-compaction`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
+[preamble](features/queued-compaction/README.md#queued-context-compaction).

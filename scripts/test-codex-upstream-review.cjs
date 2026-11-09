@@ -10,7 +10,7 @@ const {
 // Retain these boundary checks against later workflow simplifications that drop
 // collection coverage, old backlog, evidence, or separate review/acceptance gates.
 const sha = value => value.toString(16).padStart(40, "0");
-const evidence = [{ path: "docs/architecture/upstream-preservation.md", sha256: "a".repeat(64) }];
+const evidence = [{ path: "docs/architecture/shared/feature-preservation.md", sha256: "a".repeat(64) }];
 const decision = (status, extra = {}) => ({
   status, reason: "Compared the upstream change with the local owner.",
   evidence, dependsOn: [], retryWhen: null, ...extra,

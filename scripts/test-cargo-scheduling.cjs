@@ -54,7 +54,7 @@ test('native scheduling rejects malformed options and cycles after validating Ca
 test('manifest scheduling metadata validates native IDs and dependency cycles without changing commands', () => {
   const root = path.resolve(__dirname, '..');
   const manifest = { schema: 1, features: [{ id: 'engine.schedule-fixture', area: 'engine',
-    owners: ['scripts/feature-preservation.cjs'], contract: 'docs/architecture/upstream-preservation.md', reportFields: [],
+    owners: ['scripts/feature-preservation.cjs'], contract: 'docs/architecture/shared/feature-preservation.md', reportFields: [],
     checks: ['fixture.first', 'fixture.second'].map(id => ({ id, executable: 'node',
       args: ['scripts/test-cargo-scheduling.cjs'], level: 'native' })) }] };
   const ids = manifest.features.flatMap(feature => feature.checks.filter(check => check.level === 'native').map(check => check.id));

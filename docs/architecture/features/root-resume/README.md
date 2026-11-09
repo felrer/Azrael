@@ -1,0 +1,163 @@
+# Root resume scheduling
+
+<!-- architecture: {"id":"arch.root-resume.contract","feature":"root-resume","layers":["ui","host","engine"]} -->
+
+Status: `partial`. Existing scheduling semantics are verified with fake-clock and mock-provider fixtures; see [development operations](../../../ops/development.md#root-resume-reservations) for the procedure and verification scope.
+
+## Behavior
+
+Azrael lets the root defer its current task while its subagents keep executing. The root-only `azrael_agents.defer_root` control tool accepts exactly one of `resume_after_ms` (1 through 43,200,000) or a future UTC `resume_at`, a short reason, and optional `wake_on.agent_paths` with `condition: all_terminal`. The root resumes when the deadline arrives or all selected child tasks terminate, whichever comes first. Child success, failure and interruption are terminal; ordinary progress and unrelated mail are saved without waking the root. Targets are captured with their thread and current task/turn identities, so completion of an older task cannot satisfy a newer reservation. A reservation without targets is timed only. The tool is exposed only on providers with a verified native tool transport (currently the native OpenAI root path).
+
+Scheduling persists a reservation and its originating tool-call identity before parking. The turn driver handles deferral explicitly: it makes no model request to acknowledge the schedule and does not report task completion. Root runtime, mailbox, thread identity and conversation remain available; subagents are neither interrupted nor recreated. The existing sleep and suspend-and-shutdown contracts are separate. Deferral happens at a completed tool boundary, and incompatible parallel control calls are rejected. Model instructions direct the root to defer at a dependency boundary instead of repeatedly polling agents or processes, and periodic-progress guidance is suspended while the root is parked.
+
+### Non-subagent work completion
+
+Status: `current` in source — Windows native completion, durable recovery, producer signaling and light/dark management-view checks pass. Packaging, installation and other-platform acceptance remain separate.
+
+The native OpenAI root can register an execution with `azrael_agents.work_completion` (`action: create`, `label`). The tool returns a unique `workId`, a thread-owned `signalPath`, and `running` state. Running means no terminal signal has been recorded, not that the producer is known to be alive. Every execution uses a fresh ID. Before launching work, the root arranges for its producer to publish an actual terminal result at that path. The `status` action reads the registered execution; `finish` records an observed `succeeded`, `failed` or `cancelled` result. A terminal result is immutable: identical retries succeed and conflicting results fail. Completion does not establish successful validation or grant further execution authority.
+
+`defer_root.wake_on.work_ids` selects these executions with `condition: all_terminal`. At least one agent or work ID must be selected when `wake_on` is present. When both kinds are selected, all selected children and executions must terminate before an early wake; the deadline remains a fallback. Unknown, duplicate, foreign-thread and malformed targets are rejected before parking. Work that completed before registration of the reservation is recognized immediately after the durable parking boundary. After every resume, the model reads selected work states before dependent execution; a timer or manual resume does not establish completion.
+
+The local engine state filesystem stores immutable registration metadata and separate, bounded terminal JSON signals under `CODEX_HOME/azrael/work-completions/<root-thread-id>/`. IDs and stored owner/path identities prevent a preceding or unrelated execution from satisfying a reservation. Producers publish complete JSON atomically without overwriting an existing signal. `scripts/complete-work.cjs` validates a registered signal path and publishes `{workId,state,summary,exitCode}` with exclusive same-directory hard-link publication. Records and signals must be regular files. Invalid or unreadable signals block the reservation with an error instead of inventing success. Summaries are bounded untrusted work output and are returned only through the status tool, never inserted into developer instructions.
+
+In-engine completion notifies the waiter directly. External file signals are checked once per second by the host while waiting, without model calls; the first read precedes any sleep. Completion records and selected IDs survive reload, and waiting reservations reconcile them through the existing recovery contract. The engine must be running with the root loaded to resume. Cancelling a reservation does not cancel its external producer. The producer must publish cancellation or failure itself; if it dies without a terminal signal, the fallback deadline still wakes the root to inspect the outcome. Remote producers require an explicit delivery route to the local registered path. Existing tools that already await their operation's completion remain the preferred path.
+
+### Executor-owned command completion
+
+Status: `current` in source — Windows native regression and exact ZIP host acceptance pass. Installation and other-platform acceptance remain separate. Preservation feature: `engine.executor-completion`.
+
+For a managed command, the native OpenAI root creates a work record and passes its `workId` as `exec_command.work_id`. Before launch, the host binds that record to the unique tool execution ID. The executor owns the terminal receipt; a producer signal wrapper is unnecessary. The same root/provider admission and normal approval/sandbox rules apply. Each work record binds once. Existing unbound external producers retain their atomic signal contract.
+
+Execution bindings and host terminal receipts are immutable, thread-owned and bounded. A separate OS file lease remains held by the observing executor. Natural exit records the observed command status; cleanup cannot relabel an already-observed exit as cancellation. Cancellation with an observed exit records cancellation, and timeout or policy failure records failure. Known pre-launch failures and cancellations record their outcome without an exit code. These are executor command results, not inferred Cargo child results or proof that every descendant stopped. Message editing/revert retains its existing runtime shutdown policy.
+
+If observation is lost, including an engine crash whose OS lease has been released, status persists `unknown` with no invented exit code. A live lease remains `running`. An `unknown` result wakes selected-work waits for investigation, but never authorizes dependent success or cleanup protection release. Late conflicting results cannot overwrite a terminal receipt. External signals and manual finish cannot replace a bound executor result. Missing, malformed or foreign control evidence fails closed. Existing unbound records are not retrospectively associated with executions by name, PID or age.
+
+## Reservation state
+
+The engine owns at most one active reservation per root. Its durable record holds reservation ID, root thread ID, originating turn and tool-call IDs, task lineage, deterministic resume turn ID, due/created/updated times, selected child task identities, revision, state and optional wake/error details. States are preparing, waiting, claimed, resumed, cancelled and blocked. A preparing record is armed only after its matching tool result is persisted; failed persistence leaves normal root execution available. Revision-checked transitions and the normal single-writer thread admission prevent concurrent local starts from the timer, child completion and user actions. Exactly-once external submission across a crash is not promised: a crash during preparation or dispatch produces a blocked reservation.
+
+Ordinary composer input during a waiting or claimed reservation enters the existing queue instead of superseding the reservation. Local and server-backed automatic queue consumption hold ordinary input until the reservation ends; explicit queue send-now and typed asynchronous question replies retain their existing admission behavior. Direct user input admitted by the engine still supersedes the reservation and is handled promptly. The common webview policy applies to Windows x64, Linux x64 and macOS ARM64. Its implementation owners are `scripts/inject-question-queue.cjs` and the shared reservation predicate in `scripts/root-resume-wait.cjs`; source checks are connected through `ui.deferred-turn` and the question-queue preservation checks. Resume-now and cancel act on a reservation ID and expected revision; cancelling affects only the reservation and leaves subagent work running. Matching terminal results are collected from native agent state and mailbox, not synthesized as a user message. Resume keeps task lineage and passes normal model, provider, account and permission admission without silently choosing another account; a pending account switch keeps the reservation waiting until account admission changes. Switch completion or cancellation retries normal admission without model polling. Cancellation, superseding input and runtime shutdown release this wait; recovery failures and other admission errors leave a visible blocked reservation.
+
+### Reasoning effort on automatic resume
+
+Status: `partial` — snapshot storage is verified on the integrated source; resumed-request and recovery fixtures pass on an isolated Windows source input. The owning integrated source files also pass the native library compilation gate. Packaging, installation and other-platform acceptance remain separate.
+
+Preservation ID: `engine.root-resume-reasoning`; its native check covers reservation storage and resumed model requests.
+
+New reservations capture the effective reasoning effort of the model step that requested deferral, including an explicit unset value. Deadline, selected-agent completion and selected-work completion apply that durable snapshot to the resumed turn, including after engine restart. Changes to thread settings during the wait remain available for later user turns and are not overwritten by automatic resume. Manual resume keeps using current thread settings. Existing reservations without a reasoning snapshot retain their previous settings behavior. This common engine policy is independent of desktop platform; model, provider, account and permission admission retain their existing boundaries.
+
+### Cancelling an unloaded root
+
+Status: `current` in source — Windows native cancellation and conversation reload regressions pass; packaging, installation and process-restart acceptance remain separate.
+
+Reservation cancellation accepts loaded and unloaded roots through the same ID and expected-revision contract. Loaded roots use the session's existing cancellation boundary. An unloaded root's reservation transitions durably to cancelled and leaves the active reservation list, without loading the conversation, arming an overdue timer or starting inference. Loading the root later cannot resume a cancelled reservation. Concurrent cancellation, claim and thread loading preserve revision checks and authoritative storage state; stale requests require refresh. Conversation history and child work are retained. Cancellation requires the manager's reservation storage to be available; manual resume retains its loaded-root admission contract.
+
+Timers run inside the engine on the existing async clock. Reservations are reconciled when their root thread is loaded after an engine restart, and deadlines that passed while the engine was down become eligible then. There is no always-on service and no execution while the engine is stopped. Recovery never discards accepted input, and explicit user cancellation or stop survives restart and prevents stale wakeups.
+
+### Stopping a parked execution
+
+Status: `partial` — cancellation-before-interruption is implemented in the integrated source; focused Rust execution, packaging and installed-host acceptance remain separate.
+
+A manual stop or explicit reservation cancellation first persists cancellation, stops its timer, and then emits a canonical interruption for the parked segment. The execution status becomes interrupted even though there is no active inference task to abort. Repeated stops emit no duplicate terminal event; children and recorded tool results remain available. Cancellation storage failure cannot publish a successful interruption. The terminal duration stays frozen at the defer boundary. An interrupted idle thread without subscribers can use normal unload and release its writer ownership.
+
+## Resume diagnostics
+
+Status: `partial` — Windows source tests verify phase/outcome fields and a resumed native HTTP request. Installed-host, live-server, macOS/Linux and WebSocket runtime acceptance remain separate.
+
+Each observed resume attempt records content-free phase boundaries in the existing native tracing sink. Reservation and resumed-turn identities connect completion detection, execution admission, submission-gate acquisition, history flush, durable claim, turn-context preparation, publication of `TurnStarted`, the first sampling-client call and its first non-warmup transport invocation. Overall dispatch has its own outcome. Phase and cumulative durations use a monotonic clock; UTC timestamps remain the sink's responsibility. Detection means the waiter has observed its wake condition, not the external producer's actual completion time.
+
+In-flight phases distinguish completion, failure and dropped/cancelled work. The first transport marker is shared across the resumed turn and emitted once across retries and later sampling steps. The HTTP/WebSocket marker denotes invocation of the native transport method after request preparation, not server receipt or an actual socket write. The sampling-client duration ends when it returns a stream or error, not when generation completes. Logs preserve execution, persistence and retry behavior and contain fixed labels, UUID correlation and numeric durations, without prompts, responses, credentials, file paths or error text. Retention and safe export are owned by [native diagnostics](../../../ops/native-diagnostics.md#root-resume-timing).
+
+## Deferred turn timing
+
+A deferred execution segment stops its elapsed-time counter at the durable defer boundary, both live and after history reload; only the resumed segment advances. The engine publishes `turn/deferred` with a `deferred` turn status and the measured duration, leaving `completedAt` unset. The host freezes that segment and labels it as waiting to resume, without completion, interruption, unread-completion or automation-completion side effects. An unknown historical duration is shown as waiting without inventing a time.
+
+The engine owns the boundary and duration. It captures the first durable waiting boundary once and reuses that measurement when a parked segment is cancelled or interrupted. A versioned derived-history checkpoint lets the existing rebuild path reproject an older loaded thread lazily while canonical records are kept. Reset and rebuild commit together after source parsing, keep the previous cache on source failure, and recheck the observed version so a concurrent rebuild is not deleted. No eager replay of all threads is performed.
+
+## User interface
+
+### Recent-chat waiting indicators
+
+Status: `current` in source — native rows and header trigger verified in light/dark on Windows; packaging and installation pending.
+
+The recent-chat row and header progress indicator remain active while the latest turn is waiting for root resume or its reservation is claimed for resume processing. This is a presentation state shared across platforms: the native deferred turn, frozen work duration and composer input behavior keep their existing meaning. Resumed, cancelled and blocked reservations, and completed, interrupted or failed turns, do not retain this waiting indicator. Normal running work keeps the native progress presentation. Waiting session rows show the existing ring in theme-aware blue without animation in both the popup and sidebar. Ring geometry and placement remain native, with no rotation angle override. Returning to running restores the native color and rotation.
+
+The popup and sidebar rows consume the same native list state. Its pending-resume field is derived from the latest turn at the list-state producer; the separate thread metadata snapshot and cached list summary are not interchangeable. Verification follows the native list-summary/list-state call path for legacy and canonical history and passes its result into both rendered lists. Package, installed-window notification/reload and other-platform acceptance remain separate from these source and Windows renderer checks. Preservation feature: `ui.deferred-turn`.
+
+### Reservation management
+
+The integrated extension shows pending reservations, local resume times, selected child conditions, reason and blocked conditions on the **루트 재개 예약** page (`azrael.rootResume`), with resume-now and cancel actions. The page remains available through the command palette; the account profile menu does not expose it. Countdowns and refreshes use engine events and ordinary UI timers, never model requests. The management bridge exposes the bounded `azrael/rootResume` list/resume/cancel contract; mutations carry reservation ID and revision.
+
+Disconnected management surfaces expose **관리 연결 재접속** through the existing host connection service, followed by a reservation list refresh. This action does not resume or cancel a reservation and cannot replace a connection during an in-flight management mutation. Restored connections clear connection errors across embedded wait rows; action errors remain visible. Late responses cannot replace the recovered reservation snapshot. Management connectivity and the engine's scheduled execution are separate observations. The [management recovery contract](../accounts/README.md#management-connection-recovery) owns identity, retry, uncertain-outcome and safe diagnostic boundaries. Preservation check: `ui.deferred-turn.management-recovery`; installed release acceptance remains separate.
+
+### Waiting agents and manual resume
+
+Status: `current` in source — native Windows light/dark rendering and resume interactions verified at normal and 360px widths; packaging, installation and other platform acceptance remain separate.
+
+While a reservation is waiting, its chat divider shows the selected child agents after the waiting duration when selected-child completion can wake the root. It reuses each child's existing assigned photo and avatar fallback, with adjacent avatars overlapping by one third of their width. Accessible names identify the selected agents. Timed-only reservations have no agent group.
+
+The same row places a native **재개** action at the right edge. It resumes the displayed reservation through the existing reservation-ID and revision-checked management contract. A pending request prevents repeated submission; failures remain visible, and an automatic resume or stale-revision result reconciles authoritative state. Ended reservations have no active resume action. Manual resume keeps the selected children running and passes the engine's normal admission checks.
+
+### Chat work and waiting durations
+
+Status: `current` for the verified reused engine and pinned UI. Exact isolated package r12 (`0.5.1791491963456`) passed 89 selected regressions, all six archive-runtime host checks and actual subagent/scheduled-resume verification with a waiting-time Reload Window. The old work boundary remained frozen and the restored wait changed to its ended state; its displayed 179 seconds stayed fixed while resumed work continued. Actual light/dark rendering and existing wait disclosure interactions passed. These UI changes reuse the existing verified engine binaries and do not establish acceptance of newer native cancellation/timing changes. Evidence: `artifacts/logs/resume-timer-deploy-20261008/`.
+
+Chat retains a fixed work duration for each deferred turn and measures resumed work from the new turn's start. A reservation's waiting divider shows its planned duration and elapsed waiting seconds; selected-child wake conditions use a maximum planned duration because children may finish early. Only the currently waiting reservation advances. Resume, cancellation, interruption and blocked admission freeze its elapsed duration and display the corresponding outcome. Completed work leaves every preceding segment frozen, including after history reload.
+
+Waiting is keyed by reservation ID and its originating/resume turn identities. Authoritative waiting start and actual end timestamps survive reload; the scheduled deadline is not an actual end timestamp. Unknown historical waiting times remain explicitly unavailable rather than inferred from the work duration. Stale or duplicate notifications cannot reopen a finished waiting segment. A late active snapshot for a deferred turn preserves its deferred status and measured work duration, including during resume hydration; resumed work belongs to a new turn. The chat reuses the existing Codex work divider, secondary text styles and lifecycle-managed interval hook. Local UI ticks do not make model requests or replace native scheduling.
+
+The reservation stores its first waiting timestamp and freezes the end on its first transition from waiting to claimed, cancelled or blocked. A claim marks the beginning of resume processing, so later admission retries retain that same elapsed waiting duration. The optional `Turn.rootResumeWait` carries reservation identity, revision, both nullable timestamps, deadline, state and whether selected children can wake it early. `turn/rootResumeWait/updated` changes this metadata without completing the deferred turn. Durable history and paginated turn/timeline metadata retain the same field. Segment presentation respects the source turn's deferred or terminal boundary instead of restoring an active work timer.
+
+The waiting divider shows `재개까지 경과초/설정초`. Selected agent tasks alone show `하위 에이전트 응답 대기중`; completion signals alone show `작업 완료 시 조기 재개`; both show `재개 조건 설정됨`. A deadline-only wait has no condition suffix. The existing management subscription supplies selected task kinds for the matching reservation at an equal or newer revision. Until that detail is available, an early-wake wait keeps the generic condition suffix. This shared webview presentation changes neither wake conditions nor scheduling. Preservation feature: `ui.deferred-turn`.
+
+The extension-host and renderer notification admission tables must both enable `turn/deferred` and `turn/rootResumeWait/updated`. Renderer ingress rejects unrecognized methods before calling the notification manager, so reducer-only verification does not establish delivery. Packaging and regression checks cover both tables and the renderer's actual imported admission predicate. An asynchronously deferred lifecycle response also returns the native routing receipt immediately; the line dispatcher must be able to continue delivering later notifications while window registration completes.
+
+Historical rows subscribe to the native full turn-details selector and include that value in their materialization cache dependency. A wait update can change only reservation metadata while the turn ID, status and item IDs remain identical. Subscribing to those three values alone leaves a restored row displaying its old wait object even when the canonical store and metadata query already contain the ended wait. The regression executes the native row cache across waiting, claimed and resumed states with those three values unchanged.
+
+### Reconciliation of a missing defer notification
+
+Status: `current` for canonical/legacy history reconciliation and restored row invalidation. The native full turn-details subscription covers wait-only changes with unchanged status, ID and items. Waiting-time reload verification confirms that the canonical resumed update reaches the restored row and freezes the old wait while the new turn continues. Current installed package and verification scope are owned by [development operations](../../../ops/development.md#current-state).
+
+An originating turn with a waiting, claimed or resumed reservation has stopped working even if its local status still says `inProgress`. Cancellation or blocked admission establishes this boundary only when the reservation has a recorded waiting start; a reservation cancelled during preparation does not stop unrelated active work. Presentation freezes the originating work segment immediately. Its work duration remains unavailable until the engine supplies the measured value; waiting timestamps are not used to estimate work duration.
+
+The host reconciles the exact conversation, originating turn and reservation through the existing native turn metadata query and history merge path. Concurrent queries for the same originating turn are shared. Reservation updates and a new resume turn provide reconciliation opportunities without model calls, periodic requests or automatic task execution. A missing local turn retains its reservation boundary until authoritative metadata or normal history loading can apply it. Late snapshots cannot reactivate a reconciled deferred turn, and terminal interruption or completion remains authoritative.
+
+A new native manager loses its in-memory reconciliation journal. Restoration must seed that journal from authoritative paginated turn metadata rather than assume deferred notifications will be replayed. A new turn with an older locally active turn is another reconciliation opportunity; the query must identify the originating turn through its persisted reservation metadata and leave the new turn active. These queries run at lifecycle boundaries, share concurrent work and have a finite page budget.
+
+The new-turn opportunity also covers deferred origins whose reservation is still waiting or claimed, or whose measured duration is unavailable. A query already in flight may contain a pre-resume waiting snapshot. One trailing reconciliation pass is retained after that query settles if the exact older origin remains unresolved; duplicate start notifications share the same opportunity. Ended reservations with measured work and terminal turns require no additional pass.
+
+If both origin wait metadata and its deferred event are absent from durable history, the existing active-reservation list cannot reconstruct an ended reservation. Recovery of that storage failure requires a separate authoritative reservation-read contract covering ended states; inference from neighboring turns or a scheduled deadline does not establish a work boundary.
+
+Reconciliation records correlation IDs, reservation revision, outcome and page count through the existing host logger. Lookup or metadata failure leaves the previous work clock frozen with an unavailable duration and keeps the resumed turn independent. A newer matching wait end can update a completed or interrupted turn's waiting divider while retaining its work status and measured duration. Reconciliation does not generate completion notifications or completion side effects.
+
+### Work segment folding
+
+Status: `current` in the source transformation and verified native activity/disclosure rendering for UI 26.1007.21434. Full turn-page and installed-window acceptance remain separate; the installed package identity is owned by development operations.
+
+A closed activity segment or a deferred work segment with renderable activity can be collapsed before a final answer starts. It uses the native work header, disclosure button, chevron and keyboard behavior. Its initial contents stay expanded; an explicit native collapse preference takes precedence. Normal active turns retain their existing expansion policy. Empty groups, a standalone context compaction, full transcript views and intro-only presentations retain the native exclusions.
+
+An unfinished approval, user-input question, server elicitation or permission request excludes the affected segment from the new folding eligibility, preserving its existing request presentation. Running child activity retains the native automatic-collapse protection while allowing manual folding of its parked parent's work.
+
+Collapse state belongs to the existing native conversation and segment search key. A resumed turn or another closed segment has independent state. Wait updates, history hydration and late child activity keep the original segment's key and its manual preference. Session switching within the same application scope retains that preference; a new scope uses the native initial policy. Folding does not add persistent preferences across application restarts.
+
+Work and waiting measurements remain owned by the turn and reservation contracts. Folding changes neither their identities nor their status or duration. Work headers and reservation waiting/resume dividers remain visible when the activity contents are collapsed, so the reservation's state can be checked without expanding the work.
+
+### Branching at a resume boundary
+
+Status: `partial` — source implementation; scoped verification is recorded in [the work plan](../../../../work/CP-01-resume-boundary-branch/01-plan.md). Packaged and installed-host acceptance remain separate.
+
+The waiting/resumed divider offers **여기서 브랜치** when its row is hovered or contains keyboard focus. It uses the native button and theme tokens, reserves its space while hidden, and remains reachable by Tab. It creates a new conversation through the divider's canonical deferred turn, excluding the later resumed turns; the original conversation continues independently. Ordinary and transcript renderers share the turn's existing branch callback through React context. Read-only, unsupported host, missing canonical identity and in-progress-turn restrictions remain with the existing branch action. Errors follow the ordinary branch flow. No callbacks enter persisted waiting metadata.
+
+This is shared webview behavior for Windows x64, Linux x64 and macOS ARM64. Preservation IDs: `ui.deferred-turn` and `ui.thread-branch`; their existing source checks cover eligibility and target-turn routing, and `scripts/verify-deferred-turn-render.mjs` covers themed display and interaction.
+
+## Cost characteristics
+
+A parked root holds no ongoing inference. Resuming makes a new request from retained conversation state, and provider prompt-cache reuse is independent of the reservation, so a cache miss can raise the input cost of the first resumed request. Savings come from avoiding repeated model wakeups and status checks, not from elapsed wall time. Prefer waking on selected child completion with a useful fallback deadline over short repeated timed wakeups intended only to keep a cache warm.
+
+## Preservation mapping
+
+Registered features: `ui.deferred-turn`, `ui.work-segment-folding`. The [contract index](../../shared/feature-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately. The UI test transform fixture reuses complete transformed output through the guarded asset cache; the original behavioral assertions remain mandatory. Its registered guard checks tool, environment, exact path context and cache-owner changes, and runs once when shared by selected features.
+
+## Related design owners
+
+- [Parent decision requests](../parent-requests/README.md)

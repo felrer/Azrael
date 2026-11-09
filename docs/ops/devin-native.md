@@ -1,6 +1,6 @@
 # Devin native inference
 
-Procedures for running, verifying and diagnosing native Devin inference. The contract is owned by [Devin architecture](../architecture/devin.md).
+Procedures for running, verifying and diagnosing native Devin inference. The contract is owned by [Devin architecture](../architecture/features/devin-inference/README.md).
 
 ## Verified scope
 
@@ -92,7 +92,7 @@ The read-only inspector (`python -B scripts/inspect-native-azrael-errors.py --mi
 
 Tool-request records compare the engine's helper-input catalogs across failures and successes. Schema checks are observational keyword-shape checks, not full JSON Schema validation or provider acceptance checks. The inspector includes INFO-level catalog/schema records as `toolDiagnostics` and exports validated hashes, sizes and counts; it withholds labels and arbitrary text. `requestRef` is a hashed request identifier shared with provider failures, while `threadRef` groups records by thread. Native logs carry the corresponding request ID. Records use the existing sink and retention, and require building/installing an updated engine and reloading the window before they can appear in live state.
 
-The inspector exports INFO-level inactivity and attempt/recovery outcomes as `inferenceDiagnostics`, including decoded-event counts, event/network silence, safe last-event labels, attempt number and whether a retry was used. Regular running progress is omitted from that export. A heartbeat can increase received bytes while decoded-event counts remain fixed; inspect both counters before attributing a timeout to a disconnected helper. Each attempt retains the logical request ID and is distinguished by its attempt number. The [shared native activity/recovery contract](../architecture/devin.md#inference-activity-and-bounded-recovery) defines watchdog and automatic retry behavior; source changes take effect only after an updated engine is installed and its window reloaded.
+The inspector exports INFO-level inactivity and attempt/recovery outcomes as `inferenceDiagnostics`, including decoded-event counts, event/network silence, safe last-event labels, attempt number and whether a retry was used. Regular running progress is omitted from that export. A heartbeat can increase received bytes while decoded-event counts remain fixed; inspect both counters before attributing a timeout to a disconnected helper. Each attempt retains the logical request ID and is distinguished by its attempt number. The [shared native activity/recovery contract](../architecture/features/devin-inference/README.md#inference-activity-and-bounded-recovery) defines watchdog and automatic retry behavior; source changes take effect only after an updated engine is installed and its window reloaded.
 
 An engine timeout before any progress still has a terminal record, and missing telemetry does not prove provider inactivity. Unknown failures stay unknown. Share only these structural records for the affected time and request, with local usernames redacted. Never export full rollouts, authentication files, environment, response bodies, raw stderr or exception messages, and never copy the Devin database or credentials.
 

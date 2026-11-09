@@ -22,7 +22,7 @@ Managed provider inference records `devin_native_progress` events in the same SQ
 
 The inspector's `transportDiagnostics` exports allowlisted `connection_error` categories and `connection_error_code` values alongside `error_stage`, `error_name` and `abort_source`. For example, `dns` with `ENOTFOUND` is explicit name-resolution evidence. Absent connection fields mean no accepted cause was recorded; a bare `type_error` does not identify DNS, TLS or a proxy failure. Unknown codes and exception text are withheld.
 
-Managed HTTP failures additionally record closed `provider_error_type`, `provider_error_reason`, and `error_body_state` labels, validated numeric `retry_after_ms`, rate-limit limit/remaining/reset fields, and Anthropic 5-hour/7-day status/reset fields when supplied. Body text, arbitrary headers and unknown provider labels are withheld. See [error classification](../architecture/managed-providers.md#evidence-based-error-classification) for ownership and acceptance status. HTTP 429, `Retry-After`, or Anthropic `rate_limit_error` alone cannot distinguish a request/token limit from a usage/spend limit. A known subtype needs explicit evidence; otherwise the conversation displays exactly `정의되지 않은 오류`. Missing historical fields cannot be reconstructed from this change.
+Managed HTTP failures additionally record closed `provider_error_type`, `provider_error_reason`, and `error_body_state` labels, validated numeric `retry_after_ms`, rate-limit limit/remaining/reset fields, and Anthropic 5-hour/7-day status/reset fields when supplied. Body text, arbitrary headers and unknown provider labels are withheld. See [error classification](../architecture/features/managed-providers/README.md#evidence-based-error-classification) for ownership and acceptance status. HTTP 429, `Retry-After`, or Anthropic `rate_limit_error` alone cannot distinguish a request/token limit from a usage/spend limit. A known subtype needs explicit evidence; otherwise the conversation displays exactly `정의되지 않은 오류`. Missing historical fields cannot be reconstructed from this change.
 
 When reproducing, record the exact source/package identity, account equality without account identifiers, model, prompt/context scope, number of network attempts, HTTP status and safe termination metadata. Separate a successful diagnostic run from a successful model response. HTTP 200 followed by `stop_reason: refusal` establishes provider termination, not a rate-limit cause; it does not reproduce an earlier HTTP 429. Source/helper probes do not verify the installed engine or host.
 
@@ -38,7 +38,7 @@ Explicit child logoff failures use `window_use.logoff_failed` in **Azrael Recove
 
 ## 상세 진단 켜기/끄기
 
-기본값은 기존 상세 로그를 모두 켜는 것이다. 전체 설정 `AZRAEL_DIAGNOSTICS`와 분야별 덮어쓰기의 의미·보존 범위는 [상세 진단 계약](../architecture/diagnostic-logging.md)에 둔다. 설정은 이를 지원하는 엔진/helper/host 소스가 포함된 배포본에서 적용되며 기존에 설치된 바이너리는 바뀌지 않는다.
+기본값은 기존 상세 로그를 모두 켜는 것이다. 전체 설정 `AZRAEL_DIAGNOSTICS`와 분야별 덮어쓰기의 의미·보존 범위는 [상세 진단 계약](../architecture/shared/diagnostics.md)에 둔다. 설정은 이를 지원하는 엔진/helper/host 소스가 포함된 배포본에서 적용되며 기존에 설치된 바이너리는 바뀌지 않는다.
 
 VS Code를 시작하는 PowerShell에서 전체 상세 진단을 끄려면:
 
@@ -85,7 +85,7 @@ Source checks use `python -B -m unittest discover -s scripts/tests -p test_inspe
 
 ## Parent request and response wait evidence
 
-Status: `current` in source with Windows x64 MSVC native fixtures verified. Packaging, installed-host, live-model and other-OS acceptance remain separate. The behavior contract is [Parent decision requests](../architecture/root-resume.md#parent-decision-requests), preserved as feature `engine.parent-requests`.
+Status: `current` in source with Windows x64 MSVC native fixtures verified. Packaging, installed-host, live-model and other-OS acceptance remain separate. The behavior contract is [Parent decision requests](../architecture/features/parent-requests/README.md#parent-decision-requests), preserved as feature `engine.parent-requests`.
 
 The engine writes structured events through the existing tracing/SQLite sink, buffering and retention above. Target `codex_core::parent_request` records `request_created`, `parent_request_delivered`, `response_saved`, `response_delivered` and storage/delivery failures. Correlate `request_id`, `parent_thread_id`, `child_thread_id` and `child_task_id` where present. Delivery includes `stopped` and `parked`; response saving includes `status` and wall-clock `request_response_ms`. Failure records identify `error_kind` where supplied. Not every event repeats every identity field; join on the request ID. Diagnostic events do not duplicate question or response bodies.
 
@@ -134,4 +134,4 @@ Run the owned desktop regression explicitly from the project root, using the sel
 cargo test --locked --manifest-path native/window-control/Cargo.toml --target-dir artifacts/build/window-control-native/target layered_attributes_refresh_recovers_same_windows -- --ignored --nocapture --test-threads=1
 ```
 
-The test opens a non-activating owned window, induces real alpha/color-key mode conflicts, and checks the product Overlay thread preserves layer HWNDs, extended styles, target identity, movement/resizing, rendered glow on light/dark backgrounds and the existing foreground. It pumps target messages during worker shutdown and destroys its windows. It reads pixels only inside its owned window and saves no screenshots. Run desktop fixtures serially. The test accepts the scoped API recovery in source; installed-host behavior, general refresh-error reporting and occupancy-duration display require separate verification. See the [visualization contract](../architecture/window-use-visualization.md#layered-api-충돌-복구).
+The test opens a non-activating owned window, induces real alpha/color-key mode conflicts, and checks the product Overlay thread preserves layer HWNDs, extended styles, target identity, movement/resizing, rendered glow on light/dark backgrounds and the existing foreground. It pumps target messages during worker shutdown and destroys its windows. It reads pixels only inside its owned window and saves no screenshots. Run desktop fixtures serially. The test accepts the scoped API recovery in source; installed-host behavior, general refresh-error reporting and occupancy-duration display require separate verification. See the [Window Use input and visualization owners](../architecture/features/window-use/visualization.md).

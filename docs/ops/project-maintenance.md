@@ -42,7 +42,7 @@
 
 ### 기존 생성물 정리 실행기
 
-기본 선택은 `scripts/maintenance-owner-config.cjs`의 `resolveMaintenanceCommand()`가 소유한다. Windows `2026.0.14` 이후 릴리스는 실제 설치·관리 CLI 수용 후 `<AZRAEL_STATE_ROOT 또는 ~/.azrael-ex>/maintenance-installation.json`에 앱 실행파일 identity를 게시한다. 이 영수증이 있으면 Node/PowerShell은 앱 실행파일과 `maintenance` 접두 인자를 함께 사용한다. 영수증이 없는 기존 설치에서만 아래 standalone pin을 사용하며 손상된 앱 영수증에서 자동 fallback하지 않는다. `-PrepareOnly`는 선택을 바꾸지 않는다. 명령·다른 OS 수용 경계는 [관리 명령 계약](../architecture/project-maintenance.md#maintenance-platform-modules), 설치 절차는 [앱 릴리스](app-release.md#package-and-installation-contract)를 따른다.
+기본 선택은 `scripts/maintenance-owner-config.cjs`의 `resolveMaintenanceCommand()`가 소유한다. Windows `2026.0.14` 이후 릴리스는 실제 설치·관리 CLI 수용 후 `<AZRAEL_STATE_ROOT 또는 ~/.azrael-ex>/maintenance-installation.json`에 앱 실행파일 identity를 게시한다. 이 영수증이 있으면 Node/PowerShell은 앱 실행파일과 `maintenance` 접두 인자를 함께 사용한다. 영수증이 없는 기존 설치에서만 아래 standalone pin을 사용하며 손상된 앱 영수증에서 자동 fallback하지 않는다. `-PrepareOnly`는 선택을 바꾸지 않는다. 명령·다른 OS 수용 경계는 [관리 명령 계약](../architecture/features/project-maintenance/README.md#maintenance-platform-modules), 설치 절차는 [앱 릴리스](app-release.md#package-and-installation-contract)를 따른다.
 
 상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-json-history-win-x64-20261107-r2/payload/maintenance_owner.exe`를 사용한다(SHA-256 `1dbefa648765820107b3a92ade2cc77ae3788c9c092b11b1f5f4a82a46ac6c01`). 설치·이력 정리 결과는 [현재 작업 기록](../../work/FT-01-periodic-system-freeze/02-plan.md), 고정 입력·최초 전체292개 및 최종 영향49개 검사·동일 실행파일 수용은 같은 version의 `verification/`에서 확인한다. Node producer catalog·run claim·시작/종료 기록·cleanup client는 검증된 capability에 따라 최대600000ms를 기다리며 구형 실행기는5000ms를 유지한다. 직접 CLI는 미지정 기본0을 유지하므로 장기 대기가 필요한 호출은 `lock_wait_ms:600000`을 명시한다. 명시적0과 기존5000ms 요청을 자동으로 늘리지 않는다. 저장·삭제·권한·CAS·unknown 오류는 재실행하지 않는다. 기존 stdin·OS33·소유권·참조·revision·복구 보호, Catalog 관측·그룹 순수 계산·예약 중복 순회 최적화를 유지한다. 이번 버전은 성공한 속성 변경 상세를 요약해 이력 재누적을 줄이며, 실패·미완료 근거와 삭제 전 최신 보호 검사·항목별 durable 저장은 보존한다. 전체 삭제 처리량 개선율이나 앱 내장 도구 교체를 의미하지 않는다. 실행파일과 최소 검증 근거는 사용하는 설치물로 관리한다.
 
@@ -228,7 +228,7 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 {"action":"apply","request":{"decisions":[{"id":"temporary-fixture","token":"REVIEW_TOKEN","decision":"defer","reason":"실패 원인 수정 후 재실행 필요","revisit_condition":"수정한 테스트 통과 후 재검토"}]}}
 ```
 
-목적이 끝났으면 같은 방식으로 `delete`를 선택한다. 기간·예산은 재검토 조건이며 삭제를 예약하지 않는다. 원본, 사용자 상태, 활성 실행과 유일한 복구본을 보존한다. 확인된 생성물의 ReadOnly·Hidden 속성 처리와 일반 삭제의 제한은 [설계 계약](../architecture/project-maintenance.md#정리-결정과-적용)을 따른다. 실제 항목별 결과와 잔여 경로를 확인한다. 실패나 미확인 상태는 완료로 보고하지 않는다.
+목적이 끝났으면 같은 방식으로 `delete`를 선택한다. 기간·예산은 재검토 조건이며 삭제를 예약하지 않는다. 원본, 사용자 상태, 활성 실행과 유일한 복구본을 보존한다. 확인된 생성물의 ReadOnly·Hidden 속성 처리와 일반 삭제의 제한은 [설계 계약](../architecture/features/project-maintenance/README.md#정리-결정과-적용)을 따른다. 실제 항목별 결과와 잔여 경로를 확인한다. 실패나 미확인 상태는 완료로 보고하지 않는다.
 
 ## 테스트 프로필의 생성과 종료 정리
 
@@ -293,7 +293,7 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 ### Cargo 캐시의 용량과 퇴역 검토
 
-신규 shared Cargo 선택에는 `AZRAEL_CARGO_CACHE_SCOPE` 또는 selector CLI의 `--scope <purpose>`가 필요하다. 기본 제품 경로는 `product-release`이며 반복 검증은 고정된 용도 scope를 사용한다. 직접 지정한 shared owner/target에는 같은 scope를 함께 전달한다. scope 없는 기존 캐시는 새 선택에서 재사용하지 않으며 임의 이동·삭제하지 않는다. 경계와 보호 의미는 [공유 캐시 계약](../architecture/project-maintenance.md)의 `engine.shared-engine.fixture-guards` 연결을 따른다.
+신규 shared Cargo 선택에는 `AZRAEL_CARGO_CACHE_SCOPE` 또는 selector CLI의 `--scope <purpose>`가 필요하다. 기본 제품 경로는 `product-release`이며 반복 검증은 고정된 용도 scope를 사용한다. 직접 지정한 shared owner/target에는 같은 scope를 함께 전달한다. scope 없는 기존 캐시는 새 선택에서 재사용하지 않으며 임의 이동·삭제하지 않는다. 경계와 보호 의미는 [공유 캐시 계약](../architecture/features/project-maintenance/README.md)의 `engine.shared-engine.fixture-guards` 연결을 따른다.
 
 `node scripts/cargo-owner-audit.cjs --project-root <absolute-root> --older-than-hours <positive>`는 메타데이터만 읽어 producer·참조·lease·캐시 identity의 확인 상태를 보고한다. 용량 검토에는 `--inventory <owned-json-file> --capacity-budget-bytes <positive-integer>`를 함께 제공한다. inventory 파일은 같은 프로젝트의 native `inventory` 결과 한 페이지 또는 순서대로 수집한 완전한 페이지 배열이며 일부 페이지만으로 총량을 판단하지 않는다. 기존 등록 측정값을 사용하므로 별도 payload 해시나 파일별 manifest가 필요하지 않다. 호출 요청·출력 파일은 호출자의 단일 run이 소유하며 현재 사용 후 최소 결과만 인계하고 정리한다.
 

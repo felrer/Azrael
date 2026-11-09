@@ -34,7 +34,7 @@
         "scripts/check-selected-upstream-native.cjs",
         "engine/codex-rs/codex-mcp/src/trusted_access.rs"
       ],
-      "contract": "docs/architecture/mcp-reload.md",
+      "contract": "docs/architecture/features/mcp-reload/README.md",
       "checks": [
         {
           "id": "tool.mcp-reload.state",
@@ -83,7 +83,7 @@
         "providers/devin/mapping.mjs",
         "scripts/check-agent-image-attachments.cjs"
       ],
-      "contract": "docs/architecture/root-coordination.md",
+      "contract": "docs/architecture/features/agent-coordination/README.md",
       "checks": [
         {
           "id": "agent.image-attachments.mapping",
@@ -134,7 +134,7 @@
         "instructions/instructions/agent-behavior.md",
         "engine/codex-rs/prompts/templates/agent_behavior.md"
       ],
-      "contract": "docs/architecture/code-navigation.md",
+      "contract": "docs/architecture/features/code-navigation/README.md",
       "checks": [
         {
           "id": "tool.find-names.helper",
@@ -191,7 +191,7 @@
         "scripts/tests/task-memory-profiles.test.cjs",
         "scripts/check-task-memory.cjs"
       ],
-      "contract": "docs/architecture/task-memory.md",
+      "contract": "docs/architecture/features/task-memory/README.md",
       "checks": [
         {
           "id": "tool.task-memory.profiles",
@@ -250,7 +250,7 @@
         "scripts/test-window-switched-input.cjs",
         "scripts/check-multi-pointer-native.cjs"
       ],
-      "contract": "docs/architecture/multi-pointer.md",
+      "contract": "docs/architecture/features/multi-pointer/README.md",
       "checks": [
         {
           "id": "tool.multi-pointer.mcp-boundary",
@@ -314,7 +314,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/standalone-app.md",
+      "contract": "docs/architecture/features/standalone-app/README.md",
       "reportFields": [
         "imageFileOpenEdits"
       ],
@@ -351,7 +351,7 @@
         "scripts/test-namespace-cache-owner.cjs",
         "scripts/test-build-platform.cjs"
       ],
-      "contract": "docs/architecture/azrael-ex.md",
+      "contract": "docs/architecture/system/host.md",
       "reportFields": [],
       "checks": [
         {
@@ -393,7 +393,7 @@
         "engine/codex-rs/core/src/apply_patch.rs",
         "extensions/azrael-ex/src/chatSession.ts"
       ],
-      "contract": "docs/architecture/auto-review.md",
+      "contract": "docs/architecture/features/auto-review/README.md",
       "reportFields": [],
       "checks": [
         {
@@ -428,7 +428,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/queued-compaction.md",
+      "contract": "docs/architecture/features/input-queue/ui.md",
       "checks": [
         {
           "id": "ui.question-withdrawal.questions",
@@ -521,7 +521,7 @@
         "engine/codex-rs/core/tests/suite/request_user_input_async.rs",
         "engine/codex-rs/core/tests/integration_test_setup.rs"
       ],
-      "contract": "docs/architecture/queued-compaction.md",
+      "contract": "docs/architecture/features/input-queue/execution.md",
       "checks": [
         {
           "id": "ui.question-withdrawal.native",
@@ -678,7 +678,7 @@
         "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
         "engine/codex-rs/login/src/auth/profiles_tests.rs"
       ],
-      "contract": "docs/architecture/azrael-runtime.md",
+      "contract": "docs/architecture/system/runtime-target.md",
       "reportFields": [],
       "checks": [
         {
@@ -775,7 +775,7 @@
         "engine/codex-rs/ext/queue/src/service.rs",
         "engine/codex-rs/ext/queue/tests/queue_service.rs"
       ],
-      "contract": "docs/architecture/azrael-runtime.md",
+      "contract": "docs/architecture/system/runtime-target.md",
       "reportFields": [],
       "checks": [
         {
@@ -801,7 +801,7 @@
         "engine/codex-rs/thread-store/src/local/mod.rs",
         "engine/codex-rs/thread-store/src/local/history_revision.rs"
       ],
-      "contract": "docs/architecture/azrael-runtime.md",
+      "contract": "docs/architecture/system/runtime-target.md",
       "reportFields": [],
       "checks": [
         {
@@ -831,7 +831,7 @@
         "extensions/azrael-ex/test/bridge-fixture.ts",
         "extensions/azrael-ex/test/account-service-fixture.ts"
       ],
-      "contract": "docs/architecture/accounts.md",
+      "contract": "docs/architecture/features/accounts/README.md",
       "reportFields": [],
       "checks": [
         {
@@ -877,7 +877,7 @@
         "scripts/package-local-host.cjs",
         "scripts/test-package-local-host.cjs"
       ],
-      "contract": "docs/architecture/upstream-preservation.md",
+      "contract": "docs/architecture/shared/feature-preservation.md",
       "reportFields": [],
       "checks": [
         {
@@ -960,7 +960,7 @@
         "engine/codex-rs/app-server-protocol/src/protocol/event_mapping.rs",
         "engine/codex-rs/core/src/agent/control.rs"
       ],
-      "contract": "docs/architecture/root-resume.md",
+      "contract": "docs/architecture/features/parent-requests/README.md",
       "checks": [
         {
           "id": "engine.parent-requests.native",
@@ -997,7 +997,7 @@
         "engine/codex-rs/core/src/session/mod.rs",
         "engine/codex-rs/core/src/session/step_context.rs"
       ],
-      "contract": "docs/architecture/custom-api-models.md",
+      "contract": "docs/architecture/features/custom-api-models/README.md",
       "checks": [
         {
           "id": "engine.api-context.prompts",
@@ -1046,7 +1046,7 @@
         "engine/codex-rs/state/src/runtime/root_resume.rs",
         "engine/codex-rs/state/migrations/0064_root_resume_reasoning_settings.sql"
       ],
-      "contract": "docs/architecture/root-resume.md",
+      "contract": "docs/architecture/features/root-resume/README.md",
       "checks": [
         {
           "id": "engine.root-resume-reasoning.native",
@@ -1142,7 +1142,7 @@
         "providers/opencodex/tests/images.test.ts",
         "scripts/check-anthropic-oauth-identity.cjs"
       ],
-      "contract": "docs/architecture/model-harness-profiles.md",
+      "contract": "docs/architecture/features/model-harness-profiles/README.md",
       "checks": [
         {
           "id": "engine.model-harness-profiles.mapping",
@@ -1216,7 +1216,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-input/request-preparation.md",
       "checks": [
         {
           "id": "ui.request-preparation.behavior",
@@ -1261,7 +1261,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-input/drafts.md",
       "checks": [
         {
           "id": "ui.submit-only-thread.behavior",
@@ -1314,7 +1314,7 @@
         "engine/codex-rs/core/src/tools/router.rs",
         "scripts/check-unavailable-tool-native.cjs"
       ],
-      "contract": "docs/architecture/managed-providers.md",
+      "contract": "docs/architecture/features/managed-providers/README.md",
       "checks": [
         {
           "id": "engine.managed-tool-identities.mapping",
@@ -1361,7 +1361,7 @@
         "scripts/check-meta-provider.cjs",
         "scripts/check-meta-native-selection.cjs"
       ],
-      "contract": "docs/architecture/managed-providers.md",
+      "contract": "docs/architecture/features/managed-providers/README.md",
       "checks": [
         {
           "id": "engine.meta-provider.source",
@@ -1624,7 +1624,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-rendering/host.md",
       "checks": [
         {
           "id": "ui.webview-idle.behavior",
@@ -1662,7 +1662,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/work-orchestration.md",
+      "contract": "docs/architecture/features/work-orchestration/README.md",
       "checks": [
         {
           "id": "ui.team-change-management.behavior",
@@ -1717,7 +1717,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/work-orchestration.md",
+      "contract": "docs/architecture/features/work-orchestration/README.md",
       "checks": [
         {
           "id": "ui.team-lead.behavior",
@@ -1770,7 +1770,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-input/session-flags.md",
       "checks": [
         {
           "id": "ui.session-flags.behavior",
@@ -1824,7 +1824,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/accounts.md",
+      "contract": "docs/architecture/features/accounts/README.md",
       "checks": [
         {
           "id": "ui.account-settings.behavior",
@@ -1952,7 +1952,7 @@
         "instructions/skills/ktcloud-ai-nexus/scripts/validate_session_records.py",
         "instructions/skills/ktcloud-ai-nexus/scripts/windows-login-requirements-25.5.2.txt"
       ],
-      "contract": "docs/architecture/instructions.md",
+      "contract": "docs/architecture/features/instruction-management/README.md",
       "checks": [
         {
           "id": "ui.instruction-settings.behavior",
@@ -2046,7 +2046,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/agent-appearance/README.md",
       "checks": [
         {
           "id": "ui.student-design.behavior",
@@ -2087,7 +2087,7 @@
         "scripts/azrael-recovery.cjs",
         "scripts/recovery-state.cjs"
       ],
-      "contract": "docs/architecture/reload-recovery.md",
+      "contract": "docs/architecture/features/conversation-recovery/README.md",
       "checks": [
         {
           "id": "ui.recovery.behavior",
@@ -2138,7 +2138,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-input/drafts.md",
       "checks": [
         {
           "id": "ui.project-drafts.behavior",
@@ -2174,7 +2174,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/azrael-ex.md",
+      "contract": "docs/architecture/system/host.md",
       "checks": [
         {
           "id": "host.persisted-atoms.behavior",
@@ -2208,7 +2208,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/reload-recovery.md",
+      "contract": "docs/architecture/features/conversation-recovery/README.md",
       "checks": [
         {
           "id": "ui.fetch-response.behavior",
@@ -2241,7 +2241,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/computer-use.md",
+      "contract": "docs/architecture/features/computer-use-retirement/README.md",
       "checks": [
         {
           "id": "ui.url-safety-transport.behavior",
@@ -2291,7 +2291,7 @@
         "scripts/prepare-platform-host.cjs",
         "scripts/test-independent-namespace.cjs"
       ],
-      "contract": "docs/architecture/computer-use.md",
+      "contract": "docs/architecture/features/computer-use-retirement/README.md",
       "checks": [
         {
           "id": "ui.computer-use.behavior",
@@ -2379,7 +2379,7 @@
         "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
         "engine/sdk/python/src/openai_codex/generated/v2_all.py"
       ],
-      "contract": "docs/architecture/window-use.md",
+      "contract": "docs/architecture/features/window-use/README.md",
       "checks": [
         {
           "id": "engine.window-approval.native",
@@ -2460,7 +2460,7 @@
         "scripts/test-window-control-occupancy.cjs",
         "scripts/test-window-request-targets.cjs"
       ],
-      "contract": "docs/architecture/window-use.md",
+      "contract": "docs/architecture/features/window-use/README.md",
       "checks": [
         {
           "id": "ui.window-control.platform-availability",
@@ -2528,7 +2528,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-history/ui.md",
       "checks": [
         {
           "id": "ui.file-open-menu.behavior",
@@ -2561,7 +2561,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-history/ui.md",
       "checks": [
         {
           "id": "ui.image-file-open.behavior",
@@ -2601,7 +2601,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-content/ui.md",
       "checks": [
         {
           "id": "ui.missing-image.behavior",
@@ -2643,7 +2643,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/azrael-ex.md",
+      "contract": "docs/architecture/system/host.md",
       "checks": [
         {
           "id": "ui.local-file-drop.behavior",
@@ -2686,7 +2686,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-input/drafts.md",
       "checks": [
         {
           "id": "ui.composer-draft.behavior",
@@ -2719,7 +2719,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/auto-review.md",
+      "contract": "docs/architecture/features/auto-review/README.md",
       "checks": [
         {
           "id": "ui.auto-review.behavior",
@@ -2753,7 +2753,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/prompt-images/ui.md",
       "checks": [
         {
           "id": "ui.image-sketch.behavior",
@@ -2794,7 +2794,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/shared/ui-principles.md",
       "checks": [
         {
           "id": "ui.ui-cleanup.behavior",
@@ -2844,7 +2844,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/shared/ui-principles.md",
       "checks": [
         {
           "id": "ui.pets-cleanup.behavior",
@@ -2899,7 +2899,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/model-selection/ui.md",
       "checks": [
         {
           "id": "ui.command-drag-block.behavior",
@@ -2936,7 +2936,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-rendering/ui.md",
       "checks": [
         {
           "id": "ui.scroll-fade.behavior",
@@ -2973,7 +2973,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/shared/ui-principles.md",
       "checks": [
         {
           "id": "ui.content-fonts.behavior",
@@ -3008,7 +3008,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/context-policy.md",
+      "contract": "docs/architecture/features/context-budget/README.md",
       "checks": [
         {
           "id": "ui.provider-context.behavior",
@@ -3078,7 +3078,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/root-resume.md",
+      "contract": "docs/architecture/features/root-resume/README.md",
       "checks": [
         {
           "id": "ui.deferred-turn.management-recovery",
@@ -3142,7 +3142,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/parent-requests/ui.md",
       "checks": [
         {
           "id": "ui.parent-request-activity.behavior",
@@ -3175,7 +3175,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/root-resume.md",
+      "contract": "docs/architecture/features/root-resume/README.md",
       "checks": [
         {
           "id": "ui.work-segment-folding.behavior",
@@ -3208,7 +3208,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/queued-compaction.md",
+      "contract": "docs/architecture/features/queued-compaction/README.md",
       "checks": [
         {
           "id": "ui.compaction-progress.behavior",
@@ -3241,7 +3241,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/queued-compaction.md",
+      "contract": "docs/architecture/features/input-queue/ui.md",
       "checks": [
         {
           "id": "ui.queue-refresh.behavior",
@@ -3274,7 +3274,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/accounts.md",
+      "contract": "docs/architecture/features/accounts/README.md",
       "checks": [
         {
           "id": "ui.account-switch-queue.behavior",
@@ -3307,7 +3307,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/queued-compaction.md",
+      "contract": "docs/architecture/features/input-queue/execution.md",
       "checks": [
         {
           "id": "ui.queue-consumption.behavior",
@@ -3340,7 +3340,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/managed-providers.md",
+      "contract": "docs/architecture/features/managed-providers/README.md",
       "checks": [
         {
           "id": "ui.provider-model-picker.behavior",
@@ -3376,7 +3376,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/side-questions.md",
+      "contract": "docs/architecture/features/side-questions/README.md",
       "checks": [
         {
           "id": "ui.btw.behavior",
@@ -3429,7 +3429,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-branching/README.md",
       "checks": [
         {
           "id": "ui.thread-branch.behavior",
@@ -3463,7 +3463,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-history/README.md",
       "checks": [
         {
           "id": "ui.paginated-history.behavior",
@@ -3496,7 +3496,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/managed-providers/ui.md",
       "checks": [
         {
           "id": "ui.capacity-retry-stop.behavior",
@@ -3529,7 +3529,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/reload-recovery.md",
+      "contract": "docs/architecture/features/conversation-recovery/README.md",
       "checks": [
         {
           "id": "ui.immediate-stop.behavior",
@@ -3562,7 +3562,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/queued-compaction.md",
+      "contract": "docs/architecture/features/queued-compaction/README.md",
       "checks": [
         {
           "id": "ui.queued-compaction.behavior",
@@ -3595,7 +3595,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/managed-providers.md",
+      "contract": "docs/architecture/features/managed-providers/README.md",
       "checks": [
         {
           "id": "ui.max-reasoning.behavior",
@@ -3640,7 +3640,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-history/README.md",
       "checks": [
         {
           "id": "ui.recent-chat-filter.behavior",
@@ -3685,7 +3685,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-history/ui.md",
       "checks": [
         {
           "id": "ui.session-links.behavior",
@@ -3735,7 +3735,7 @@
         "engine/sdk/python/src/openai_codex/generated/v2_all.py",
         "scripts/check-response-tps-native.cjs"
       ],
-      "contract": "docs/architecture/context-policy.md",
+      "contract": "docs/architecture/features/context-budget/README.md",
       "checks": [
         {
           "id": "engine.response-tps.protocol",
@@ -3830,7 +3830,7 @@
         "providers/opencodex/tests/context-budget.test.ts",
         "scripts/tests/test_inspect_native_azrael_errors.py"
       ],
-      "contract": "docs/architecture/context-policy.md",
+      "contract": "docs/architecture/features/context-budget/README.md",
       "checks": [
         {
           "id": "engine.provider-context.devin-compaction-runner",
@@ -3911,7 +3911,7 @@
         "engine/codex-rs/core/src/session/request_budget.rs",
         "engine/codex-rs/core/src/session/thread_settings.rs"
       ],
-      "contract": "docs/architecture/context-policy.md",
+      "contract": "docs/architecture/features/context-budget/README.md",
       "reportFields": [],
       "checks": [
         {
@@ -3939,7 +3939,7 @@
         "engine/codex-rs/core/src/session/turn.rs",
         "scripts/check-capacity-recovery.cjs"
       ],
-      "contract": "docs/architecture/reload-recovery.md",
+      "contract": "docs/architecture/features/conversation-recovery/README.md",
       "checks": [
         {
           "id": "engine.capacity-recovery.native",
@@ -3983,7 +3983,7 @@
         "engine/codex-rs/core/src/session/user_questions.rs",
         "engine/codex-rs/core/src/session/host_approvals.rs"
       ],
-      "contract": "docs/architecture/reload-recovery.md",
+      "contract": "docs/architecture/features/conversation-recovery/README.md",
       "checks": [
         {
           "id": "engine.recovery.task-failure",
@@ -4031,7 +4031,7 @@
       "owners": [
         "scripts/fixtures/accepted-input-helper.mjs"
       ],
-      "contract": "docs/architecture/reload-recovery.md",
+      "contract": "docs/architecture/features/conversation-recovery/README.md",
       "checks": [
         {
           "id": "engine.accepted-input.native",
@@ -4071,7 +4071,7 @@
         "engine/codex-rs/app-server/src/request_processors/account_processor/usage_window_store_tests.rs",
         "scripts/check-usage-window.cjs"
       ],
-      "contract": "docs/architecture/accounts.md",
+      "contract": "docs/architecture/features/accounts/README.md",
       "checks": [
         {
           "id": "engine.usage-window.native",
@@ -4092,7 +4092,7 @@
       "owners": [
         "scripts/auto-account-switch-fixture.mjs"
       ],
-      "contract": "docs/architecture/accounts.md",
+      "contract": "docs/architecture/features/accounts/README.md",
       "checks": [
         {
           "id": "engine.auto-account-switch.native",
@@ -4113,7 +4113,7 @@
       "owners": [
         "scripts/devin-native-fixture.mjs"
       ],
-      "contract": "docs/architecture/devin.md",
+      "contract": "docs/architecture/features/devin-inference/README.md",
       "checks": [
         {
           "id": "engine.devin-native.native",
@@ -4134,7 +4134,7 @@
       "owners": [
         "scripts/devin-native-fixture.mjs"
       ],
-      "contract": "docs/architecture/devin.md",
+      "contract": "docs/architecture/features/devin-inference/README.md",
       "checks": [
         {
           "id": "engine.devin-code-mode.native",
@@ -4156,7 +4156,7 @@
       "owners": [
         "scripts/devin-native-agents-fixture.mjs"
       ],
-      "contract": "docs/architecture/devin.md",
+      "contract": "docs/architecture/features/devin-inference/README.md",
       "checks": [
         {
           "id": "engine.devin-agents.native",
@@ -4186,7 +4186,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-input/diagnostics.md",
       "checks": [
         {
           "id": "ui.input-diagnostics.behavior",
@@ -4233,7 +4233,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/instructions.md",
+      "contract": "docs/architecture/features/agent-profiles/roles.md",
       "checks": [
         {
           "id": "ui.role-profiles.store-runtime-approval",
@@ -4315,7 +4315,7 @@
         "engine/codex-rs/app-server/src/request_processors/thread_processor.rs",
         "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs"
       ],
-      "contract": "docs/architecture/work-orchestration.md",
+      "contract": "docs/architecture/features/work-orchestration/README.md",
       "checks": [
         {
           "id": "engine.role-profiles.admission-and-isolation",
@@ -4351,7 +4351,7 @@
         "engine/codex-rs/core/config.schema.json",
         "engine/codex-rs/core/src/config/config_tests.rs"
       ],
-      "contract": "docs/architecture/instructions.md",
+      "contract": "docs/architecture/features/agent-profiles/roles.md",
       "checks": [
         {
           "id": "engine.task-profile-skills.isolation",
@@ -4584,7 +4584,7 @@
         "scripts/test-source-check-selection.cjs",
         "scripts/lifecycle-test-policy.cjs"
       ],
-      "contract": "docs/architecture/project-maintenance.md",
+      "contract": "docs/architecture/features/project-maintenance/README.md",
       "checks": [
         {
           "id": "tool.project-maintenance.adapter",
@@ -4782,7 +4782,7 @@
         "scripts/check-claude-managed-inference.test.ts",
         "scripts/tests/test_inspect_native_azrael_errors.py"
       ],
-      "contract": "docs/architecture/managed-providers.md",
+      "contract": "docs/architecture/features/managed-providers/README.md",
       "reportFields": [],
       "checks": [
         {
@@ -4844,7 +4844,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/features/conversation-errors/ui.md",
       "reportFields": [
         "errorPresentationEdits"
       ],
@@ -4908,7 +4908,7 @@
         "scripts/check-mcp-lazy-startup.cjs",
         "scripts/test-mcp-lazy-startup.cjs"
       ],
-      "contract": "docs/architecture/azrael-ex.md",
+      "contract": "docs/architecture/system/host.md",
       "checks": [
         {
           "id": "engine.mcp-lazy-startup.native",
@@ -4943,7 +4943,7 @@
         "engine/codex-rs/rmcp-client/src/oauth/tests/store_lock_tests.rs",
         "scripts/check-mcp-oauth-store.cjs"
       ],
-      "contract": "docs/architecture/accounts.md",
+      "contract": "docs/architecture/features/accounts/README.md",
       "checks": [
         {
           "id": "engine.mcp-oauth-store-identity.default",
@@ -5124,7 +5124,7 @@
         "engine/codex-rs/core/src/context/instruction_state_projection.rs",
         "engine/codex-rs/core/src/compact_remote_v2_attempt.rs"
       ],
-      "contract": "docs/architecture/azrael-runtime.md",
+      "contract": "docs/architecture/system/runtime-target.md",
       "checks": [
         {
           "id": "engine.selected-upstream.review-ledger",
@@ -5337,7 +5337,7 @@
         "engine/codex-rs/core/src/tools/handlers/multi_agents_spec.rs",
         "scripts/check-executor-completion.cjs"
       ],
-      "contract": "docs/architecture/root-resume.md",
+      "contract": "docs/architecture/features/root-resume/README.md",
       "checks": [
         {
           "id": "engine.executor-completion.native",
@@ -5364,7 +5364,7 @@
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
-      "contract": "docs/architecture/project-maintenance.md",
+      "contract": "docs/architecture/features/project-maintenance/README.md",
       "checks": [
         {
           "id": "ui.maintenance-preferences.host-transform",

@@ -12,7 +12,7 @@ permission. App release versions and authorized local upload automation are owne
 
 ## Standalone package development tab
 
-The [package workbench](../architecture/instructions.md#package-development-workbench) remains separately usable without building or installing Azrael:
+The [package workbench](../architecture/features/agent-profiles/editing.md#package-development-workbench) remains separately usable without building or installing Azrael:
 
 ```powershell
 node scripts/serve-instruction-workbench.cjs --port 4318 --repository owner/repository --project C:/absolute/project
@@ -40,7 +40,7 @@ The default `azrael.instructions` command uses the shared workbench inside Azrae
 
 ## Personal resource library
 
-Status: `partial` in source; the new personal-resource flow has Windows offline host/protocol, native skill-root isolation and isolated rendered UI evidence. It has not replaced the installed application, contacted a real instruction repository or passed final installed task lifecycle acceptance. The [architecture](../architecture/instructions.md#personal-skill-management) owns sharing and activation semantics; the [work record](../../work/BA-01-instruction-skill-sharing/01-plan.md) owns execution evidence.
+Status: `partial` in source; the new personal-resource flow has Windows offline host/protocol, native skill-root isolation and isolated rendered UI evidence. It has not replaced the installed application, contacted a real instruction repository or passed final installed task lifecycle acceptance. The [architecture](../architecture/features/skill-management/README.md#personal-skill-management) owns sharing and activation semantics; the [work record](../../work/BA-01-instruction-skill-sharing/01-plan.md) owns execution evidence.
 
 Open Instruction documents in Azrael settings. Create a resource or import its complete folder, edit its files and save locally. Save does not apply or upload it. New personal resources default to collaborators; Playbooks default to local-only. The checkout uses ignored `instruction-library/`; other installations use a separate `<CODEX_HOME>-instruction-library` directory. Configure `azrael.instructions.libraryRoot` only to an untracked, Git-ignored directory when it resides within another repository.
 

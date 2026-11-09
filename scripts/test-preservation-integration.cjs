@@ -46,7 +46,7 @@ test("the real preservation registry covers every production UI injector", () =>
     assert.deepEqual(guards[0], { id: `${feature.id}.namespace-cache-owner`, executable: "node",
       args: ["--test", "scripts/test-namespace-cache-owner.cjs"], level: "source" });
   }
-  assert.equal(missingImage.contract, "docs/architecture/ui-presentation.md");
+  assert.equal(missingImage.contract, "docs/architecture/features/conversation-content/ui.md");
   assert.deepEqual(missingImage.reportFields, ["missingImageEdits"]);
   const behaviorChecks = missingImage.checks.filter(check => check.id === "ui.missing-image.behavior");
   assert.deepEqual(behaviorChecks[0], { id: "ui.missing-image.behavior", executable: "node",

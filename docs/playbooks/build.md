@@ -17,9 +17,9 @@ Built-in project maintenance connects registered commands and generation history
 <a id="산출물과-빌드-범위"></a>
 ## Artifacts and Build Scope
 
-- New Azrael builds select committed source only, as defined in [committed build inputs](../architecture/upstream-preservation.md#committed-build-inputs). Resolve the exact SHA before preparation and retain it through retries; uncommitted work and later commits are excluded. This project policy specializes the common selected-uncommitted-input default.
+- New Azrael builds select committed source only, as defined in [committed build inputs](../architecture/shared/feature-preservation.md#committed-build-inputs). Resolve the exact SHA before preparation and retain it through retries; uncommitted work and later commits are excluded. This project policy specializes the common selected-uncommitted-input default.
 
-- Apply the common [build-input rules](../../instructions/skills/implementation/references/build-inputs.md) for frozen inputs, app version and retry identity. These rules apply across Windows, Linux and macOS under the [multi-platform contract](../architecture/multi-platform.md); operational probes retain their stated platform scope.
+- Apply the common [build-input rules](../../instructions/skills/implementation/references/build-inputs.md) for frozen inputs, app version and retry identity. These rules apply across Windows, Linux and macOS under the [multi-platform contract](../architecture/shared/platform.md); operational probes retain their stated platform scope.
 
 - Full product/distribution generation requires an explicit user build instruction; focused compilation required for authorized verification may run within that scope.
 - Store distribution executables in project `artifacts/releases/<name>/`, VSIX files in `artifacts/vsix/<name>/`, logs in `artifacts/logs/<name>/`, and isolated verification state in `artifacts/verification/`. Exclude all of `artifacts/` from Git.
@@ -35,7 +35,7 @@ In the Windows local-NTFS integrated build, `engine-provenance.py --source-state
 <a id="빌드-오류-수정과-플랫폼-영향"></a>
 ## Build Error Fixes and Platform Impact
 
-Apply the common [scope rules for build error fixes](../../instructions/skills/implementation/references/build-inputs.md#빌드-오류-수정의-범위와-변경-보고), selecting related platform tests under the [multi-platform contract](../architecture/multi-platform.md).
+Apply the common [scope rules for build error fixes](../../instructions/skills/implementation/references/build-inputs.md#빌드-오류-수정의-범위와-변경-보고), selecting related platform tests under the [multi-platform contract](../architecture/shared/platform.md).
 
 <a id="빌드-사전-검사와-산출물-의존-조건"></a>
 ## Build Preflight and Artifact Dependencies
@@ -44,7 +44,7 @@ Apply the common [scope rules for build error fixes](../../instructions/skills/i
 
 Use the same frozen work identity with the producer's explicit `-Resume` or `--resume`. The shared stage state selects reusable successes by consumed input identity, successful dependencies and current output hashes; a terminal failure retries its affected path. Do not assemble new handoff receipts merely to continue the same recorded work. Existing legacy runs without stage state retain their provenance-based reuse entry points.
 
-Keep writer exclusion and unresolved execution protection. Running/unknown records and standalone installer crash leases require owner recovery; they are not passing results. Final package and current installation checks remain required. Stage state, attempt logs and generated output belong to the existing work/version group, so cleanup uses one owner review for that complete group. Resume neither releases consumers nor authorizes artifact deletion. See [pipeline state](../architecture/upstream-preservation.md#pipeline-state-and-retry) and [operations](../ops/development.md#automated-build-verification-and-installation).
+Keep writer exclusion and unresolved execution protection. Running/unknown records and standalone installer crash leases require owner recovery; they are not passing results. Final package and current installation checks remain required. Stage state, attempt logs and generated output belong to the existing work/version group, so cleanup uses one owner review for that complete group. Resume neither releases consumers nor authorizes artifact deletion. See [pipeline state](../architecture/shared/feature-preservation.md#pipeline-state-and-retry) and [operations](../ops/development.md#automated-build-verification-and-installation).
 
 Apply the common [build-input and result-reuse rules](../../instructions/skills/implementation/references/build-inputs.md#후속-소비자와-산출물-재사용) before expensive execution. Build and deployment use changed-owner verification or explicitly selected functional bundles; there is no whole-regression build option. Final package identity and the selected fresh-state host stages remain mandatory for installation. Final acceptance uses initial inventory, exact VSIX installation, final inventory and one standalone activation in a fresh profile without official Codex or audio. Static namespace checks remain in preparation. Instructions mounting is selected for related inventory owners or an explicit request.
 
