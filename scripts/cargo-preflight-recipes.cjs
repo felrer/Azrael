@@ -9,6 +9,7 @@ const { createHash } = require('node:crypto');
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
+  'check-edit-message-native': '8ec02ed60d8d6261f1ca9ae20d4585b44eefe11bc282cb6bc18535e910890195',
   'check-responses-worker-native': 'ac1a092b5b59694c9ec24a76d2dd566903b4181f1da9be4160788c7f6578a639',
   'check-service-auth-native': 'c3de3963bb8e39d2dc54cbc0cf18c48c11459fd70d7fbe041f28fc22fe9b95ae',
   'check-agent-image-attachments': 'cd163c4a4b7b8f45539549aa3d3193e966632ad2a58d1ca1e5b0252db29e1e2b',
@@ -18,7 +19,7 @@ const wrapperHashes = Object.freeze({
   'check-executor-completion': 'fbba5203634989dcdd30802d2f58af11418b8f32d9b8613ef05cbf7f80a28c09',
   'check-deletion-approval-native': '139f05599adda7215de9fd9c67a986803fc08a7b081dc9fc3184441ac8631829',
   'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
-  'check-selected-upstream-native': '732679dc9744387cb117463d077298c30d45f4fa55a92fc056a54a169e58428c',
+  'check-selected-upstream-native': 'd49eead13c9c1da61a86f38130efc9be2a38c80881c21e4ac5aa633eb746470a',
   'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
   'check-model-harness-profiles': 'c4f2c63c2034e2ee134431573739132a16d550a7a1e097a7bac256b01b3a24fa',
@@ -302,6 +303,9 @@ function reviewedRecipes(wrapper, tail, platform) {
         args = Object.hasOwn(stages, tail[1]) ? stages[tail[1]] : undefined;
       }
       break;
+    case 'check-edit-message-native':
+      if (!tail.length) args = [lib('codex-state', 'runtime::accepted_user_inputs::tests::'), lib('codex-thread-store', 'local::revert_thread::tests::')];
+      break;
     case 'check-error-classification-native':
       if (!tail.length) args = [lib('codex-protocol', 'unclassified_error_preserves_unknown_cause_without_automatic_retry'), ...['devin::native_runtime::errors::tests::', 'devin::native_runtime::transport::tests::', 'devin::native_runtime::tests::helper_failures_preserve_precise_client_error_categories'].map(f => lib('codex-core', f))];
       break;
@@ -323,7 +327,7 @@ function recipesForCheck(config, check) {
       return fail(wrapper + ' wrapper does not derive the configured engine source root');
     }
   } else if (argv[1] !== '{engineSourceRoot}' && argv[1] !== config.engineSourceRoot) return fail('wrapper does not select the configured engine source root');
-  if (wrapper === 'check-selected-upstream-native' && ['core-integration', 'code-mode-trace'].includes(argv[2]) &&
+  if (wrapper === 'check-selected-upstream-native' && ['core-integration', 'code-mode-trace', 'third-core'].includes(argv[2]) &&
       argv[3] !== '{engineDirectory}' && argv[3] !== config.engineDirectory) return fail('wrapper does not select the configured engine runtime directory');
   let source;
   try { source = fs.readFileSync(path.join(config.projectRoot, argv[0]), 'utf8'); }

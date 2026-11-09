@@ -48,6 +48,9 @@ const sourceOnlyHelpers = {
     // Reviewed management-only reuse decision path forwarding; actual Cargo
     // invocation, filters and nonzero libtest acceptance remain unchanged.
     'dff29bb34537e0a90c51f925ea6b2876f9a4f93bb47224ecefa63a7f86eb5fb5',
+    // Responses/service-auth wrapper declarations only; source-only command,
+    // environment construction and actual nonzero test acceptance unchanged.
+    '5d3f9bd47bbb7b011acbbc30d0c06d347b59545a7ec814c5f28c4158961df3e7',
   ],
   // Reviewed ownership-only variants retain exact Cargo arguments, selection
   // gates and helper-content binding. Preparation failures never become passes.
@@ -73,6 +76,9 @@ const sourceOnlyHelpers = {
     // Reviewed scoped storage and evidence-based generation recovery preserve
     // the selected Cargo invocation and do not consume product bundle bytes.
     '6a91db8d1f128157fa27fbc42b1033d4903bd005ce0a92f273753246c42fbfd4',
+    // Mandatory scoped storage binds effective tools/configuration/flags and
+    // catalog observation; no product bundle or external host is consumed.
+    '545259a02c11907c3acd3bf0a40e83a2293410b1e333c7da1b0527f38bf37a36',
   ],
 };
 function auditedSourceOnly(config, group) {

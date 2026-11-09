@@ -198,7 +198,7 @@ test('MCP startup recipes retain both integration and library checks', () => {
 test('selected upstream recipes match every actual host suite and preserve runtime binding', () => {
   const { suites } = require('./check-selected-upstream-native.cjs');
   for (const [scope, commands] of Object.entries(suites)) {
-    const needsHost = ['core-integration', 'code-mode-trace'].includes(scope);
+    const needsHost = ['core-integration', 'code-mode-trace', 'third-core'].includes(scope);
     const tail = [scope, ...(needsHost ? ['{engineDirectory}'] : [])];
     const result = recipesForCheck(config, check('check-selected-upstream-native', tail));
     assert.deepEqual(result.gaps, [], scope);
@@ -209,7 +209,7 @@ test('selected upstream recipes match every actual host suite and preserve runti
     assert.ok(result.cargoPreparations.every(x => x.isolateHostEnvironment));
     if (needsHost) assert.ok(result.cargoPreparations.every(x => x.envRecipe === 'code-mode-host'));
   }
-  for (const tail of [['unknown'], ['network', 'extra'], ['core-integration'], ['core-integration', '/different/runtime'], ['code-mode-trace'], ['code-mode-trace', '/different/runtime']]) {
+  for (const tail of [['unknown'], ['network', 'extra'], ['core-integration'], ['core-integration', '/different/runtime'], ['code-mode-trace'], ['code-mode-trace', '/different/runtime'], ['third-core'], ['third-core', '/different/runtime']]) {
     assert.equal(recipesForCheck(config, check('check-selected-upstream-native', tail)).gaps.length, 1);
   }
 });
