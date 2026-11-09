@@ -1414,6 +1414,36 @@
         "evidence": [],
         "verification": null
       }
+    },
+    "pr:56278": {
+      "id": "pr:56278",
+      "kind": "pr",
+      "number": 56278,
+      "mergeCommit": "d124fe9de1c1253d5ddc0a013d33fb32b0ff46e6",
+      "title": "Add negotiated network policy metadata support for MCP calls",
+      "url": "https://github.com/openai/codex/pull/56278",
+      "commits": [
+        "d124fe9de1c1253d5ddc0a013d33fb32b0ff46e6"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 #56278을 다른 PR과 함께 추후 반영하기 위한 목록에 추가하도록 요청함. 이번 작업은 반영 대상 선택과 기록에 한정하며 즉시 코드 이식은 하지 않음.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-selection-08.json",
+            "sha256": "b8b953c712e61cfa8d1a1cd20332f129259b32ca361509e8d8a00e4976b58b43"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
     }
   },
   "ranges": []

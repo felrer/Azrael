@@ -1,0 +1,12 @@
+{
+  "repository": "openai/codex",
+  "id": "pr:56278",
+  "decision": "selected",
+  "reason": "사용자가 #56278을 다른 PR과 함께 추후 반영하기 위한 목록에 추가하도록 요청함. 이번 작업은 반영 대상 선택과 기록에 한정하며 즉시 코드 이식은 하지 않음.",
+  "implementation": "none",
+  "integrationNotes": [
+    "NetworkPolicyMetadataProvider 연결과 대상 서버 capability 지원 여부는 이식 준비 시 확인한다.",
+    "이 PR만으로 일반 MCP 호출에 정책 전달이나 서버 측 강제가 자동 활성화된다고 간주하지 않는다.",
+    "관련 PR의 추가 선택 및 실제 이식은 후속 작업에서 결정한다."
+  ]
+}
